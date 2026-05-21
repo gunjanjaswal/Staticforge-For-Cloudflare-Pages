@@ -84,7 +84,7 @@ Files under `/wp-content/uploads/`, theme assets, plugin assets, and fonts under
 
 1. Upload the `staticforge-for-cloudflare-pages` folder to `/wp-content/plugins/`, OR install the zip via Plugins → Add New → Upload Plugin.
 2. Activate **StaticForge for Cloudflare Pages** through the Plugins menu.
-3. Go to **Static to Pages** in the admin sidebar.
+3. Go to **StaticForge for Cloudflare Pages** in the admin sidebar.
 4. Open the **Setup Guide** (linked at the top of the settings page) and follow the 6 steps:
   * Create a Cloudflare Pages project in *Direct Upload* mode.
   * Create an API Token with `Account → Cloudflare Pages → Edit` permission.
@@ -112,7 +112,7 @@ Niche plugin not in either list? Extend detection via the `sforge_seo_competing_
 
 If the plugin can reach `sitemap.xml`, `sitemap_index.xml`, or `wp-sitemap.xml` on your origin, it mirrors that as-is (including all child sitemaps for sitemap-index files).
 
-If none are reachable, the plugin generates `sitemap.xml` itself from the **Sitemap Generator** settings (Static to Pages → Settings → Sitemap Generator):
+If none are reachable, the plugin generates `sitemap.xml` itself from the **Sitemap Generator** settings (StaticForge for Cloudflare Pages → Settings → Sitemap Generator):
 
 * **Post Types** — multi-checkbox of public post types. Default: post + page.
 * **Include Homepage** — adds the front page and posts page (if separate).
@@ -158,7 +158,7 @@ Verify with `curl -I https://example.com/wp-content/uploads/some-file.jpg` — i
 
 If the toggle is on but no proxy is set up, every image, theme stylesheet, and plugin script on the deployed site will return 404.
 
-The full step-by-step is also available inside the plugin: **Static to Pages → Setup Guide → Clean /wp-content/ URLs (advanced)**.
+The full step-by-step is also available inside the plugin: **StaticForge for Cloudflare Pages → Setup Guide → Clean /wp-content/ URLs (advanced)**.
 
 = How is FAQ schema auto-detected? =
 

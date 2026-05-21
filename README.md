@@ -81,7 +81,7 @@ git clone https://github.com/gunjanjaswal/staticforge-for-cloudflare-pages.git
 
 ## 🚀 Quick Start
 
-> Open the in-plugin **Setup Guide** (`Static to Pages → Setup Guide`) for a richer walk-through with colour-coded sections. Six steps below are the executive summary.
+> Open the in-plugin **Setup Guide** (`StaticForge for Cloudflare Pages → Setup Guide`) for a richer walk-through with colour-coded sections. Six steps below are the executive summary.
 
 ### 1️⃣ Create a Cloudflare Pages project (Direct Upload)
 
@@ -219,7 +219,7 @@ Activity log entry: `Sitemap mirrored from origin: sitemap.xml, sitemap-pages.xm
 
 ### When origin has no sitemap
 
-The plugin **generates** `sitemap.xml` from your settings — independently of Export Scope, so you can list URLs in the sitemap that aren't exported and vice versa. Configure at **Static to Pages → Settings → Sitemap Generator**:
+The plugin **generates** `sitemap.xml` from your settings — independently of Export Scope, so you can list URLs in the sitemap that aren't exported and vice versa. Configure at **StaticForge for Cloudflare Pages → Settings → Sitemap Generator**:
 
 | Setting | Effect |
 |---|---|

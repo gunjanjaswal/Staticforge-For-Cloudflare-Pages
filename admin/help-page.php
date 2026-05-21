@@ -69,7 +69,7 @@ $settings_url = admin_url( 'admin.php?page=sforge' );
 
 	<section class="sforge-card sforge-card-orange" id="sforge-step4">
 		<h2><span class="sforge-num">4</span> Configure the plugin</h2>
-		<p>Open <a href="<?php echo esc_url( $settings_url ); ?>">Static to Pages &rarr; Settings</a> and fill in:</p>
+		<p>Open <a href="<?php echo esc_url( $settings_url ); ?>">StaticForge for Cloudflare Pages &rarr; Settings</a> and fill in:</p>
 		<table class="sforge-help-table">
 			<tr><th>Field</th><th>Value</th></tr>
 			<tr><td>Account ID</td><td>From step 3</td></tr>

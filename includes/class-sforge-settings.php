@@ -29,7 +29,7 @@ class SFORGE_Settings {
 	public function menu() {
 		add_menu_page(
 			__( 'StaticForge for Cloudflare Pages', 'staticforge-for-cloudflare-pages' ),
-			__( 'Static to Pages', 'staticforge-for-cloudflare-pages' ),
+			__( 'StaticForge for Cloudflare Pages', 'staticforge-for-cloudflare-pages' ),
 			'manage_options',
 			'sforge',
 			[ $this, 'render_page' ],
