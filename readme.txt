@@ -69,7 +69,9 @@ The WordPress install (your "dashboard") becomes the editor only. Public visitor
 
 = What is NOT bundled =
 
-Files under `/wp-content/uploads/`, theme assets, plugin assets, and fonts under `/wp-content/` are kept pointing at your WordPress origin so they keep working without re-uploading multi-gigabyte media folders. Make sure your origin is reachable over HTTPS (proxy through Cloudflare if your origin's SSL cert is fragile).
+By default, files under `/wp-content/uploads/`, theme assets, plugin assets, and fonts under `/wp-content/` are kept pointing at your WordPress origin so they keep working without re-uploading multi-gigabyte media folders. Make sure your origin is reachable over HTTPS (proxy through Cloudflare if your origin's SSL cert is fragile).
+
+If your origin can't be reached from Cloudflare (shared hosting firewall, IP allow-list, no proxy option), enable **Export Scope → Bundle `/wp-content/uploads/` into deploy**. The plugin then fetches every uploads URL referenced in the rendered HTML and ships those files inside the CF Pages deploy itself — no origin dependency at runtime. Theme/plugin assets still load from origin. See the **Bundle `/wp-content/uploads/` (recommended for shared hosting)** section below.
 
 = Why this plugin =
 
@@ -160,6 +162,21 @@ If the toggle is on but no proxy is set up, every image, theme stylesheet, and p
 
 The full step-by-step is also available inside the plugin: **StaticForge for Cloudflare Pages → Setup Guide → Clean /wp-content/ URLs (advanced)**.
 
+= How do I serve images when my origin firewall blocks Cloudflare? =
+
+Shared-hosting servers (HostArmada, SiteGround, GoDaddy, etc.) often block traffic from Cloudflare Workers / proxy IPs. Symptoms: the proxy approach above returns `522` or `520` for `/wp-content/uploads/*`, while a direct browser request to `dashboard.example.com` works fine. You usually cannot whitelist Cloudflare's edge IPs on shared hosting.
+
+Solution: tick **Export Scope → Bundle `/wp-content/uploads/` into deploy** (leave **Rewrite `/wp-content/` URLs** off). The plugin then:
+
+1. Scans every rendered page for `/wp-content/uploads/...` references (`<img src>`, `srcset`, `og:image`, JSON-LD `image`/`logo`/`thumbnailUrl`, inline CSS `url()`, oEmbed thumbnails).
+2. Fetches each unique file from your origin during rebuild.
+3. Uploads them into the Cloudflare Pages deploy at their original `/wp-content/uploads/...` paths.
+4. Rewrites image URLs in HTML/JSON-LD to the live host so the static site is fully self-contained.
+
+Theme CSS/JS and plugin assets still load from the origin (those rarely cause shared-hosting firewall issues). Cost scales with what's actually referenced — only files used by exported pages get bundled, not the entire media library. Cloudflare's `check-missing` API deduplicates unchanged files between deploys so subsequent rebuilds only upload new images.
+
+Verify after deploy: `curl -I https://example.com/wp-content/uploads/<any-image>.jpg` should return `HTTP 200` with `Server: cloudflare` (served by CF Pages, not your origin).
+
 = How is FAQ schema auto-detected? =
 
 The plugin scans your post for any of: Yoast FAQ blocks, Rank Math FAQ blocks, SEOPress FAQ blocks, OR native HTML5 `<details><summary>Question</summary>Answer</details>` markup. If found, a `FAQPage` schema with `Question` / `Answer` items is emitted.
@@ -203,6 +220,8 @@ Yes — filter `sforge_url_list` to add or remove URLs. Filter `sforge_sitemap_c
 == Changelog ==
 
 = 1.1.0 =
+* New: **Bundle `/wp-content/uploads/` into deploy** setting — when ticked, the plugin scans every rendered page for uploads URLs (`<img src>`, `srcset`, `og:image`, JSON-LD `image`/`logo`/`thumbnailUrl`, inline CSS `url()`, oEmbed thumbnails), fetches each file from the origin during rebuild, and ships them inside the Cloudflare Pages deploy at their original paths. Designed for shared-hosting origins (HostArmada, SiteGround, etc.) whose firewall blocks Cloudflare Worker / proxy IPs, making the standard `/wp-content/*` proxy approach return 520/522. Theme/plugin assets still load from origin; uploads cost scales with files actually referenced (CF dedupes unchanged hashes between deploys).
+* Fix: `*.pages.dev` 301 redirect is now a client-side JS snippet injected into every page rather than a `functions/_middleware.js` Pages Function. The Direct Upload API does not compile a `functions/` directory or activate `_worker.js` advanced mode — those files are stored as static assets and never execute — so the previous server-side approach silently did nothing. The new JS redirect runs synchronously before any paint, preserves `path + query + hash`, and works on every deploy regardless of upload method. Canonical / og:url / JSON-LD continue to point at the live host so SEO consolidation remains correct.
 * Plugin renamed from "Send Static to Pages" to "StaticForge for Cloudflare Pages". Folder slug, main file, text domain, all class/constant/function/option prefixes (`SSTP_`/`sstp_` → `SFORGE_`/`sforge_`), and the `sstp_full_rebuild` cron hook moved over together.
 * One-time migration on `plugins_loaded` (priority 1): legacy `sstp_settings`, `sstp_log`, and any pending `sstp_full_rebuild` cron event are copied/rescheduled to the new keys/hook so existing installs upgrade without losing configuration. Guarded by a `sforge_migrated_from_sstp` flag.
 * `uninstall.php` now also removes legacy `sstp_*` keys and clears the `sstp_full_rebuild` cron hook.
@@ -259,7 +278,7 @@ Yes — filter `sforge_url_list` to add or remove URLs. Filter `sforge_sitemap_c
 == Upgrade Notice ==
 
 = 1.1.0 =
-Plugin renamed from "Send Static to Pages" to "StaticForge for Cloudflare Pages". Settings, logs, and scheduled deploy jobs auto-migrate on first load. WP 7.0 tested.
+Renamed from "Send Static to Pages". Settings/logs/cron auto-migrate. WP 7.0 tested. Adds **Bundle `/wp-content/uploads/` into deploy** for shared-hosting origins blocked by CF proxies, and fixes `*.pages.dev` redirect (now JS-based — old `_middleware.js` never ran under Direct Upload).
 
 = 1.0.1 =
 Recommended update. Adds standalone Person + ProfilePage schema on author pages, fallback sitemap generation, granular sitemap settings, dashboard auto-noindex, featured-image LCP boost, escaped-slash URL rewriting for JSON-LD, and an important fatal-error fix from a malformed line comment in 1.0.0.

@@ -121,6 +121,9 @@ class SFORGE_Settings {
 				'<dt><strong>Public Site URL</strong></dt><dd>Where the static site lives publicly. Used to rewrite WP URLs in HTML output.</dd>' .
 				'<dt><strong>Inline CSS</strong></dt><dd>Embeds linked stylesheets so each exported page is self-contained.</dd>' .
 				'<dt><strong>Debounce</strong></dt><dd>Rapid edits within this many seconds collapse into a single deploy.</dd>' .
+				'<dt><strong>Rewrite <code>/wp-content/</code> URLs</strong></dt><dd>Rewrites every <code>/wp-content/*</code> URL (themes, plugins, uploads) to the live host. Requires a Worker/Nginx proxy on the live host pointing back at the dashboard.</dd>' .
+				'<dt><strong>Bundle <code>/wp-content/uploads/</code> into deploy</strong></dt><dd>Softer alternative for shared-hosting origins whose firewall blocks Cloudflare. Fetches every uploads URL referenced in rendered HTML and ships them inside the CF Pages deploy. Themes/plugins still load from origin. Ignored when the rewrite-all toggle above is on.</dd>' .
+				'<dt><strong>Redirect <code>*.pages.dev</code> to live host</strong></dt><dd>Injects a tiny client-side JS snippet so any browser landing on <code>&lt;project&gt;.pages.dev</code> bounces to the canonical Public Site URL (preserves path + query). Auto-skipped when Public Site URL is itself a <code>.pages.dev</code> URL.</dd>' .
 				'</dl>',
 		] );
 		$screen->add_help_tab( [
@@ -133,6 +136,8 @@ class SFORGE_Settings {
 				'<li>Stuck on <em>Manifest</em> &rarr; PHP memory/timeout limit, or upload batch too large.</li>' .
 				'<li>Sub-sitemaps missing &rarr; ensure plugin v1.0.0+ (handles CDATA-wrapped <code>&lt;loc&gt;</code>).</li>' .
 				'<li>Live site shows <code>noindex</code> &rarr; turn off WordPress &rarr; Settings &rarr; Reading "Discourage search engines".</li>' .
+				'<li>Images return <code>520</code>/<code>522</code> on the live site &rarr; origin firewall blocks Cloudflare. Tick <strong>Bundle <code>/wp-content/uploads/</code> into deploy</strong>, untick <strong>Rewrite <code>/wp-content/</code> URLs</strong>, rebuild.</li>' .
+				'<li><code>*.pages.dev</code> URL doesn\'t redirect &rarr; redirect is JS-based (Direct Upload can\'t activate <code>_worker.js</code>/Functions). <code>curl -I</code> won\'t see it; test in a real browser. Make sure <strong>Public Site URL</strong> is a non-<code>.pages.dev</code> URL.</li>' .
 				'</ul>' .
 				'<p>Detailed: <a href="' . esc_url( $help_url ) . '">Setup Guide</a></p>',
 		] );
@@ -204,6 +209,7 @@ class SFORGE_Settings {
 		$out['sitemap_split']      = ! empty( $in['sitemap_split'] ) ? 1 : 0;
 		$out['profile_schema']     = ! empty( $in['profile_schema'] ) ? 1 : 0;
 		$out['rewrite_wpcontent']  = ! empty( $in['rewrite_wpcontent'] ) ? 1 : 0;
+		$out['bundle_uploads']     = ! empty( $in['bundle_uploads'] ) ? 1 : 0;
 		$out['redirect_pages_dev'] = ! empty( $in['redirect_pages_dev'] ) ? 1 : 0;
 
 		// React to dashboard_block toggle changes by applying / restoring the physical robots.txt.

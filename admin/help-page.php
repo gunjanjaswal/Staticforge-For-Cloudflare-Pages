@@ -24,6 +24,7 @@ $settings_url = admin_url( 'admin.php?page=sforge' );
 		<a href="#sforge-step5">5. First deploy</a>
 		<a href="#sforge-step6">6. DNS cutover</a>
 		<a href="#sforge-wpcontent">Clean /wp-content/ URLs (advanced)</a>
+		<a href="#sforge-bundle-uploads">Bundle uploads (shared hosting)</a>
 		<a href="#sforge-trouble">Troubleshooting</a>
 	</div>
 
@@ -192,6 +193,79 @@ location /wp-content/ {
 
 		<p class="sforge-callout sforge-callout-warn">
 			<strong>If the toggle is on but proxy is NOT set up:</strong> every image / theme stylesheet / plugin script on the live site will return 404. Verify the curl test above before flipping the toggle on a production site.
+		</p>
+	</section>
+
+	<section class="sforge-card sforge-card-green" id="sforge-bundle-uploads">
+		<h2><span class="sforge-num">+</span> Bundle <code>/wp-content/uploads/</code> into deploy (shared hosting)</h2>
+		<p>
+			Use this when the Worker / Nginx proxy approach above doesn't work because your
+			origin's firewall blocks Cloudflare. Common on shared cPanel hosts (HostArmada,
+			SiteGround, GoDaddy, Bluehost, etc.) where you can't whitelist Cloudflare's edge IPs.
+			Symptoms: <code>curl -I https://example.com/wp-content/uploads/file.jpg</code> returns
+			<code>HTTP/1.1 520</code> or <code>522</code> while the direct dashboard URL works.
+		</p>
+
+		<h3>What it does</h3>
+		<p>
+			Tick <strong>Export Scope &rarr; Bundle <code>/wp-content/uploads/</code> into deploy</strong>
+			(leave <strong>Rewrite <code>/wp-content/</code> URLs</strong> off). On the next rebuild
+			the plugin:
+		</p>
+		<ol>
+			<li>Scans every rendered page for <code>/wp-content/uploads/...</code> references &mdash;
+				<code>&lt;img src&gt;</code>, <code>srcset</code>, <code>og:image</code>, JSON-LD
+				<code>image</code>/<code>logo</code>/<code>thumbnailUrl</code>, inline CSS
+				<code>url(...)</code>, oEmbed thumbnails (literal, JSON-escaped, and percent-encoded forms).</li>
+			<li>Fetches each unique file from the WordPress origin during rebuild.</li>
+			<li>Uploads them inside the Cloudflare Pages deploy at their original
+				<code>/wp-content/uploads/...</code> paths.</li>
+			<li>Rewrites image URLs in the rendered HTML / JSON-LD to the live host so the static
+				site is fully self-contained.</li>
+		</ol>
+
+		<h3>What still loads from origin</h3>
+		<p>
+			Theme CSS/JS and plugin assets (everything under <code>/wp-content/themes/</code> and
+			<code>/wp-content/plugins/</code>) keep loading from the WordPress dashboard host as
+			before. Those rarely cause shared-hosting firewall issues, and bundling them on every
+			deploy would balloon the upload size for no SEO benefit.
+		</p>
+
+		<h3>Cost / size considerations</h3>
+		<p>
+			Only files <em>referenced</em> from exported pages get bundled &mdash; not the entire
+			media library. Cloudflare's <code>check-missing</code> API deduplicates unchanged files
+			by content hash, so subsequent rebuilds only upload new or modified images. If your
+			origin uses
+			<a href="https://wordpress.org/plugins/webp-express/" target="_blank" rel="noopener">WebP Express</a>
+			or similar (serving <code>.webp</code> via headers), the plugin captures whichever
+			extension your origin actually returns in the rendered HTML.
+		</p>
+
+		<h3>Verify after deploy</h3>
+		<ol>
+			<li>Watch the activity log &mdash; expect <code>Bundling N /wp-content/uploads/ file(s) into deploy...</code>
+				then <code>Asset bundle done: X ok, Y failed, Z MB total</code>.</li>
+			<li><code>curl -I https://example.com/wp-content/uploads/<em>any-file</em>.jpg</code>
+				&rarr; expect <code>HTTP/1.1 200 OK</code> with <code>Server: cloudflare</code> and
+				a <code>cf-ray</code> header (served by CF Pages directly, not your origin).</li>
+			<li>View any deployed post source &rarr; <code>og:image</code>, JSON-LD image fields,
+				and <code>&lt;img src&gt;</code> / <code>srcset</code> all point at the live host.</li>
+		</ol>
+
+		<p class="sforge-callout sforge-callout-info">
+			<strong>Which option do I pick?</strong> If your origin proxies cleanly through Cloudflare
+			(VPS / dedicated / fully managed with Worker route accepting CF subrequests), use the
+			Worker/Nginx proxy above &mdash; uploads stay on the dashboard, deploys stay tiny. If your
+			origin is shared hosting and you keep getting 520/522 from the Worker route, use this
+			bundle option instead.
+		</p>
+
+		<p class="sforge-callout sforge-callout-warn">
+			<strong>Ignored when "Rewrite <code>/wp-content/</code> URLs" is on.</strong> That setting
+			rewrites everything (themes, plugins, uploads) and assumes you have a full proxy. The
+			bundle option only matters when the broader rewrite toggle is off.
 		</p>
 	</section>
 

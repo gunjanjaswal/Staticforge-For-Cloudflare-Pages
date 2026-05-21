@@ -175,6 +175,17 @@ $has_schema_seo  = $injector->schema_plugin_active();
 							</p>
 						</td>
 					</tr>
+					<tr>
+						<th scope="row">Bundle <code>/wp-content/uploads/</code> into deploy</th>
+						<td>
+							<label class="sforge-cb"><input type="checkbox" name="<?php echo esc_attr( SFORGE_OPT ); ?>[bundle_uploads]" value="1" <?php checked( ! empty( $o['bundle_uploads'] ) ); ?>> Fetch every <code>/wp-content/uploads/</code> file referenced by the rendered HTML and ship it alongside the static pages</label>
+							<p class="description">
+								<strong>Default: OFF.</strong> Softer alternative to the option above &mdash; only media files (uploads) get rewritten to the live host and bundled into the CF Pages deploy. Theme &amp; plugin assets (CSS/JS/fonts) still load from the WordPress origin.<br>
+								Use this when your origin can't be reached from Cloudflare Workers / proxies (shared hosting firewalls, IP allow-lists, etc.). Each rebuild downloads only files referenced from the rendered pages, so cost scales with what's actually used, not the full media library.<br>
+								Ignored when "Rewrite <code>/wp-content/</code> URLs" above is ON (that setting already rewrites everything).
+							</p>
+						</td>
+					</tr>
 				</table>
 			</div>
 		</section>

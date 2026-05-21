@@ -37,6 +37,7 @@ require_once SFORGE_DIR . 'includes/class-sforge-profile-schema.php';
 require_once SFORGE_DIR . 'includes/class-sforge-featured-image.php';
 require_once SFORGE_DIR . 'includes/class-sforge-dashboard-block.php';
 require_once SFORGE_DIR . 'includes/class-sforge-deployer.php';
+require_once SFORGE_DIR . 'includes/class-sforge-assets-bundler.php';
 require_once SFORGE_DIR . 'includes/class-sforge-hooks.php';
 
 /**
@@ -94,6 +95,7 @@ add_action( 'plugins_loaded', function() {
 			'sitemap_split'           => 0,
 			'profile_schema'          => 1,
 			'rewrite_wpcontent'       => 0,
+			'bundle_uploads'          => 0,
 			'redirect_pages_dev'      => 1,
 		];
 		$changed = false;
@@ -144,6 +146,7 @@ register_activation_hook( __FILE__, function() {
 			'sitemap_split'      => 0,
 			'profile_schema'     => 1,
 			'rewrite_wpcontent'  => 0,
+			'bundle_uploads'     => 0,
 			'redirect_pages_dev' => 1,
 		] );
 	}
