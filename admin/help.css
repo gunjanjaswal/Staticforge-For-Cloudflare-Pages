@@ -1,0 +1,118 @@
+.sforge-help { max-width: 1100px; }
+.sforge-help h1 { display: flex; align-items: center; gap: 10px; }
+.sforge-help h1 .dashicons { font-size: 32px; width: 32px; height: 32px; color: #2271b1; }
+.sforge-help-lead { font-size: 14px; color: #4b5563; max-width: 800px; line-height: 1.6; }
+
+.sforge-help-toc {
+	background: #f3f4f6;
+	border-left: 4px solid #2271b1;
+	padding: 12px 16px;
+	margin: 20px 0 28px;
+	font-size: 13px;
+}
+.sforge-help-toc a {
+	display: inline-block;
+	margin: 4px 14px 4px 8px;
+	text-decoration: none;
+	color: #1d4ed8;
+}
+.sforge-help-toc a:hover { text-decoration: underline; }
+
+.sforge-card {
+	background: #fff;
+	border-radius: 8px;
+	padding: 22px 26px;
+	margin: 0 0 22px;
+	box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+	border-left: 6px solid #d1d5db;
+}
+.sforge-card h2 {
+	margin: 0 0 14px;
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	font-size: 18px;
+}
+.sforge-card .sforge-num {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 30px;
+	height: 30px;
+	border-radius: 50%;
+	background: #1f2937;
+	color: #fff;
+	font-weight: 700;
+	font-size: 14px;
+}
+.sforge-card ol, .sforge-card ul { line-height: 1.7; }
+.sforge-card code {
+	background: #f3f4f6;
+	border: 1px solid #e5e7eb;
+	padding: 1px 6px;
+	border-radius: 4px;
+	font-size: 12px;
+}
+
+.sforge-card-blue   { border-left-color: #2563eb; }
+.sforge-card-blue   .sforge-num { background: #2563eb; }
+.sforge-card-purple { border-left-color: #7c3aed; }
+.sforge-card-purple .sforge-num { background: #7c3aed; }
+.sforge-card-green  { border-left-color: #059669; }
+.sforge-card-green  .sforge-num { background: #059669; }
+.sforge-card-orange { border-left-color: #ea580c; }
+.sforge-card-orange .sforge-num { background: #ea580c; }
+.sforge-card-pink   { border-left-color: #db2777; }
+.sforge-card-pink   .sforge-num { background: #db2777; }
+.sforge-card-teal   { border-left-color: #0891b2; }
+.sforge-card-teal   .sforge-num { background: #0891b2; }
+.sforge-card-red    { border-left-color: #dc2626; }
+.sforge-card-red    .sforge-num { background: #dc2626; }
+
+.sforge-callout {
+	margin: 14px 0 0;
+	padding: 10px 14px;
+	border-radius: 6px;
+	font-size: 13px;
+	line-height: 1.5;
+}
+.sforge-callout-info { background: #eff6ff; color: #1e3a8a; border-left: 4px solid #3b82f6; }
+.sforge-callout-warn { background: #fffbeb; color: #92400e; border-left: 4px solid #f59e0b; }
+
+.sforge-help-table {
+	width: 100%;
+	border-collapse: collapse;
+	margin: 8px 0 4px;
+	font-size: 13px;
+}
+.sforge-help-table th, .sforge-help-table td {
+	border: 1px solid #e5e7eb;
+	padding: 8px 12px;
+	text-align: left;
+	vertical-align: top;
+}
+.sforge-help-table th { background: #f9fafb; font-weight: 600; }
+
+.sforge-faq dt {
+	font-weight: 600;
+	color: #111827;
+	margin-top: 12px;
+}
+.sforge-faq dt code {
+	font-weight: 400;
+	font-family: ui-monospace, Consolas, monospace;
+}
+.sforge-faq dd {
+	margin: 4px 0 12px 0;
+	color: #374151;
+	line-height: 1.6;
+}
+
+.sforge-help-credits {
+	margin-top: 30px;
+	padding-top: 14px;
+	border-top: 1px dashed #d1d5db;
+	color: #6b7280;
+	font-size: 13px;
+}
+.sforge-help-credits a { text-decoration: none; }
