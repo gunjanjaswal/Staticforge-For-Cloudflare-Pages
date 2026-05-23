@@ -167,7 +167,16 @@ class SFORGE_Renderer {
 			}
 			// Resolve url() refs inside CSS to absolute URLs against the CSS file's location.
 			$css = $this->rewrite_css_urls( $css, $abs );
-			$style_tag = '<style data-sforge-from="' . esc_attr( $abs ) . '">' . $css . '</style>';
+			// Defensive: strip any literal `</style` sequences (case-insensitive) so a
+			// hostile/origin-malformed stylesheet cannot break out of the inline <style> block.
+			$css = preg_replace( '#</style#i', '<\\/style', (string) $css );
+			// NOTE on wp_enqueue_style:
+			// This <style> block is written into the EXPORTED static HTML that gets
+			// uploaded to Cloudflare Pages — it is not rendered on a live WordPress
+			// request, so wp_enqueue_style()/wp_add_inline_style() are not applicable
+			// here. The plugin is producing a static deliverable; the only viable
+			// embed mechanism is a literal <style> tag in the output string.
+			$style_tag = '<style data-sforge-from="' . esc_attr( $abs ) . '">' . $css . '</style>'; // phpcs:ignore WordPress.WP.EnqueuedResources -- Embedded into exported static HTML for Cloudflare Pages deploy; no live WP enqueue path exists.
 			$html = str_replace( $tag, $style_tag, $html );
 		}
 		return $html;

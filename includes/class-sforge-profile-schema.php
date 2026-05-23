@@ -111,10 +111,14 @@ class SFORGE_Profile_Schema {
 		];
 		$graph = apply_filters( 'sforge_profile_schema_data', $graph, $user );
 
+		// JSON_HEX_TAG escapes `<` and `>` to `<` / `>` so user-controlled
+		// data inside the JSON-LD graph cannot break out of the <script> tag.
+		$json = wp_json_encode( $graph, JSON_HEX_TAG | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE );
+		if ( false === $json ) {
+			return;
+		}
 		echo "\n<!-- StaticForge for Cloudflare Pages: ProfilePage schema -->\n";
-		echo '<script type="application/ld+json" data-sforge-profile="1">' .
-			wp_json_encode( $graph, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE ) .
-			"</script>\n";
+		echo '<script type="application/ld+json" data-sforge-profile="1">' . $json . "</script>\n"; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- $json is JSON_HEX_TAG-encoded so `<`/`>` cannot appear literally; safe in a <script> body.
 		echo "<!-- /StaticForge for Cloudflare Pages: ProfilePage schema -->\n";
 	}
 

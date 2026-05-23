@@ -261,7 +261,13 @@ class SFORGE_Seo_Injector {
 
 		$blocks = array_values( array_filter( $blocks ) );
 		foreach ( $blocks as $b ) {
-			echo '<script type="application/ld+json">' . wp_json_encode( $b, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE ) . "</script>\n";
+			// JSON_HEX_TAG escapes `<` / `>` to `<` / `>` so user-controlled
+			// content inside the JSON-LD graph cannot break out of the <script> tag.
+			$json = wp_json_encode( $b, JSON_HEX_TAG | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE );
+			if ( false === $json ) {
+				continue;
+			}
+			echo '<script type="application/ld+json">' . $json . "</script>\n"; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- $json is JSON_HEX_TAG-encoded so `<`/`>` cannot appear literally; safe in a <script> body.
 		}
 	}
 

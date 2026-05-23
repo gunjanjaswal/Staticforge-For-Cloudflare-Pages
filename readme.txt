@@ -82,6 +82,31 @@ If your origin can't be reached from Cloudflare (shared hosting firewall, IP all
 * SEO baseline included — no extra plugin needed for tags + JSON-LD.
 * No external dependencies, no SaaS, no premium tier.
 
+== External services ==
+
+This plugin connects to the **Cloudflare Pages API** (`https://api.cloudflare.com/client/v4`) to deploy your exported static site. This is required core functionality — without it the plugin cannot upload your site to Cloudflare.
+
+**What the service is and what it is used for:**
+Cloudflare Pages is a static site hosting platform operated by Cloudflare, Inc. The plugin uses the Cloudflare Pages Direct Upload API to publish your statically rendered WordPress site to a Cloudflare Pages project that you create and own.
+
+**What data is sent, and when:**
+The plugin contacts the Cloudflare Pages API on these occasions:
+
+* When you click **Test Connection** in the plugin settings. Sent: your Cloudflare API token (in the `Authorization` header), your Account ID, and your Pages project slug. Used to verify the project exists and the token has access.
+* When you click **Rebuild + Deploy Now**, or after any post/page/CPT publish/update if **Auto-deploy** is enabled (debounced). The plugin: (1) requests a short-lived upload JWT from `/pages/projects/{project}/upload-token`; (2) sends a list of SHA-256 hashes of the files in the export to `/pages/assets/check-missing` to find which files Cloudflare does not already have; (3) uploads only the missing assets (HTML, CSS, JS, images, sitemap.xml, robots.txt) to `/pages/assets/upload`; (4) POSTs a final deployment manifest + branch name to `/pages/projects/{project}/deployments`. All requests include your API token in the `Authorization: Bearer` header.
+
+**What is NOT sent:** the plugin never sends WordPress database credentials, user passwords, post drafts, private content, settings beyond the four Cloudflare credentials, or any analytics/telemetry beacons. Only the rendered public HTML/CSS/JS/asset files that already make up your site are uploaded — the same content visitors would see.
+
+**Cloudflare Pages service links:**
+
+* Cloudflare Pages product page: [https://pages.cloudflare.com/](https://pages.cloudflare.com/)
+* Cloudflare API documentation: [https://developers.cloudflare.com/api/](https://developers.cloudflare.com/api/)
+* Cloudflare Terms of Service: [https://www.cloudflare.com/website-terms/](https://www.cloudflare.com/website-terms/)
+* Cloudflare Self-Service Subscription Agreement (covers Workers & Pages): [https://www.cloudflare.com/terms/](https://www.cloudflare.com/terms/)
+* Cloudflare Privacy Policy: [https://www.cloudflare.com/privacypolicy/](https://www.cloudflare.com/privacypolicy/)
+
+You retain full ownership and control of your Cloudflare account, Pages project, API token, and deployed content. To stop using the service, revoke the API token in your Cloudflare dashboard and deactivate the plugin.
+
 == Installation ==
 
 1. Upload the `staticforge-for-cloudflare-pages` folder to `/wp-content/plugins/`, OR install the zip via Plugins → Add New → Upload Plugin.
