@@ -3,7 +3,7 @@
  * Plugin Name: StaticForge for Cloudflare Pages
  * Plugin URI: https://github.com/gunjanjaswal/staticforge-for-cloudflare-pages
  * Description: Auto-export the entire WordPress site (posts, pages, custom post types, archives, SEO meta) as static HTML with inlined CSS, and deploy to Cloudflare Pages on every publish/update via the Direct Upload API.
- * Version: 1.1.0
+ * Version: 1.1.1
  * Author: Gunjan Jaswal
  * Author URI: https://www.gunjanjaswal.me
  * License: GPLv2 or later
@@ -20,7 +20,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'SFORGE_VERSION', '1.1.0' );
+define( 'SFORGE_VERSION', '1.1.1' );
 define( 'SFORGE_FILE', __FILE__ );
 define( 'SFORGE_DIR', plugin_dir_path( __FILE__ ) );
 define( 'SFORGE_URL', plugin_dir_url( __FILE__ ) );
@@ -173,9 +173,10 @@ add_filter( 'plugin_action_links_' . plugin_basename( __FILE__ ), function ( $li
 } );
 
 /**
- * Plugin row meta: replace the auto-generated "Visit plugin site" link with a
- * "View details" thickbox modal (matches other wp.org-hosted plugins) and add
- * Plugin Support + Contact Developer entries.
+ * Plugin row meta: strip the auto-generated "Visit plugin site" link (points at
+ * the Plugin URI header) and add Plugin Support + Contact Developer entries.
+ * WordPress.org-hosted plugins already get a "View details" link auto-injected
+ * by core, so we no longer add our own.
  */
 add_filter( 'plugin_row_meta', function ( $links, $file ) {
 	if ( plugin_basename( __FILE__ ) !== $file ) {
@@ -192,16 +193,6 @@ add_filter( 'plugin_row_meta', function ( $links, $file ) {
 		}
 	}
 	$links = array_values( $links );
-
-	// "View details" thickbox modal — mirrors wp.org-hosted plugins. Works once the slug is listed on wordpress.org.
-	$details_url = self_admin_url( 'plugin-install.php?tab=plugin-information&plugin=' . $plugin_slug . '&TB_iframe=true&width=600&height=550' );
-	$links[]     = sprintf(
-		'<a href="%1$s" class="thickbox open-plugin-details-modal" aria-label="%2$s" data-title="%3$s">%4$s</a>',
-		esc_url( $details_url ),
-		esc_attr__( 'More information about StaticForge for Cloudflare Pages', 'staticforge-for-cloudflare-pages' ),
-		esc_attr__( 'StaticForge for Cloudflare Pages', 'staticforge-for-cloudflare-pages' ),
-		esc_html__( 'View details', 'staticforge-for-cloudflare-pages' )
-	);
 
 	$links[] = '<a href="https://wordpress.org/support/plugin/' . $plugin_slug . '/" target="_blank">' . esc_html__( 'Plugin Support', 'staticforge-for-cloudflare-pages' ) . '</a>';
 	$links[] = '<a href="mailto:hello@gunjanjaswal.me">' . esc_html__( 'Contact Developer', 'staticforge-for-cloudflare-pages' ) . '</a>';

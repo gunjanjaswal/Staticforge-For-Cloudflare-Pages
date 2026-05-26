@@ -4,7 +4,7 @@ Donate link: https://ko-fi.com/gunjanjaswal
 Tags: cloudflare, static-site, deploy, seo, sitemap
 Requires at least: 5.8
 Tested up to: 7.0
-Stable tag: 1.1.0
+Stable tag: 1.1.1
 Requires PHP: 7.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -244,6 +244,9 @@ Yes — filter `sforge_url_list` to add or remove URLs. Filter `sforge_sitemap_c
 
 == Changelog ==
 
+= 1.1.1 =
+* Fix: removed the plugin's own injected "View details" row-meta link to prevent a duplicate entry, since WordPress now auto-injects "View details" for wp.org-hosted plugins. Row meta is now `View details | Plugin Support | Contact Developer`.
+
 = 1.1.0 =
 * New: **Bundle `/wp-content/uploads/` into deploy** setting — when ticked, the plugin scans every rendered page for uploads URLs (`<img src>`, `srcset`, `og:image`, JSON-LD `image`/`logo`/`thumbnailUrl`, inline CSS `url()`, oEmbed thumbnails), fetches each file from the origin during rebuild, and ships them inside the Cloudflare Pages deploy at their original paths. Designed for shared-hosting origins (HostArmada, SiteGround, etc.) whose firewall blocks Cloudflare Worker / proxy IPs, making the standard `/wp-content/*` proxy approach return 520/522. Theme/plugin assets still load from origin; uploads cost scales with files actually referenced (CF dedupes unchanged hashes between deploys).
 * Fix: `*.pages.dev` 301 redirect is now a client-side JS snippet injected into every page rather than a `functions/_middleware.js` Pages Function. The Direct Upload API does not compile a `functions/` directory or activate `_worker.js` advanced mode — those files are stored as static assets and never execute — so the previous server-side approach silently did nothing. The new JS redirect runs synchronously before any paint, preserves `path + query + hash`, and works on every deploy regardless of upload method. Canonical / og:url / JSON-LD continue to point at the live host so SEO consolidation remains correct.
@@ -301,6 +304,9 @@ Yes — filter `sforge_url_list` to add or remove URLs. Filter `sforge_sitemap_c
 * Built-in Setup Guide page and WordPress contextual Help tabs.
 
 == Upgrade Notice ==
+
+= 1.1.1 =
+Fixes duplicate "View details" entry on the Plugins screen.
 
 = 1.1.0 =
 Renamed from "Send Static to Pages". Settings/logs/cron auto-migrate. WP 7.0 tested. Adds **Bundle `/wp-content/uploads/` into deploy** for shared-hosting origins blocked by CF proxies, and fixes `*.pages.dev` redirect (now JS-based — old `_middleware.js` never ran under Direct Upload).
