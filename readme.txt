@@ -4,7 +4,7 @@ Donate link: https://ko-fi.com/gunjanjaswal
 Tags: cloudflare, static-site, deploy, seo, sitemap
 Requires at least: 5.8
 Tested up to: 7.0
-Stable tag: 1.1.1
+Stable tag: 1.2.0
 Requires PHP: 7.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -20,6 +20,7 @@ The WordPress install (your "dashboard") becomes the editor only. Public visitor
 = Key features =
 
 * **Whole-site export** — homepage, posts, pages, custom post types, taxonomy archives, author archives.
+* **TranslatePress multilingual export** — auto-detects TranslatePress and adds every secondary-language URL to the export so each language renders to static HTML in the deploy. Works with subdirectory mode (`/fr/`, `/de/`); subdomain/separate-domain language URLs are skipped (one Cloudflare Pages project serves one host). Auto-on when detected; opt out via the `sforge_translatepress_export` filter.
 * **Theme-independent** — works with any theme. Renders pages exactly as a real visitor would see them.
 * **Inlined CSS** — all `<link rel="stylesheet">` tags are fetched and embedded as `<style>` blocks. Each deployed page is fully self-contained.
 * **Featured image LCP boost** — auto-adds `fetchpriority="high"`, `loading="eager"`, `decoding="async"` to the post's featured image so the browser prioritises it as the LCP candidate. Improves Core Web Vitals on every theme that uses `the_post_thumbnail()` or `get_the_post_thumbnail()`.
@@ -234,6 +235,18 @@ A site with ~450 pages typically takes 2–3 minutes to render and 30–90 secon
 
 Yes — filter `sforge_url_list` to add or remove URLs. Filter `sforge_sitemap_candidates` to add custom sitemap locations.
 
+= Does it work with TranslatePress / multilingual sites? =
+
+Yes, for content. TranslatePress stores translations in the database but renders them server-side, so when StaticForge fetches a page it captures the already-translated HTML and freezes it — the database isn't needed on the live static site. As of 1.2.0 the plugin auto-detects TranslatePress and adds every secondary-language URL to the export automatically, so each language is rendered and deployed. No code required.
+
+This works with TranslatePress in **subdirectory** mode (`example.com/fr/`, `example.com/de/`), which maps cleanly onto a single Cloudflare Pages deploy. If TranslatePress is set to **subdomain** or **separate-domain** mode (`fr.example.com`), those URLs are skipped — one Cloudflare Pages project serves a single hostname, so per-subdomain content can't come from one deploy. Switch TranslatePress to subdirectory mode, or run a separate export + separate Pages project per subdomain. Turn the integration off entirely with `add_filter( 'sforge_translatepress_export', '__return_false' )`.
+
+= Will contact forms work on the static site? =
+
+The form's HTML is exported and looks identical, but **submissions won't work out of the box.** Cloudflare Pages is static hosting — there's no PHP or WordPress runtime — so anything that posts to `admin-ajax.php` or `/wp-json/` (Contact Form 7, WPForms, Gravity Forms, etc.) has no backend on the live site and will silently fail to send.
+
+To make forms work, point them at a static-friendly endpoint: a Cloudflare Pages Function / Worker, or a hosted service (Formspree, Basin, Web3Forms). StaticForge only rewrites your exact WordPress host in the exported HTML, so a form that submits to a *different* hostname (your form service or a dedicated endpoint) is left untouched and keeps working.
+
 == Screenshots ==
 
 1. Settings page with all configuration fields, SEO injection toggles, and live activity log.
@@ -243,6 +256,9 @@ Yes — filter `sforge_url_list` to add or remove URLs. Filter `sforge_sitemap_c
 5. Sample author archive: Person + ProfilePage schema with sameAs social links.
 
 == Changelog ==
+
+= 1.2.0 =
+* New: **TranslatePress multilingual export.** The plugin now auto-detects an active TranslatePress install and expands the export URL list with every secondary-language URL, using TranslatePress's own URL converter so the configured permalink mode is honoured. Each language is rendered to static HTML and shipped in the deploy. Translations are stored in the WordPress database but rendered server-side, so the frozen HTML is already fully translated — no runtime database dependency on the live site. Supports TranslatePress **subdirectory** mode (`/fr/`, `/de/`); secondary-language URLs on a different host (TranslatePress **subdomain / separate-domain** mode) are skipped — a single Cloudflare Pages project serves one hostname — and a notice is written to the activity log. Auto-on when TranslatePress is detected; opt out with `add_filter( 'sforge_translatepress_export', '__return_false' )`. New class `SFORGE_TranslatePress`, new filter `sforge_translatepress_export`.
 
 = 1.1.1 =
 * Fix: removed the plugin's own injected "View details" row-meta link to prevent a duplicate entry, since WordPress now auto-injects "View details" for wp.org-hosted plugins. Row meta is now `View details | Plugin Support | Contact Developer`.
@@ -304,6 +320,9 @@ Yes — filter `sforge_url_list` to add or remove URLs. Filter `sforge_sitemap_c
 * Built-in Setup Guide page and WordPress contextual Help tabs.
 
 == Upgrade Notice ==
+
+= 1.2.0 =
+Adds automatic TranslatePress multilingual export — secondary-language pages (subdirectory mode) are now detected and deployed with no code. Opt out via the `sforge_translatepress_export` filter.
 
 = 1.1.1 =
 Fixes duplicate "View details" entry on the Plugins screen.
