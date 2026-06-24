@@ -272,6 +272,27 @@ location /wp-content/ {
 	<section class="sforge-card sforge-card-red" id="sforge-trouble">
 		<h2>Troubleshooting</h2>
 		<dl class="sforge-faq">
+			<dt>After DNS cutover, wp-admin bounces to the live site — can't log in or redeploy</dt>
+			<dd>
+				<strong>Symptom:</strong> opening wp-admin throws you to the <em>public</em> host's login, e.g.
+				<code>https://example.com/wp-login.php?redirect_to=https%3A%2F%2Fdashboard.example.com%2Fwp-admin%2F...</code>
+				— but <code>example.com</code> is now the static Cloudflare site with no WordPress on it, so login fails
+				and you can't reach this page to redeploy.<br><br>
+				<strong>Cause:</strong> WordPress's own <strong>WP Address</strong> (<code>siteurl</code>) / <strong>Site Address</strong>
+				(<code>home</code>) still point at the public host instead of your dashboard host. WordPress builds the login URL
+				from <code>siteurl</code>, so it sends you to the static site.<br><br>
+				<strong>Fix:</strong> pin both to the dashboard host in <code>wp-config.php</code> (add just above
+				<code>/* That's all, stop editing! Happy publishing. */</code>):
+<pre><code>define( 'WP_HOME',    'https://dashboard.example.com' );
+define( 'WP_SITEURL', 'https://dashboard.example.com' );</code></pre>
+				Save, then log in from a private/incognito window at <code>https://dashboard.example.com/wp-admin</code>.
+				<br><br>
+				<strong>Keep them separate:</strong> WordPress lives on <code>dashboard.example.com</code>; the plugin's
+				<strong>Public Site URL</strong> stays the public host (<code>https://example.com</code>). The renderer rewrites
+				the dashboard host &rarr; Public Site URL during export, so the static site still shows clean public links. Only
+				WordPress's own two addresses move to the dashboard subdomain — never the plugin's Public Site URL.
+			</dd>
+
 			<dt>Duplicate SEO meta or schema in <code>&lt;head&gt;</code></dt>
 			<dd>An SEO plugin we don't auto-detect is also injecting tags. Two-tier dedup covers Yoast, Rank Math, AIO SEO, SEOPress, The SEO Framework, Slim SEO, Squirrly, SmartCrawl, WP Meta SEO (general SEO plugins → all injection paused) and Schema &amp; Structured Data for WP &amp; AMP, Schema Pro, WPSSO, Schema by Hesham, Schema App, Magazine3 Schema (schema-only plugins → only JSON-LD paused). For niche plugins, extend detection via <code>sforge_seo_competing_plugin</code> or <code>sforge_schema_competing_plugin</code> filter, or simply untick <strong>Inject SEO meta</strong>.</dd>
 
@@ -294,7 +315,7 @@ location /wp-content/ {
 			<dd>v1.0.0+ handles CDATA-wrapped <code>&lt;loc&gt;</code> entries. Earlier builds skipped them. Update + redeploy.</dd>
 
 			<dt>Images broken on deployed site</dt>
-			<dd>Plugin keeps <code>/wp-content/*</code> URLs pointing at your origin host. Ensure the origin's SSL cert is valid (or proxy that subdomain through Cloudflare so CF terminates a fresh edge cert).</dd>
+			<dd>Plugin keeps <code>/wp-content/*</code> URLs pointing at your origin host. Ensure the origin's SSL cert is valid (or proxy that subdomain through Cloudflare so CF terminates a fresh edge cert). If your host blocks Cloudflare (520/522 on uploads), tick <strong>Bundle <code>/wp-content/uploads/</code> into deploy</strong> so images ship inside the deploy instead. If only <em>some</em> images broke right after a DNS cutover, it's usually a stale deploy plus a wrong <strong>Site Address</strong> (see the first entry above) — fix that, then <strong>Rebuild + Deploy Now</strong>.</dd>
 
 			<dt>Live site shows <code>noindex</code></dt>
 			<dd>WordPress &rarr; Settings &rarr; Reading: leave "Discourage search engines" UNCHECKED on the dashboard. Plugin scrubs any <code>noindex</code>/<code>nofollow</code> meta directives during render, but turning the WP toggle on can also affect SEO plugins' sitemap behaviour.</dd>

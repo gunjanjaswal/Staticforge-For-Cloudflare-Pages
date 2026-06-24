@@ -4,7 +4,7 @@ Donate link: https://ko-fi.com/gunjanjaswal
 Tags: cloudflare, static-site, deploy, seo, sitemap
 Requires at least: 5.8
 Tested up to: 7.0
-Stable tag: 1.2.0
+Stable tag: 1.2.1
 Requires PHP: 7.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -203,6 +203,21 @@ Theme CSS/JS and plugin assets still load from the origin (those rarely cause sh
 
 Verify after deploy: `curl -I https://example.com/wp-content/uploads/<any-image>.jpg` should return `HTTP 200` with `Server: cloudflare` (served by CF Pages, not your origin).
 
+= After DNS cutover I can't log in to wp-admin — it bounces me to the live site. =
+
+This is the most common cutover mistake, and it also blocks redeploys. **Symptom:** clicking into wp-admin sends you to the *public* host's login, e.g. `https://example.com/wp-login.php?redirect_to=https%3A%2F%2Fdashboard.example.com%2Fwp-admin%2F...`. But `example.com` is now the static Cloudflare Pages site with no WordPress on it, so login fails — and you can't reach the plugin to redeploy.
+
+**Cause:** WordPress's own **WP Address** (`siteurl`) and **Site Address** (`home`) are still set to the public host (`example.com`). WordPress builds the login URL from `siteurl`, so it sends you to the static site instead of your dashboard.
+
+**Fix:** point WordPress's two addresses at your dashboard host. The reliable way (works even when you're locked out of wp-admin) is to add these to `wp-config.php`, just above the line `/* That's all, stop editing! Happy publishing. */`:
+
+  define( 'WP_HOME',    'https://dashboard.example.com' );
+  define( 'WP_SITEURL', 'https://dashboard.example.com' );
+
+Save, then log in from a private/incognito window (so stale cookies don't interfere) at `https://dashboard.example.com/wp-admin`.
+
+**Important — keep the two settings separate.** WordPress itself lives on `dashboard.example.com`; the plugin's **Public Site URL** stays `https://example.com`. The renderer rewrites the dashboard host to the Public Site URL during export, so the deployed static site still shows clean `example.com` links. Only WordPress's own WP Address / Site Address move to the dashboard subdomain — never the plugin's Public Site URL.
+
 = How is FAQ schema auto-detected? =
 
 The plugin scans your post for any of: Yoast FAQ blocks, Rank Math FAQ blocks, SEOPress FAQ blocks, OR native HTML5 `<details><summary>Question</summary>Answer</details>` markup. If found, a `FAQPage` schema with `Question` / `Answer` items is emitted.
@@ -256,6 +271,9 @@ To make forms work, point them at a static-friendly endpoint: a Cloudflare Pages
 5. Sample author archive: Person + ProfilePage schema with sameAs social links.
 
 == Changelog ==
+
+= 1.2.1 =
+* Docs: added a troubleshooting/FAQ entry for the most common DNS-cutover mistake — leaving WordPress's own **WP Address** (`siteurl`) / **Site Address** (`home`) on the public host after the apex is pointed at Cloudflare Pages. WordPress then builds the login URL against the static site (`https://example.com/wp-login.php?redirect_to=https://dashboard.example.com/...`), so you can't log in or trigger a redeploy. Fix documented in the README, the in-plugin Setup Guide, and this FAQ: pin `WP_HOME` + `WP_SITEURL` to the dashboard host in `wp-config.php` while keeping the plugin's **Public Site URL** on the public host. Documentation only — no functional code change.
 
 = 1.2.0 =
 * New: **TranslatePress multilingual export.** The plugin now auto-detects an active TranslatePress install and expands the export URL list with every secondary-language URL, using TranslatePress's own URL converter so the configured permalink mode is honoured. Each language is rendered to static HTML and shipped in the deploy. Translations are stored in the WordPress database but rendered server-side, so the frozen HTML is already fully translated — no runtime database dependency on the live site. Supports TranslatePress **subdirectory** mode (`/fr/`, `/de/`); secondary-language URLs on a different host (TranslatePress **subdomain / separate-domain** mode) are skipped — a single Cloudflare Pages project serves one hostname — and a notice is written to the activity log. Auto-on when TranslatePress is detected; opt out with `add_filter( 'sforge_translatepress_export', '__return_false' )`. New class `SFORGE_TranslatePress`, new filter `sforge_translatepress_export`.
@@ -320,6 +338,9 @@ To make forms work, point them at a static-friendly endpoint: a Cloudflare Pages
 * Built-in Setup Guide page and WordPress contextual Help tabs.
 
 == Upgrade Notice ==
+
+= 1.2.1 =
+Documentation update: adds a fix for the common post-cutover lockout where wp-admin bounces to the live static site (WP Address / Site Address left on the public host). No code change.
 
 = 1.2.0 =
 Adds automatic TranslatePress multilingual export — secondary-language pages (subdirectory mode) are now detected and deployed with no code. Opt out via the `sforge_translatepress_export` filter.

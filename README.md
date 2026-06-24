@@ -6,7 +6,7 @@
 [![PHP](https://img.shields.io/badge/PHP-7.4%2B-777bb4?logo=php&logoColor=white)](https://www.php.net)
 [![Cloudflare Pages](https://img.shields.io/badge/Cloudflare%20Pages-Direct%20Upload-f38020?logo=cloudflare&logoColor=white)](https://pages.cloudflare.com)
 [![License](https://img.shields.io/badge/License-GPL--2.0%2B-success)](https://www.gnu.org/licenses/gpl-2.0.html)
-[![Version](https://img.shields.io/badge/version-1.2.0-blue)](https://github.com/gunjanjaswal/staticforge-for-cloudflare-pages/releases)
+[![Version](https://img.shields.io/badge/version-1.2.1-blue)](https://github.com/gunjanjaswal/staticforge-for-cloudflare-pages/releases)
 [![Author](https://img.shields.io/badge/by-Gunjan%20Jaswal-9333ea)](https://www.gunjanjaswal.me)
 [![Support on Ko-fi](https://img.shields.io/badge/Ko--fi-Support-FF5E5B?logo=ko-fi&logoColor=white)](https://ko-fi.com/gunjanjaswal)
 
@@ -463,7 +463,29 @@ Means an SEO plugin we don't auto-detect is also injecting tags. Either: (a) unt
 <details>
 <summary><b>Images broken on deployed site</b></summary>
 
-Plugin keeps `/wp-content/*` URLs pointing at your origin. Ensure the origin's SSL cert is valid — or proxy that subdomain through Cloudflare so CF terminates a fresh edge cert.
+Plugin keeps `/wp-content/*` URLs pointing at your origin. Ensure the origin's SSL cert is valid — or proxy that subdomain through Cloudflare so CF terminates a fresh edge cert. If your host blocks Cloudflare (520/522 on `/wp-content/uploads/*`), tick **Bundle `/wp-content/uploads/` into deploy** instead so images ship inside the static deploy.
+
+If only *some* images are broken right after a DNS cutover, it's usually a stale deploy combined with the **wrong Site Address** below — fix that, then **Rebuild + Deploy Now**.
+</details>
+
+<details>
+<summary><b>After DNS cutover, wp-admin bounces to the live site / can't log in / can't redeploy</b></summary>
+
+**Symptom:** clicking into wp-admin lands you on the *public* host's login, e.g.
+`https://example.com/wp-login.php?redirect_to=https%3A%2F%2Fdashboard.example.com%2Fwp-admin%2F...` — but `example.com` is now the static Cloudflare site with no WordPress on it, so login fails and you can't reach the plugin to redeploy.
+
+**Cause:** WordPress's own **WP Address** (`siteurl`) / **Site Address** (`home`) still point at the public host (`example.com`) instead of your dashboard host (`dashboard.example.com`). WordPress builds the login URL from `siteurl`, so it sends you to the static site.
+
+**Fix:** pin both to the dashboard host in `wp-config.php` (add these just above `/* That's all, stop editing! Happy publishing. */`):
+
+```php
+define( 'WP_HOME',    'https://dashboard.example.com' );
+define( 'WP_SITEURL', 'https://dashboard.example.com' );
+```
+
+Save, then log in from a **private/incognito window** (so stale cookies don't fight you) at `https://dashboard.example.com/wp-admin`.
+
+**This split is correct and required:** WordPress lives on `dashboard.example.com`; the plugin's **Public Site URL** stays `https://example.com`. The renderer rewrites the dashboard host → Public Site URL in the export, so the static site still shows clean `example.com` links. Leave the plugin's Public Site URL as the public host — only WordPress's own two addresses move to the dashboard subdomain.
 </details>
 
 <details>
@@ -492,6 +514,9 @@ Free tier soft cap. Raise the **Debounce** setting from 120 to 600+ so bulk edit
 ---
 
 ## 📝 Changelog
+
+### 1.2.1
+- **Docs: post-DNS-cutover login trap.** Added a troubleshooting entry (README, in-plugin Setup Guide, and wp.org FAQ) for the most common cutover mistake: leaving WordPress's own **WP Address** (`siteurl`) / **Site Address** (`home`) on the public host after pointing it at Cloudflare Pages. WordPress then builds the login URL against the static site (`https://example.com/wp-login.php?redirect_to=https://dashboard.example.com/...`), so you can't log in or redeploy. Fix is to pin `WP_HOME` + `WP_SITEURL` to the dashboard host in `wp-config.php` while keeping the plugin's **Public Site URL** on the public host. No code change — documentation only.
 
 ### 1.2.0
 - **New: TranslatePress multilingual export.** Auto-detects an active TranslatePress install and expands the export URL list with every secondary-language URL (via TranslatePress's own URL converter, so the configured permalink mode is honoured), so each language renders to static HTML and ships in the deploy. Translations are DB-stored but rendered server-side, so the frozen HTML is already translated — no runtime DB dependency. Supports **subdirectory** mode (`/fr/`, `/de/`); **subdomain/separate-domain** language URLs are skipped (and a notice is logged) because one Cloudflare Pages project serves a single hostname. Auto-on when TranslatePress is detected; opt out with `add_filter( 'sforge_translatepress_export', '__return_false' )`. New class `SFORGE_TranslatePress`, new filter `sforge_translatepress_export`.
