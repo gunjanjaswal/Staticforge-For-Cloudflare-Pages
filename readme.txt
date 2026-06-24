@@ -218,6 +218,40 @@ Save, then log in from a private/incognito window (so stale cookies don't interf
 
 **Important — keep the two settings separate.** WordPress itself lives on `dashboard.example.com`; the plugin's **Public Site URL** stays `https://example.com`. The renderer rewrites the dashboard host to the Public Site URL during export, so the deployed static site still shows clean `example.com` links. Only WordPress's own WP Address / Site Address move to the dashboard subdomain — never the plugin's Public Site URL.
 
+= Why does nothing happen when I click "Rebuild + Deploy Now"? =
+
+The rebuild runs on a WordPress scheduled event a few seconds after you click, so it depends on WP-Cron. You'll see `Full rebuild queued (manual).` in the log immediately, but if `DISABLE_WP_CRON` is defined or the site gets almost no traffic, the event may never fire and you won't see `Full rebuild started.`. Load any front-end page to nudge WP-Cron, or set up a real system cron hitting `wp-cron.php` every minute.
+
+= What do the "Test FAIL" connection errors mean? =
+
+* `Account ID, API token and project name are required` — one of the three fields is blank. Fill all three and Save before testing.
+* `Project not found` — the Pages Project field must be the project slug only (e.g. `mysite`), never the full `mysite.pages.dev` URL. Also confirm the project is in the same Cloudflare account whose Account ID you pasted.
+* An authentication / HTTP 403 message — the API token is wrong, expired, or under-scoped. Recreate it with exactly `Account · Cloudflare Pages · Edit` and Account Resources including the right account.
+* `Upload token request failed` — the token tested OK but lacks write access; recreate it with the Edit (not Read) permission.
+
+= A deploy started but failed — what do the upload / deploy errors mean? =
+
+* `Deploy FAIL: Request body is incorrect` — an old plugin build. v1.0.0+ sends multipart/form-data; update the plugin.
+* `Asset upload failed` — usually a single file over Cloudflare Pages' 25 MiB per-file limit (a large video / PDF), or a network timeout. Remove or relocate oversized media.
+* `Deployment failed` — a Cloudflare-side rejection (the reason is quoted in the log); the common cause is more than 20,000 files in one deployment (CF Pages free-tier limit). Trim Export Scope.
+* `check-missing failed` — a transient API / token hiccup; re-run the deploy, and re-test the connection if it persists.
+
+= Some pages didn't render ("Render fail ... HTTP" / "Nothing rendered"). =
+
+The plugin fetches your own URLs via `wp_remote_get`. A few failures are harmless; many of them (or `Nothing rendered, deploy skipped.`) mean the site is blocking itself — HTTP basic auth, an IP allow-list, an aggressive WAF, Cloudflare "Under Attack" mode, or a coming-soon / maintenance plugin. Let the origin fetch itself, or pause the blocker during deploys. For an invalid / self-signed origin certificate during migration, add `add_filter( 'sforge_sslverify', '__return_false' );`.
+
+= My .pages.dev URL doesn't redirect to my domain. =
+
+The redirect is a client-side JavaScript snippet (the Direct Upload API can't run `_worker.js` / Functions), so `curl -I` won't reveal it — test in a real browser. It only fires when Public Site URL is a real domain (not a `.pages.dev` URL) and the "Redirect *.pages.dev to live host" toggle is on.
+
+= "Sitemap fallback skipped" or "returned no files" in the log. =
+
+Your origin exposes no sitemap, so the plugin tried to generate one. `Sitemap fallback skipped: no post types / archives selected` means everything is unticked under Sitemap Generator — tick at least one post type / Homepage / Taxonomies / Authors. `Sitemap fallback returned no files` means nothing published matched the selection — confirm you have published content in those types.
+
+= "Bundle uploads enabled, but no /wp-content/uploads/ references found". =
+
+An image optimiser is swapping image URLs with JavaScript (e.g. EWWW Lazy Load or Easy IO), so the real URLs aren't in the rendered HTML for the bundler to find. Turn off the JS lazy-load / Easy-IO feature (keep the compression) and rebuild.
+
 = How is FAQ schema auto-detected? =
 
 The plugin scans your post for any of: Yoast FAQ blocks, Rank Math FAQ blocks, SEOPress FAQ blocks, OR native HTML5 `<details><summary>Question</summary>Answer</details>` markup. If found, a `FAQPage` schema with `Question` / `Answer` items is emitted.
@@ -274,7 +308,7 @@ To make forms work, point them at a static-friendly endpoint: a Cloudflare Pages
 
 = 1.2.1 =
 * Docs: added a troubleshooting/FAQ entry for the most common DNS-cutover mistake — leaving WordPress's own **WP Address** (`siteurl`) / **Site Address** (`home`) on the public host after the apex is pointed at Cloudflare Pages. WordPress then builds the login URL against the static site (`https://example.com/wp-login.php?redirect_to=https://dashboard.example.com/...`), so you can't log in or trigger a redeploy. Fix documented in the README, the in-plugin Setup Guide, and this FAQ: pin `WP_HOME` + `WP_SITEURL` to the dashboard host in `wp-config.php` while keeping the plugin's **Public Site URL** on the public host.
-* Docs: reorganised the in-plugin Setup Guide Troubleshooting into grouped sections (Login & DNS cutover, Setup & connection, Rebuild won't start or finish, Deploy step errors, Live site looks wrong, Sitemaps & multilingual, Limits & frequency) — 26 entries keyed to the exact Activity Log messages, including the WP-Cron case where a queued rebuild never starts.
+* Docs: comprehensive troubleshooting on every surface. Reorganised Troubleshooting into grouped sections (Login & DNS cutover, Setup & connection, Rebuild won't start or finish, Deploy step errors, Live site looks wrong, Sitemaps & multilingual, Limits & frequency) — 26 entries keyed to the exact Activity Log messages, including the WP-Cron case where a queued rebuild never starts. The same coverage now lives in all three places: this readme/FAQ, the GitHub README, and the in-plugin Setup Guide.
 * Documentation only — no functional code change.
 
 = 1.2.0 =
