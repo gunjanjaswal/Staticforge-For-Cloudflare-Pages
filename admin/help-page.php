@@ -271,6 +271,9 @@ location /wp-content/ {
 
 	<section class="sforge-card sforge-card-red" id="sforge-trouble">
 		<h2>Troubleshooting</h2>
+		<p class="sforge-help-lead" style="margin-top:0">Grouped by where it happens. The <code>code-styled</code> phrases are the exact <strong>Activity Log</strong> messages, so you can match what you see.</p>
+
+		<h3>Login &amp; DNS cutover</h3>
 		<dl class="sforge-faq">
 			<dt>After DNS cutover, wp-admin bounces to the live site — can't log in or redeploy</dt>
 			<dd>
@@ -293,33 +296,97 @@ define( 'WP_SITEURL', 'https://dashboard.example.com' );</code></pre>
 				WordPress's own two addresses move to the dashboard subdomain — never the plugin's Public Site URL.
 			</dd>
 
-			<dt>Duplicate SEO meta or schema in <code>&lt;head&gt;</code></dt>
-			<dd>An SEO plugin we don't auto-detect is also injecting tags. Two-tier dedup covers Yoast, Rank Math, AIO SEO, SEOPress, The SEO Framework, Slim SEO, Squirrly, SmartCrawl, WP Meta SEO (general SEO plugins → all injection paused) and Schema &amp; Structured Data for WP &amp; AMP, Schema Pro, WPSSO, Schema by Hesham, Schema App, Magazine3 Schema (schema-only plugins → only JSON-LD paused). For niche plugins, extend detection via <code>sforge_seo_competing_plugin</code> or <code>sforge_schema_competing_plugin</code> filter, or simply untick <strong>Inject SEO meta</strong>.</dd>
+		</dl>
 
-			<dt>FAQ / HowTo schema not appearing</dt>
-			<dd>FAQ schema needs Yoast / Rank Math / SEOPress FAQ blocks OR <code>&lt;details&gt;&lt;summary&gt;Question&lt;/summary&gt;Answer&lt;/details&gt;</code> markup in post content. HowTo needs a Yoast or Rank Math HowTo block, OR a title starting with "How to" + a numbered list with 3+ items. Use the <code>sforge_faq_items</code> / <code>sforge_howto_data</code> filters to inject manually.</dd>
+		<h3>Setup &amp; connection (Test Connection)</h3>
+		<dl class="sforge-faq">
+			<dt><code>Test FAIL: Account ID, API token and project name are required</code></dt>
+			<dd>One of the three credential fields is blank. Fill Account ID, API Token, and Pages Project, Save, then test again.</dd>
 
 			<dt><code>Test FAIL: Project not found</code></dt>
-			<dd>You typed the full <code>name.pages.dev</code> URL into the Pages Project field. Use the slug only, e.g. <code>mysite</code>.</dd>
+			<dd>The <strong>Pages Project</strong> field must be the project <em>slug</em> only (e.g. <code>mysite</code>), never the full <code>mysite.pages.dev</code> URL. Also confirm the project lives in the <em>same</em> Cloudflare account whose Account ID you pasted.</dd>
 
+			<dt><code>Test FAIL</code> with an authentication / HTTP 403 message</dt>
+			<dd>The API token is wrong, expired, or under-scoped. Create one with exactly <strong>Account &middot; Cloudflare Pages &middot; Edit</strong> and <em>Account Resources</em> including the right account, re-paste it (it's shown only once at creation), and Save.</dd>
+
+			<dt><code>Upload token request failed: ...</code></dt>
+			<dd>The connection can test OK with a read-only token, but deploying needs write access. Recreate the token with <strong>Cloudflare Pages &middot; Edit</strong> (not Read).</dd>
+		</dl>
+
+		<h3>Rebuild won't start or won't finish</h3>
+		<dl class="sforge-faq">
+			<dt>"Rebuild + Deploy Now" or auto-deploy does nothing — no new log lines</dt>
+			<dd>The rebuild runs on a WordPress scheduled event a few seconds after you click, so it depends on <strong>WP-Cron</strong>. If <code>DISABLE_WP_CRON</code> is defined, or the site gets almost no traffic, the event may never fire — you'll see <code>Full rebuild queued (manual).</code> but never <code>Full rebuild started.</code> Fixes: load any front-end page to nudge WP-Cron, or run a real system cron hitting <code>wp-cron.php</code> every minute.</dd>
+
+			<dt><code>No URLs to export. Check post type / scope settings.</code></dt>
+			<dd>No post types are ticked under <strong>Export Scope</strong>, or nothing is published in the selected types. Tick at least one post type (and/or Homepage / Taxonomies / Authors) and confirm you have published content.</dd>
+
+			<dt><code>Render fail &lt;url&gt;: HTTP 401 / 403 / 5xx ...</code></dt>
+			<dd>The plugin fetches your own URLs via <code>wp_remote_get</code>. A handful of failures is usually harmless; many means the site is blocking itself — HTTP basic auth, an IP allow-list, an aggressive WAF, Cloudflare "Under Attack" mode, or a coming-soon / maintenance plugin. Let the origin fetch itself (or pause the blocker during deploys). For an invalid / self-signed origin cert during migration, add <code>add_filter( 'sforge_sslverify', '__return_false' );</code>.</dd>
+
+			<dt><code>Nothing rendered, deploy skipped.</code></dt>
+			<dd>Every page failed to render, so there was nothing to upload — almost always the same self-fetch block as above. Check the <code>Render fail</code> lines just above this one for the HTTP code.</dd>
+
+			<dt>Stuck on <code>Hashing files...</code> / <code>Manifest: ... files</code></dt>
+			<dd>PHP ran out of memory or hit the time limit while encoding the upload. The plugin already requests <code>set_time_limit(0)</code> and <code>memory_limit 512M</code>, but shared hosts can override that. Raise <code>memory_limit</code> (256&ndash;512MB) and <code>max_execution_time</code> via <code>php.ini</code> or your host panel.</dd>
+		</dl>
+
+		<h3>Deploy step errors (Cloudflare API)</h3>
+		<dl class="sforge-faq">
 			<dt><code>Deploy FAIL: Request body is incorrect</code></dt>
-			<dd>Update the plugin to v1.0.0+ &mdash; older builds sent the deployment POST as URL-encoded form. v1.0.0 sends multipart/form-data, which Cloudflare requires.</dd>
+			<dd>An old build sent the deployment as URL-encoded form data. v1.0.0+ sends <code>multipart/form-data</code>, which Cloudflare requires — update the plugin.</dd>
 
-			<dt>Deploy gets stuck on <code>Manifest: ... files</code></dt>
-			<dd>The upload step is hanging. Check PHP <code>memory_limit</code> (need 256MB+) and <code>max_execution_time</code> (need 0 or large value). The plugin already requests <code>set_time_limit(0)</code> and 512MB but shared hosts may override.</dd>
+			<dt><code>Asset upload failed: ...</code></dt>
+			<dd>Usually a single file over Cloudflare Pages' <strong>25&nbsp;MiB</strong> per-file limit (a large video / PDF in uploads), or a network timeout on a big batch. Remove or relocate oversized media and host it elsewhere.</dd>
 
-			<dt>Render fails with HTTP 5xx for self-fetch</dt>
-			<dd>Plugin fetches your own URLs via <code>wp_remote_get</code>. If the site sits behind basic auth, IP whitelist, or aggressive WAF, allow your origin IP back to itself, or filter <code>sforge_sslverify</code>.</dd>
+			<dt><code>Deployment failed: ...</code></dt>
+			<dd>A Cloudflare-side rejection; the exact reason is quoted in the log. Common cause: more than <strong>20,000 files</strong> in one deployment (CF Pages free-tier limit). Trim Export Scope, or split a very large site.</dd>
 
-			<dt>Sub-sitemaps missing on deploy</dt>
-			<dd>v1.0.0+ handles CDATA-wrapped <code>&lt;loc&gt;</code> entries. Earlier builds skipped them. Update + redeploy.</dd>
+			<dt><code>check-missing failed: ...</code></dt>
+			<dd>A transient Cloudflare API hiccup or a token problem mid-deploy. Re-run <strong>Rebuild + Deploy Now</strong>; if it persists, re-test the connection — the token may have been revoked.</dd>
+		</dl>
 
-			<dt>Images broken on deployed site</dt>
-			<dd>Plugin keeps <code>/wp-content/*</code> URLs pointing at your origin host. Ensure the origin's SSL cert is valid (or proxy that subdomain through Cloudflare so CF terminates a fresh edge cert). If your host blocks Cloudflare (520/522 on uploads), tick <strong>Bundle <code>/wp-content/uploads/</code> into deploy</strong> so images ship inside the deploy instead. If only <em>some</em> images broke right after a DNS cutover, it's usually a stale deploy plus a wrong <strong>Site Address</strong> (see the first entry above) — fix that, then <strong>Rebuild + Deploy Now</strong>.</dd>
+		<h3>Live site looks wrong</h3>
+		<dl class="sforge-faq">
+			<dt>Images broken on the live site (or only <em>some</em> show)</dt>
+			<dd>By default <code>/wp-content/*</code> URLs (including uploads) keep pointing at your WordPress origin, so the origin must be reachable over HTTPS with a valid cert — proxy that subdomain through Cloudflare (orange cloud) so CF serves a fresh edge cert. If your host blocks Cloudflare (<code>520</code> / <code>522</code> on uploads), tick <strong>Bundle <code>/wp-content/uploads/</code> into deploy</strong> so images ship inside the deploy. If only <em>some</em> broke right after a cutover, it's usually a stale deploy plus a wrong <strong>Site Address</strong> (see <em>Login &amp; DNS cutover</em> above) — fix that, then Rebuild + Deploy Now.</dd>
+
+			<dt><code>&lt;project&gt;.pages.dev</code> doesn't redirect to my domain</dt>
+			<dd>The redirect is a client-side JS snippet (the Direct Upload API can't run <code>_worker.js</code> / Functions), so <code>curl -I</code> won't show it — test in a real browser. It only fires when <strong>Public Site URL</strong> is a real domain (not a <code>.pages.dev</code> URL) and the <strong>Redirect *.pages.dev to live host</strong> toggle is on.</dd>
 
 			<dt>Live site shows <code>noindex</code></dt>
-			<dd>WordPress &rarr; Settings &rarr; Reading: leave "Discourage search engines" UNCHECKED on the dashboard. Plugin scrubs any <code>noindex</code>/<code>nofollow</code> meta directives during render, but turning the WP toggle on can also affect SEO plugins' sitemap behaviour.</dd>
+			<dd>WordPress &rarr; Settings &rarr; Reading: leave <strong>"Discourage search engines"</strong> UNCHECKED on the dashboard. The plugin scrubs <code>noindex</code> / <code>nofollow</code> meta during render, but that toggle also changes how SEO plugins build the sitemap.</dd>
 
+			<dt>Contact forms don't send on the live site</dt>
+			<dd>Cloudflare Pages is static — no PHP / WordPress runtime — so anything posting to <code>admin-ajax.php</code> or <code>/wp-json/</code> (Contact Form 7, WPForms, Gravity Forms) silently fails. Point the form at a static-friendly endpoint (a Cloudflare Pages Function / Worker, Formspree, Basin, Web3Forms). A form posting to a <em>different</em> host is left untouched and keeps working.</dd>
+
+			<dt>Duplicate SEO meta or schema in <code>&lt;head&gt;</code></dt>
+			<dd>An SEO plugin we don't auto-detect is also injecting tags. Two-tier dedup covers Yoast, Rank Math, AIO SEO, SEOPress, The SEO Framework, Slim SEO, Squirrly, SmartCrawl, WP Meta SEO (general SEO plugins → all injection paused) and Schema &amp; Structured Data for WP &amp; AMP, Schema Pro, WPSSO, Schema by Hesham, Schema App, Magazine3 Schema (schema-only plugins → only JSON-LD paused). For niche plugins, extend detection via the <code>sforge_seo_competing_plugin</code> or <code>sforge_schema_competing_plugin</code> filter, or simply untick <strong>Inject SEO meta</strong>.</dd>
+
+			<dt>FAQ / HowTo schema not appearing</dt>
+			<dd>FAQ schema needs Yoast / Rank Math / SEOPress FAQ blocks OR <code>&lt;details&gt;&lt;summary&gt;Question&lt;/summary&gt;Answer&lt;/details&gt;</code> markup in the content. HowTo needs a Yoast or Rank Math HowTo block, OR a title starting with "How to" + a numbered list with 3+ items. Use the <code>sforge_faq_items</code> / <code>sforge_howto_data</code> filters to inject manually.</dd>
+		</dl>
+
+		<h3>Sitemaps &amp; multilingual</h3>
+		<dl class="sforge-faq">
+			<dt>Sub-sitemaps missing on deploy</dt>
+			<dd>v1.0.0+ handles CDATA-wrapped <code>&lt;loc&gt;</code> entries in sitemap-index files. Earlier builds skipped them — update and redeploy.</dd>
+
+			<dt><code>Sitemap fallback skipped: no post types / archives selected ...</code></dt>
+			<dd>Your origin exposes no sitemap, so the plugin tried to generate one — but everything is unticked under <strong>Sitemap Generator</strong>. Tick at least one post type / Homepage / Taxonomies / Authors.</dd>
+
+			<dt><code>Sitemap fallback returned no files.</code></dt>
+			<dd>The generator ran but matched no published URLs. Confirm you have published content in the selected sitemap post types.</dd>
+
+			<dt>TranslatePress languages aren't on the live site</dt>
+			<dd>If the log notes that secondary languages are on <strong>separate subdomains / domains</strong>, that's expected — one Cloudflare Pages project serves one hostname. Switch TranslatePress to <strong>subdirectory</strong> mode (<code>/fr/</code>, <code>/de/</code>) and Rebuild; all languages then ship in the one deploy.</dd>
+
+			<dt><code>Bundle uploads enabled, but no /wp-content/uploads/ references found ...</code></dt>
+			<dd>An image optimiser is swapping image URLs with JavaScript (e.g. EWWW <strong>Lazy Load</strong> or <strong>Easy IO</strong>), so the real URLs aren't in the rendered HTML for the bundler to find. Turn off the JS lazy-load / Easy-IO feature (keep the compression) and Rebuild.</dd>
+		</dl>
+
+		<h3>Limits &amp; frequency</h3>
+		<dl class="sforge-faq">
 			<dt>Hit ~100 deployments per day</dt>
 			<dd>Free Cloudflare Pages tier soft cap. Raise the plugin's <em>Debounce</em> setting from 120s to e.g. 600s so rapid bulk edits collapse into fewer deploys.</dd>
 		</dl>
