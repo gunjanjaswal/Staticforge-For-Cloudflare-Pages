@@ -430,43 +430,9 @@ add_filter( 'sforge_seo_competing_plugin', function ( $detected ) {
 
 ## 🛠 Troubleshooting
 
-<details>
-<summary><b><code>Project not found</code></b></summary>
+Grouped by where it happens. The `code-styled` phrases are the exact **Activity Log** messages, so you can match what you see to the fix.
 
-You typed the full `name.pages.dev` URL into the **Pages Project** field. Use the slug only (e.g. `mysite`).
-</details>
-
-<details>
-<summary><b><code>Deployment failed: Request body is incorrect</code></b></summary>
-
-Older plugin builds sent the deployment POST as URL-encoded form. v1.0.0+ sends `multipart/form-data` which Cloudflare requires. Update the plugin.
-</details>
-
-<details>
-<summary><b>Stuck on <code>Manifest: ... files</code></b></summary>
-
-Upload step ran out of PHP memory or hit max execution time. Plugin already requests `set_time_limit(0)` and 512 MB but shared hosts may override. Raise `php.ini` `memory_limit` and `max_execution_time`. Plugin uses 100-file / 25 MiB batches by default.
-</details>
-
-<details>
-<summary><b>Sub-sitemaps missing on deploy</b></summary>
-
-v1.0.0+ handles CDATA-wrapped `<loc>` URLs inside sitemap-index files. Earlier builds skipped them. Update + redeploy.
-</details>
-
-<details>
-<summary><b>Duplicate SEO meta or schema in HTML</b></summary>
-
-Means an SEO plugin we don't auto-detect is also injecting tags. Either: (a) untick **Inject SEO meta** in settings, or (b) extend detection via the `sforge_seo_competing_plugin` filter.
-</details>
-
-<details>
-<summary><b>Images broken on deployed site</b></summary>
-
-Plugin keeps `/wp-content/*` URLs pointing at your origin. Ensure the origin's SSL cert is valid — or proxy that subdomain through Cloudflare so CF terminates a fresh edge cert. If your host blocks Cloudflare (520/522 on `/wp-content/uploads/*`), tick **Bundle `/wp-content/uploads/` into deploy** instead so images ship inside the static deploy.
-
-If only *some* images are broken right after a DNS cutover, it's usually a stale deploy combined with the **wrong Site Address** below — fix that, then **Rebuild + Deploy Now**.
-</details>
+### Login & DNS cutover
 
 <details>
 <summary><b>After DNS cutover, wp-admin bounces to the live site / can't log in / can't redeploy</b></summary>
@@ -488,11 +454,163 @@ Save, then log in from a **private/incognito window** (so stale cookies don't fi
 **This split is correct and required:** WordPress lives on `dashboard.example.com`; the plugin's **Public Site URL** stays `https://example.com`. The renderer rewrites the dashboard host → Public Site URL in the export, so the static site still shows clean `example.com` links. Leave the plugin's Public Site URL as the public host — only WordPress's own two addresses move to the dashboard subdomain.
 </details>
 
+### Setup & connection (Test Connection)
+
+<details>
+<summary><b><code>Test FAIL: Account ID, API token and project name are required</code></b></summary>
+
+One of the three credential fields is blank. Fill Account ID, API Token, and Pages Project, **Save**, then test again.
+</details>
+
+<details>
+<summary><b><code>Test FAIL: Project not found</code></b></summary>
+
+You typed the full `name.pages.dev` URL into the **Pages Project** field. Use the slug only (e.g. `mysite`). Also confirm the project lives in the *same* Cloudflare account whose Account ID you pasted.
+</details>
+
+<details>
+<summary><b><code>Test FAIL</code> with an authentication / HTTP 403 message</b></summary>
+
+The API token is wrong, expired, or under-scoped. Create one with exactly **Account · Cloudflare Pages · Edit** and *Account Resources* including the right account, re-paste it (shown only once at creation), and **Save**.
+</details>
+
+<details>
+<summary><b><code>Upload token request failed: ...</code></b></summary>
+
+The connection can test OK with a read-only token, but deploying needs write access. Recreate the token with **Cloudflare Pages · Edit** (not Read).
+</details>
+
+### Rebuild won't start or won't finish
+
+<details>
+<summary><b>"Rebuild + Deploy Now" or auto-deploy does nothing — no new log lines</b></summary>
+
+The rebuild runs on a WordPress scheduled event a few seconds after you click, so it depends on **WP-Cron**. If `DISABLE_WP_CRON` is defined, or the site gets almost no traffic, the event may never fire — you'll see `Full rebuild queued (manual).` but never `Full rebuild started.` Load any front-end page to nudge WP-Cron, or run a real system cron hitting `wp-cron.php` every minute.
+</details>
+
+<details>
+<summary><b><code>No URLs to export. Check post type / scope settings.</code></b></summary>
+
+No post types are ticked under **Export Scope**, or nothing is published in the selected types. Tick at least one post type (and/or Homepage / Taxonomies / Authors) and confirm you have published content.
+</details>
+
+<details>
+<summary><b><code>Render fail &lt;url&gt;: HTTP 401 / 403 / 5xx</code></b></summary>
+
+The plugin fetches your own URLs via `wp_remote_get`. A handful of failures is harmless; many means the site is blocking itself — HTTP basic auth, an IP allow-list, an aggressive WAF, Cloudflare "Under Attack" mode, or a coming-soon / maintenance plugin. Let the origin fetch itself (or pause the blocker during deploys). For an invalid / self-signed origin cert during migration, add `add_filter( 'sforge_sslverify', '__return_false' );`.
+</details>
+
+<details>
+<summary><b><code>Nothing rendered, deploy skipped.</code></b></summary>
+
+Every page failed to render, so there was nothing to upload — almost always the same self-fetch block as above. Check the `Render fail` lines just above it for the HTTP code.
+</details>
+
+<details>
+<summary><b>Stuck on <code>Manifest: ... files</code> / <code>Hashing files...</code></b></summary>
+
+Upload step ran out of PHP memory or hit max execution time. Plugin already requests `set_time_limit(0)` and 512 MB but shared hosts may override. Raise `php.ini` `memory_limit` (256–512 MB) and `max_execution_time`. Plugin uses 100-file / 25 MiB batches by default.
+</details>
+
+### Deploy step errors (Cloudflare API)
+
+<details>
+<summary><b><code>Deployment failed: Request body is incorrect</code></b></summary>
+
+Older plugin builds sent the deployment POST as URL-encoded form. v1.0.0+ sends `multipart/form-data` which Cloudflare requires. Update the plugin.
+</details>
+
+<details>
+<summary><b><code>Asset upload failed: ...</code></b></summary>
+
+Usually a single file over Cloudflare Pages' **25 MiB** per-file limit (a large video / PDF in uploads), or a network timeout on a big batch. Remove or relocate oversized media and host it elsewhere.
+</details>
+
+<details>
+<summary><b><code>Deployment failed: ...</code> (other messages)</b></summary>
+
+A Cloudflare-side rejection — the exact reason is quoted in the log. Common cause: more than **20,000 files** in one deployment (CF Pages free-tier limit). Trim Export Scope, or split a very large site.
+</details>
+
+<details>
+<summary><b><code>check-missing failed: ...</code></b></summary>
+
+A transient Cloudflare API hiccup or token problem mid-deploy. Re-run **Rebuild + Deploy Now**; if it persists, re-test the connection (the token may have been revoked).
+</details>
+
+### Live site looks wrong
+
+<details>
+<summary><b>Images broken on deployed site (or only <em>some</em> show)</b></summary>
+
+Plugin keeps `/wp-content/*` URLs pointing at your origin. Ensure the origin's SSL cert is valid — or proxy that subdomain through Cloudflare so CF terminates a fresh edge cert. If your host blocks Cloudflare (520/522 on `/wp-content/uploads/*`), tick **Bundle `/wp-content/uploads/` into deploy** instead so images ship inside the static deploy.
+
+If only *some* images are broken right after a DNS cutover, it's usually a stale deploy combined with the **wrong Site Address** (see *Login & DNS cutover* above) — fix that, then **Rebuild + Deploy Now**.
+</details>
+
+<details>
+<summary><b><code>&lt;project&gt;.pages.dev</code> doesn't redirect to my domain</b></summary>
+
+The redirect is a client-side JS snippet (the Direct Upload API can't run `_worker.js` / Functions), so `curl -I` won't show it — test in a real browser. It only fires when **Public Site URL** is a real domain (not a `.pages.dev` URL) and the **Redirect `*.pages.dev` to live host** toggle is on.
+</details>
+
 <details>
 <summary><b>Live site shows <code>noindex</code></b></summary>
 
 Don't tick **Settings → Reading → "Discourage search engines"** on the dashboard. It causes SEO plugins to also flag the sitemap. Plugin defensively strips noindex meta during export, but turn the toggle off to be safe.
 </details>
+
+<details>
+<summary><b>Contact forms don't send on the live site</b></summary>
+
+Cloudflare Pages is static — no PHP / WordPress runtime — so anything posting to `admin-ajax.php` or `/wp-json/` (Contact Form 7, WPForms, Gravity Forms) silently fails. Point the form at a static-friendly endpoint (a Cloudflare Pages Function / Worker, Formspree, Basin, Web3Forms). A form posting to a *different* host is left untouched and keeps working.
+</details>
+
+<details>
+<summary><b>Duplicate SEO meta or schema in HTML</b></summary>
+
+Means an SEO plugin we don't auto-detect is also injecting tags. Either: (a) untick **Inject SEO meta** in settings, or (b) extend detection via the `sforge_seo_competing_plugin` / `sforge_schema_competing_plugin` filter.
+</details>
+
+<details>
+<summary><b>FAQ / HowTo schema not appearing</b></summary>
+
+FAQ schema needs Yoast / Rank Math / SEOPress FAQ blocks **or** `<details><summary>Question</summary>Answer</details>` markup in the content. HowTo needs a Yoast or Rank Math HowTo block, **or** a title starting with "How to" + a numbered list with 3+ items. Override with the `sforge_faq_items` / `sforge_howto_data` filters.
+</details>
+
+### Sitemaps & multilingual
+
+<details>
+<summary><b>Sub-sitemaps missing on deploy</b></summary>
+
+v1.0.0+ handles CDATA-wrapped `<loc>` URLs inside sitemap-index files. Earlier builds skipped them. Update + redeploy.
+</details>
+
+<details>
+<summary><b><code>Sitemap fallback skipped: no post types / archives selected</code></b></summary>
+
+Your origin exposes no sitemap, so the plugin tried to generate one — but everything is unticked under **Sitemap Generator**. Tick at least one post type / Homepage / Taxonomies / Authors.
+</details>
+
+<details>
+<summary><b><code>Sitemap fallback returned no files.</code></b></summary>
+
+The generator ran but matched no published URLs. Confirm you have published content in the selected sitemap post types.
+</details>
+
+<details>
+<summary><b>TranslatePress languages aren't on the live site</b></summary>
+
+If the log notes secondary languages are on **separate subdomains / domains**, that's expected — one Cloudflare Pages project serves one hostname. Switch TranslatePress to **subdirectory** mode (`/fr/`, `/de/`) and redeploy; all languages then ship in the one deploy.
+</details>
+
+<details>
+<summary><b><code>Bundle uploads enabled, but no /wp-content/uploads/ references found</code></b></summary>
+
+An image optimiser is swapping image URLs with JavaScript (e.g. EWWW **Lazy Load** or **Easy IO**), so the real URLs aren't in the rendered HTML for the bundler to find. Turn off the JS lazy-load / Easy-IO feature (keep the compression) and rebuild.
+</details>
+
+### Limits & frequency
 
 <details>
 <summary><b>Hit ~100 deployments per day</b></summary>
@@ -517,7 +635,7 @@ Free tier soft cap. Raise the **Debounce** setting from 120 to 600+ so bulk edit
 
 ### 1.2.1
 - **Docs: post-DNS-cutover login trap.** Added a troubleshooting entry (README, in-plugin Setup Guide, and wp.org FAQ) for the most common cutover mistake: leaving WordPress's own **WP Address** (`siteurl`) / **Site Address** (`home`) on the public host after pointing it at Cloudflare Pages. WordPress then builds the login URL against the static site (`https://example.com/wp-login.php?redirect_to=https://dashboard.example.com/...`), so you can't log in or redeploy. Fix is to pin `WP_HOME` + `WP_SITEURL` to the dashboard host in `wp-config.php` while keeping the plugin's **Public Site URL** on the public host.
-- **Docs: comprehensive in-plugin troubleshooting.** The Setup Guide's Troubleshooting section was reorganised into grouped subsections — *Login & DNS cutover*, *Setup & connection*, *Rebuild won't start or finish* (incl. the WP-Cron "nothing happens" case), *Deploy step errors*, *Live site looks wrong*, *Sitemaps & multilingual*, *Limits & frequency* — with 26 entries keyed to the exact Activity Log messages (`No URLs to export`, `Render fail … HTTP`, `Nothing rendered`, `Asset upload failed`, `Deployment failed`, `check-missing failed`, `Sitemap fallback …`, `Bundle uploads enabled, but no … references found`, etc.).
+- **Docs: comprehensive troubleshooting on every surface.** Reorganised Troubleshooting into grouped subsections — *Login & DNS cutover*, *Setup & connection*, *Rebuild won't start or finish* (incl. the WP-Cron "nothing happens" case), *Deploy step errors*, *Live site looks wrong*, *Sitemaps & multilingual*, *Limits & frequency* — with 26 entries keyed to the exact Activity Log messages (`No URLs to export`, `Render fail … HTTP`, `Nothing rendered`, `Asset upload failed`, `Deployment failed`, `check-missing failed`, `Sitemap fallback …`, `Bundle uploads enabled, but no … references found`, etc.). The same coverage now lives in **all three places**: this README, the wp.org `readme.txt` FAQ, and the in-plugin Setup Guide — so users hit it wherever they look.
 - No code change — documentation only.
 
 ### 1.2.0
