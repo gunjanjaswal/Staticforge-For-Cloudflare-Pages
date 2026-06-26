@@ -196,6 +196,7 @@ class SFORGE_Settings {
 		$out['include_homepage']   = ! empty( $in['include_homepage'] ) ? 1 : 0;
 		$out['cf_pages_url']       = esc_url_raw( $in['cf_pages_url'] ?? '' );
 		$out['export_dir']         = sanitize_file_name( $in['export_dir'] ?? 'sforge-export' );
+		$out['render_origin']      = $this->sanitize_render_origin( $in['render_origin'] ?? '' );
 		$out['debounce']           = max( 10, intval( $in['debounce'] ?? 120 ) );
 		$out['robots_txt']         = isset( $in['robots_txt'] ) ? $this->sanitize_robots( (string) $in['robots_txt'] ) : '';
 		$out['seo_inject']         = ! empty( $in['seo_inject'] ) ? 1 : 0;
@@ -222,6 +223,28 @@ class SFORGE_Settings {
 			}
 		}
 		return $out;
+	}
+
+	/**
+	 * Render-origin override: keep only scheme://host[:port]. Accepts loopback /
+	 * private hosts (127.0.0.1, localhost, internal IPs). Empty = feature off.
+	 */
+	protected function sanitize_render_origin( $val ) {
+		$val = trim( (string) $val );
+		if ( $val === '' ) {
+			return '';
+		}
+		// Tolerate a bare host[:port] entry by assuming http://.
+		if ( ! preg_match( '#^https?://#i', $val ) ) {
+			$val = 'http://' . $val;
+		}
+		$p = wp_parse_url( $val );
+		if ( empty( $p['host'] ) ) {
+			return '';
+		}
+		$scheme = ( isset( $p['scheme'] ) && strtolower( $p['scheme'] ) === 'https' ) ? 'https' : 'http';
+		$port   = isset( $p['port'] ) ? ':' . (int) $p['port'] : '';
+		return $scheme . '://' . strtolower( $p['host'] ) . $port;
 	}
 
 	protected function sanitize_robots( $txt ) {

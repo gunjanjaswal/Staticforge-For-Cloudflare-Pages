@@ -210,6 +210,17 @@ $has_schema_seo  = $injector->schema_plugin_active();
 							</p>
 						</td>
 					</tr>
+					<tr>
+						<th scope="row"><label for="sforge_render_origin">Render origin override</label></th>
+						<td>
+							<input type="text" id="sforge_render_origin" name="<?php echo esc_attr( SFORGE_OPT ); ?>[render_origin]" value="<?php echo esc_attr( $o['render_origin'] ?? '' ); ?>" class="regular-text code" placeholder="http://127.0.0.1" autocomplete="off" />
+							<p class="description">
+								<strong>Leave blank unless rebuilds are slow.</strong> The export fetches every page over HTTP from your site's own URL. When your domain runs behind a CDN/proxy (e.g. Cloudflare), each of those requests leaves the server and comes back &mdash; with hundreds of pages that round-trip dominates the rebuild time.<br>
+								Set this to a host that points at WordPress <em>directly on this server</em> (usually <code>http://127.0.0.1</code>, or <code>http://127.0.0.1:8080</code> if PHP listens on another port) and the crawl stays on the box. The plugin keeps your real domain in the <code>Host</code> header, so WordPress still serves the correct site/language. TLS verification is skipped for the override only (a loopback cert won't match the public host).<br>
+								Applies to page renders, inlined CSS, mirrored sitemaps, and bundled uploads. Only URLs on your origin host are redirected; everything else is fetched unchanged.
+							</p>
+						</td>
+					</tr>
 				</table>
 			</div>
 		</section>

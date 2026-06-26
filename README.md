@@ -6,7 +6,7 @@
 [![PHP](https://img.shields.io/badge/PHP-7.4%2B-777bb4?logo=php&logoColor=white)](https://www.php.net)
 [![Cloudflare Pages](https://img.shields.io/badge/Cloudflare%20Pages-Direct%20Upload-f38020?logo=cloudflare&logoColor=white)](https://pages.cloudflare.com)
 [![License](https://img.shields.io/badge/License-GPL--2.0%2B-success)](https://www.gnu.org/licenses/gpl-2.0.html)
-[![Version](https://img.shields.io/badge/version-1.2.1-blue)](https://github.com/gunjanjaswal/staticforge-for-cloudflare-pages/releases)
+[![Version](https://img.shields.io/badge/version-1.3.0-blue)](https://github.com/gunjanjaswal/staticforge-for-cloudflare-pages/releases)
 [![Author](https://img.shields.io/badge/by-Gunjan%20Jaswal-9333ea)](https://www.gunjanjaswal.me)
 [![Support on Ko-fi](https://img.shields.io/badge/Ko--fi-Support-FF5E5B?logo=ko-fi&logoColor=white)](https://ko-fi.com/gunjanjaswal)
 
@@ -632,6 +632,9 @@ Free tier soft cap. Raise the **Debounce** setting from 120 to 600+ so bulk edit
 ---
 
 ## 📝 Changelog
+
+### 1.3.0
+- **New: Render origin override (Performance settings).** The export renders each page by fetching it over HTTP from the site's own URL, sequentially. When the domain sits behind a CDN/proxy (e.g. Cloudflare), every one of those requests leaves the server and round-trips through the edge — on a large or multilingual site (hundreds/thousands of pages) that network hop dominates the rebuild time, not PHP. Set this to a host that reaches WordPress **directly on the same server** (usually `http://127.0.0.1`, or `http://127.0.0.1:8080` if PHP listens on another port) and the whole crawl stays local. The plugin keeps your real domain in the `Host` header so WordPress still serves the correct site/language, and TLS verification is skipped for the override only (a loopback cert won't match the public host). Applies to page renders, inlined CSS, mirrored sitemaps, and bundled uploads; only URLs on the origin host are redirected — everything else is fetched unchanged. Leave blank to keep the previous behaviour. New setting `render_origin`, new helper `SFORGE_Renderer::localize_request()`.
 
 ### 1.2.1
 - **Docs: post-DNS-cutover login trap.** Added a troubleshooting entry (README, in-plugin Setup Guide, and wp.org FAQ) for the most common cutover mistake: leaving WordPress's own **WP Address** (`siteurl`) / **Site Address** (`home`) on the public host after pointing it at Cloudflare Pages. WordPress then builds the login URL against the static site (`https://example.com/wp-login.php?redirect_to=https://dashboard.example.com/...`), so you can't log in or redeploy. Fix is to pin `WP_HOME` + `WP_SITEURL` to the dashboard host in `wp-config.php` while keeping the plugin's **Public Site URL** on the public host.
