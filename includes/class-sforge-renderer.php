@@ -19,15 +19,54 @@ class SFORGE_Renderer {
 		return $this->collected_uploads;
 	}
 
+	/**
+	 * Map a same-origin URL onto the configured render-origin override (e.g.
+	 * http://127.0.0.1 or http://127.0.0.1:8080) so export fetches connect to the
+	 * local box instead of looping out through the public host / Cloudflare and
+	 * back. WordPress still resolves the right site because the original host is
+	 * passed back as a Host header.
+	 *
+	 * @param string $url Absolute URL to fetch.
+	 * @return array [ string $fetch_url, array $extra_headers ]. When the override
+	 *               is unset or the URL is not on the WP origin host, returns the
+	 *               URL unchanged with an empty header array (a no-op).
+	 */
+	public static function localize_request( $url ) {
+		$override = trim( (string) SFORGE_Settings::get( 'render_origin', '' ) );
+		if ( $override === '' ) {
+			return [ $url, [] ];
+		}
+		$home_host = wp_parse_url( home_url(), PHP_URL_HOST );
+		$u         = wp_parse_url( $url );
+		if ( empty( $u['host'] ) || ! $home_host || strcasecmp( $u['host'], $home_host ) !== 0 ) {
+			return [ $url, [] ]; // Only rewrite URLs that live on the WP origin.
+		}
+		$ov = wp_parse_url( $override );
+		if ( empty( $ov['host'] ) ) {
+			return [ $url, [] ];
+		}
+		$scheme = $ov['scheme'] ?? ( $u['scheme'] ?? 'http' );
+		$port   = isset( $ov['port'] ) ? ':' . (int) $ov['port'] : '';
+		$path   = $u['path'] ?? '/';
+		$query  = isset( $u['query'] ) ? '?' . $u['query'] : '';
+		$fetch  = $scheme . '://' . $ov['host'] . $port . $path . $query;
+
+		// Preserve the original host (and port) so WordPress serves the correct
+		// site / language variant for the request.
+		$host_header = $home_host . ( isset( $u['port'] ) ? ':' . (int) $u['port'] : '' );
+		return [ $fetch, [ 'Host' => $host_header ] ];
+	}
+
 	public function render_url( $url ) {
-		$resp = wp_remote_get( $url, [
+		list( $fetch_url, $extra_headers ) = self::localize_request( $url );
+		$resp = wp_remote_get( $fetch_url, [
 			'timeout'     => 45,
-			'sslverify'   => apply_filters( 'sforge_sslverify', true ),
+			// Loopback / IP overrides present a cert that won't match the public
+			// host, so TLS verification is skipped only when an override is active.
+			'sslverify'   => empty( $extra_headers ) ? apply_filters( 'sforge_sslverify', true ) : false,
 			'redirection' => 5,
 			'user-agent'  => 'SendStaticToPages/' . SFORGE_VERSION,
-			'headers'     => [
-				'X-SFORGE-Export' => '1',
-			],
+			'headers'     => array_merge( [ 'X-SFORGE-Export' => '1' ], $extra_headers ),
 		] );
 		if ( is_wp_error( $resp ) ) {
 			return $resp;
@@ -186,9 +225,11 @@ class SFORGE_Renderer {
 		if ( isset( $this->css_cache[ $url ] ) ) {
 			return $this->css_cache[ $url ];
 		}
-		$resp = wp_remote_get( $url, [
+		list( $fetch_url, $extra_headers ) = self::localize_request( $url );
+		$resp = wp_remote_get( $fetch_url, [
 			'timeout'   => 30,
-			'sslverify' => apply_filters( 'sforge_sslverify', true ),
+			'sslverify' => empty( $extra_headers ) ? apply_filters( 'sforge_sslverify', true ) : false,
+			'headers'   => $extra_headers,
 		] );
 		if ( is_wp_error( $resp ) ) {
 			$this->css_cache[ $url ] = '';

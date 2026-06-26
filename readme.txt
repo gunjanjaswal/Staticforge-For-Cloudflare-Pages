@@ -4,7 +4,7 @@ Donate link: https://ko-fi.com/gunjanjaswal
 Tags: cloudflare, static-site, deploy, seo, sitemap
 Requires at least: 5.8
 Tested up to: 7.0
-Stable tag: 1.2.1
+Stable tag: 1.3.0
 Requires PHP: 7.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -306,6 +306,9 @@ To make forms work, point them at a static-friendly endpoint: a Cloudflare Pages
 
 == Changelog ==
 
+= 1.3.0 =
+* New: **Render origin override** (Performance settings). The export renders each page by fetching it over HTTP from the site's own URL, one request at a time. When the domain runs behind a CDN/proxy (e.g. Cloudflare), every one of those requests leaves the server and comes back through the edge — on a site with hundreds or thousands of pages (large multilingual sites especially) that round-trip dominates the rebuild time. Set this field to a host that reaches WordPress directly on the same box (usually `http://127.0.0.1`, or `http://127.0.0.1:8080` if PHP listens on another port) and the whole crawl stays local. The plugin keeps your real domain in the `Host` header so WordPress still serves the correct site/language variant, and TLS verification is skipped for the override only (a loopback certificate won't match the public host). Applies uniformly to page renders, inlined CSS fetches, mirrored sitemaps, and bundled uploads; only URLs on the origin host are redirected, everything else is fetched unchanged. Leave blank to keep the previous behaviour. New setting `render_origin`, new helper `SFORGE_Renderer::localize_request()`.
+
 = 1.2.1 =
 * Docs: added a troubleshooting/FAQ entry for the most common DNS-cutover mistake — leaving WordPress's own **WP Address** (`siteurl`) / **Site Address** (`home`) on the public host after the apex is pointed at Cloudflare Pages. WordPress then builds the login URL against the static site (`https://example.com/wp-login.php?redirect_to=https://dashboard.example.com/...`), so you can't log in or trigger a redeploy. Fix documented in the README, the in-plugin Setup Guide, and this FAQ: pin `WP_HOME` + `WP_SITEURL` to the dashboard host in `wp-config.php` while keeping the plugin's **Public Site URL** on the public host.
 * Docs: comprehensive troubleshooting on every surface. Reorganised Troubleshooting into grouped sections (Login & DNS cutover, Setup & connection, Rebuild won't start or finish, Deploy step errors, Live site looks wrong, Sitemaps & multilingual, Limits & frequency) — 26 entries keyed to the exact Activity Log messages, including the WP-Cron case where a queued rebuild never starts. The same coverage now lives in all three places: this readme/FAQ, the GitHub README, and the in-plugin Setup Guide.
@@ -374,6 +377,9 @@ To make forms work, point them at a static-friendly endpoint: a Cloudflare Pages
 * Built-in Setup Guide page and WordPress contextual Help tabs.
 
 == Upgrade Notice ==
+
+= 1.3.0 =
+Adds a Render origin override (Performance settings) for slow rebuilds on CDN-fronted sites: point page fetches at `http://127.0.0.1` so the crawl stays on the server instead of looping out through Cloudflare and back. Optional — leave blank to keep current behaviour.
 
 = 1.2.1 =
 Documentation update: adds a fix for the common post-cutover lockout where wp-admin bounces to the live static site (WP Address / Site Address left on the public host). No code change.

@@ -318,11 +318,17 @@ class SFORGE_Seo {
 	}
 
 	protected function fetch( $url ) {
-		$resp = wp_remote_get( $url, [
+		$fetch_url     = $url;
+		$extra_headers = [];
+		if ( class_exists( 'SFORGE_Renderer' ) ) {
+			list( $fetch_url, $extra_headers ) = SFORGE_Renderer::localize_request( $url );
+		}
+		$resp = wp_remote_get( $fetch_url, [
 			'timeout'     => 30,
-			'sslverify'   => apply_filters( 'sforge_sslverify', true ),
+			'sslverify'   => empty( $extra_headers ) ? apply_filters( 'sforge_sslverify', true ) : false,
 			'redirection' => 5,
 			'user-agent'  => 'SendStaticToPages/' . SFORGE_VERSION,
+			'headers'     => $extra_headers,
 		] );
 		if ( is_wp_error( $resp ) ) {
 			return '';

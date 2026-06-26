@@ -52,14 +52,17 @@ class SFORGE_Assets_Bundler {
 	}
 
 	protected function fetch_one( $url ) {
-		$resp = wp_remote_get( $url, [
+		$fetch_url     = $url;
+		$extra_headers = [];
+		if ( class_exists( 'SFORGE_Renderer' ) ) {
+			list( $fetch_url, $extra_headers ) = SFORGE_Renderer::localize_request( $url );
+		}
+		$resp = wp_remote_get( $fetch_url, [
 			'timeout'     => 30,
-			'sslverify'   => apply_filters( 'sforge_sslverify', true ),
+			'sslverify'   => empty( $extra_headers ) ? apply_filters( 'sforge_sslverify', true ) : false,
 			'redirection' => 5,
 			'user-agent'  => 'StaticForge/' . SFORGE_VERSION,
-			'headers'     => [
-				'X-SFORGE-Asset' => '1',
-			],
+			'headers'     => array_merge( [ 'X-SFORGE-Asset' => '1' ], $extra_headers ),
 		] );
 		if ( is_wp_error( $resp ) ) {
 			return null;
