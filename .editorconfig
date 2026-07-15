@@ -1,0 +1,17 @@
+root = true
+
+# charset must stay utf-8 and never utf-8-bom: a BOM before the opening PHP tag
+# is sent to the browser as output on every request.
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+indent_style = tab
+
+[*.md]
+trim_trailing_whitespace = false
+
+[*.{yml,yaml}]
+indent_style = space
+indent_size = 2
