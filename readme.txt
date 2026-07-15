@@ -4,7 +4,7 @@ Donate link: https://ko-fi.com/gunjanjaswal
 Tags: cloudflare, static-site, deploy, seo, sitemap
 Requires at least: 5.8
 Tested up to: 7.0
-Stable tag: 1.3.0
+Stable tag: 1.3.1
 Requires PHP: 7.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -306,6 +306,9 @@ To make forms work, point them at a static-friendly endpoint: a Cloudflare Pages
 
 == Changelog ==
 
+= 1.3.1 =
+* Fix: removed a UTF-8 byte order mark (BOM) that was saved into the main plugin file during the 1.3.0 release. Those three bytes sit before the opening `<?php` tag, so PHP emitted them as output on every request. Two visible symptoms: WordPress reported "The plugin generated 3 characters of unexpected output during activation" on the Plugins screen, and Site Health failed with "The REST API did not process the `context` query parameter correctly" because the stray bytes were prepended to every REST response and broke JSON parsing. Anyone on 1.3.0 should update. No functional change otherwise — 1.3.0's render origin override is untouched.
+
 = 1.3.0 =
 * New: **Render origin override** (Performance settings). The export renders each page by fetching it over HTTP from the site's own URL, one request at a time. When the domain runs behind a CDN/proxy (e.g. Cloudflare), every one of those requests leaves the server and comes back through the edge — on a site with hundreds or thousands of pages (large multilingual sites especially) that round-trip dominates the rebuild time. Set this field to a host that reaches WordPress directly on the same box (usually `http://127.0.0.1`, or `http://127.0.0.1:8080` if PHP listens on another port) and the whole crawl stays local. The plugin keeps your real domain in the `Host` header so WordPress still serves the correct site/language variant, and TLS verification is skipped for the override only (a loopback certificate won't match the public host). Applies uniformly to page renders, inlined CSS fetches, mirrored sitemaps, and bundled uploads; only URLs on the origin host are redirected, everything else is fetched unchanged. Leave blank to keep the previous behaviour. New setting `render_origin`, new helper `SFORGE_Renderer::localize_request()`.
 
@@ -377,6 +380,9 @@ To make forms work, point them at a static-friendly endpoint: a Cloudflare Pages
 * Built-in Setup Guide page and WordPress contextual Help tabs.
 
 == Upgrade Notice ==
+
+= 1.3.1 =
+Recommended for anyone on 1.3.0. Fixes a stray byte order mark in the main plugin file that made WordPress report "3 characters of unexpected output" on activation and broke the REST API check in Site Health.
 
 = 1.3.0 =
 Adds a Render origin override (Performance settings) for slow rebuilds on CDN-fronted sites: point page fetches at `http://127.0.0.1` so the crawl stays on the server instead of looping out through Cloudflare and back. Optional — leave blank to keep current behaviour.
