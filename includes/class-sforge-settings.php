@@ -10,6 +10,7 @@ class SFORGE_Settings {
 		add_action( 'admin_init', [ $this, 'register' ] );
 		add_action( 'admin_post_sforge_test_connection', [ $this, 'action_test_connection' ] );
 		add_action( 'admin_post_sforge_full_rebuild',    [ $this, 'action_full_rebuild' ] );
+		add_action( 'admin_post_sforge_partial_rebuild', [ $this, 'action_partial_rebuild' ] );
 		add_action( 'admin_post_sforge_clear_log',       [ $this, 'action_clear_log' ] );
 		add_action( 'admin_enqueue_scripts',           [ $this, 'enqueue' ] );
 		add_action( 'wp_ajax_sforge_get_log',            [ $this, 'ajax_get_log' ] );
@@ -153,7 +154,10 @@ class SFORGE_Settings {
 			wp_send_json_error( [ 'msg' => 'forbidden' ], 403 );
 		}
 		check_ajax_referer( 'sforge_log', 'nonce' );
-		$next = wp_next_scheduled( 'sforge_full_rebuild' );
+		$next_full    = wp_next_scheduled( SFORGE_Rebuild::HOOK_FULL );
+		$next_partial = wp_next_scheduled( SFORGE_Rebuild::HOOK_PARTIAL );
+		$queued  = array_filter( [ $next_full, $next_partial ] );
+		$next    = $queued ? min( $queued ) : false;
 		$running = false;
 		if ( $next && $next <= time() + 5 ) {
 			$running = true;
@@ -166,7 +170,7 @@ class SFORGE_Settings {
 			$is_terminal = ( strpos( $top_msg, 'deploy ok' ) !== false ) ||
 			               ( strpos( $top_msg, 'deploy fail' ) !== false ) ||
 			               ( strpos( $top_msg, 'nothing rendered' ) !== false ) ||
-			               ( strpos( $top_msg, 'no urls' ) !== false );
+			               ( strpos( $top_msg, 'no urls to export' ) !== false );
 			if ( $ts && ( time() - $ts ) < 60 && ! $is_terminal ) {
 				$running = true;
 			}
@@ -284,9 +288,22 @@ class SFORGE_Settings {
 			wp_die( 'Forbidden' );
 		}
 		check_admin_referer( 'sforge_action' );
-		wp_clear_scheduled_hook( 'sforge_full_rebuild' );
-		wp_schedule_single_event( time() + 5, 'sforge_full_rebuild' );
-		SFORGE_Logger::log( 'Full rebuild queued (manual).' );
+		SFORGE_Rebuild::schedule( SFORGE_Rebuild::MODE_FULL, [], 'manual', 5 );
+		wp_safe_redirect( add_query_arg( [ 'page' => 'sforge', 'sforge_msg' => 'rebuild_scheduled' ], admin_url( 'admin.php' ) ) . '#sforge-activity-log' );
+		exit;
+	}
+
+	/**
+	 * Rebuild only what has changed since the last deploy. Any posts already
+	 * queued by an edit stay queued; this just runs the rebuild now instead of
+	 * waiting out the debounce.
+	 */
+	public function action_partial_rebuild() {
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_die( 'Forbidden' );
+		}
+		check_admin_referer( 'sforge_action' );
+		SFORGE_Rebuild::schedule( SFORGE_Rebuild::MODE_PARTIAL, [], 'manual', 5 );
 		wp_safe_redirect( add_query_arg( [ 'page' => 'sforge', 'sforge_msg' => 'rebuild_scheduled' ], admin_url( 'admin.php' ) ) . '#sforge-activity-log' );
 		exit;
 	}

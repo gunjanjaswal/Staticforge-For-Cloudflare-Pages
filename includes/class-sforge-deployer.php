@@ -75,6 +75,24 @@ class SFORGE_Deployer {
 	}
 
 	/**
+	 * Same hash as hash_asset(), computed by streaming the file rather than
+	 * holding it in memory. Feeding the extension prefix and then the file body
+	 * into one context produces an identical digest to hashing the concatenated
+	 * string, so assets already cached at Cloudflare from an earlier in-memory
+	 * deploy stay cached after the switch to disk-backed deploys.
+	 *
+	 * @return string|false 32-char hex key, or false if the file is unreadable.
+	 */
+	public static function hash_file( $path, $extension = '' ) {
+		$ctx = hash_init( 'sha256' );
+		hash_update( $ctx, $extension . "\0" );
+		if ( ! @hash_update_file( $ctx, $path ) ) {
+			return false;
+		}
+		return substr( hash_final( $ctx ), 0, 32 );
+	}
+
+	/**
 	 * Deploy a map of [ relative_path => file_contents ].
 	 * @return array|WP_Error deployment result on success.
 	 */
@@ -82,14 +100,6 @@ class SFORGE_Deployer {
 		if ( empty( $files ) ) {
 			return new WP_Error( 'sforge_no_files', 'No files to deploy.' );
 		}
-
-		SFORGE_Logger::log( 'Requesting upload token from Cloudflare...' );
-		$jwt = $this->fetch_jwt();
-		if ( is_wp_error( $jwt ) ) {
-			SFORGE_Logger::log( 'Upload token error: ' . $jwt->get_error_message(), 'error' );
-			return $jwt;
-		}
-		SFORGE_Logger::log( 'Upload token OK. Hashing files...' );
 
 		$manifest = [];
 		$assets   = [];
@@ -99,14 +109,66 @@ class SFORGE_Deployer {
 			$hash = self::hash_asset( $content, $ext );
 			$manifest[ $rel ] = $hash;
 			if ( ! isset( $assets[ $hash ] ) ) {
-				$assets[ $hash ] = [
-					'content'     => $content,
-					'ext'         => $ext,
-					'contentType' => $this->mime( $ext ),
-				];
+				$assets[ $hash ] = [ 'content' => $content, 'ext' => $ext ];
 			}
 		}
-		SFORGE_Logger::log( sprintf( 'Hashed %d files into %d unique assets. Asking CF which are new...', count( $manifest ), count( $assets ) ) );
+		return $this->push( $manifest, $assets );
+	}
+
+	/**
+	 * Deploy the on-disk export mirror.
+	 *
+	 * Preferred over deploy() for whole-site deploys: file bodies are streamed
+	 * from disk for hashing and read back only for the assets Cloudflare reports
+	 * as new, so peak memory tracks the upload batch size rather than the size of
+	 * the site. A 1,400-page export costs the same RAM as a 10-page one.
+	 *
+	 * @return array|WP_Error deployment result on success.
+	 */
+	public function deploy_dir( SFORGE_Export_Store $store ) {
+		$files = $store->scan();
+		if ( empty( $files ) ) {
+			return new WP_Error( 'sforge_no_files', 'Export directory is empty, nothing to deploy.' );
+		}
+
+		$manifest = [];
+		$assets   = [];
+		$unreadable = 0;
+		foreach ( $files as $rel => $abs ) {
+			$ext  = strtolower( pathinfo( $rel, PATHINFO_EXTENSION ) );
+			$hash = self::hash_file( $abs, $ext );
+			if ( $hash === false ) {
+				$unreadable++;
+				continue;
+			}
+			$manifest[ '/' . $rel ] = $hash;
+			if ( ! isset( $assets[ $hash ] ) ) {
+				$assets[ $hash ] = [ 'path' => $abs, 'ext' => $ext ];
+			}
+		}
+		if ( $unreadable ) {
+			SFORGE_Logger::log( sprintf( '%d export file(s) could not be read and were left out of the deploy.', $unreadable ), 'warn' );
+		}
+		if ( empty( $manifest ) ) {
+			return new WP_Error( 'sforge_no_files', 'No readable files in the export directory.' );
+		}
+		return $this->push( $manifest, $assets );
+	}
+
+	/**
+	 * Shared tail for both deploy paths: token, check-missing, upload, deployment.
+	 *
+	 * @param array $manifest [ "/path" => hash ] — every file in the site.
+	 * @param array $assets   [ hash => [ 'ext' => string, 'path'|'content' => string ] ]
+	 */
+	protected function push( array $manifest, array $assets ) {
+		SFORGE_Logger::log( 'Requesting upload token from Cloudflare...' );
+		$jwt = $this->fetch_jwt();
+		if ( is_wp_error( $jwt ) ) {
+			SFORGE_Logger::log( 'Upload token error: ' . $jwt->get_error_message(), 'error' );
+			return $jwt;
+		}
+		SFORGE_Logger::log( sprintf( 'Upload token OK. Hashed %d files into %d unique assets. Asking CF which are new...', count( $manifest ), count( $assets ) ) );
 
 		$missing = $this->check_missing( $jwt, array_keys( $assets ) );
 		if ( is_wp_error( $missing ) ) {
@@ -189,8 +251,14 @@ class SFORGE_Deployer {
 				continue;
 			}
 			$a    = $assets[ $hash ];
-			$b64  = base64_encode( $a['content'] );
+			$body = $this->asset_body( $a );
+			if ( $body === false ) {
+				SFORGE_Logger::log( 'Skipping unreadable asset: ' . esc_html( $a['path'] ?? $hash ), 'warn' );
+				continue;
+			}
+			$b64  = base64_encode( $body );
 			$size = strlen( $b64 );
+			unset( $body );
 
 			if ( ( count( $batch ) >= self::BATCH_FILES ) || ( $batch_bytes + $size ) > self::BATCH_BYTES ) {
 				$r = $flush();
@@ -202,7 +270,7 @@ class SFORGE_Deployer {
 			$batch[] = [
 				'key'      => $hash,
 				'value'    => $b64,
-				'metadata' => [ 'contentType' => $a['contentType'] ],
+				'metadata' => [ 'contentType' => $this->mime( $a['ext'] ) ],
 				'base64'   => true,
 			];
 			$batch_bytes += $size;
@@ -271,6 +339,23 @@ class SFORGE_Deployer {
 			return new WP_Error( 'sforge_deploy', 'Deployment failed: ' . $msg );
 		}
 		return $body['result'];
+	}
+
+	/**
+	 * Bytes for an asset, read from disk only at the moment they are needed so a
+	 * disk-backed deploy never holds more than the current batch in memory.
+	 *
+	 * @return string|false
+	 */
+	protected function asset_body( array $asset ) {
+		if ( isset( $asset['content'] ) ) {
+			return $asset['content'];
+		}
+		if ( empty( $asset['path'] ) ) {
+			return false;
+		}
+		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_get_contents -- Reading the local export mirror one batch at a time; WP_Filesystem would force the whole site into memory.
+		return @file_get_contents( $asset['path'] );
 	}
 
 	protected function mime( $ext ) {

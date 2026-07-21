@@ -4,7 +4,7 @@ Donate link: https://ko-fi.com/gunjanjaswal
 Tags: cloudflare, static-site, deploy, seo, sitemap
 Requires at least: 5.8
 Tested up to: 7.0
-Stable tag: 1.3.1
+Stable tag: 1.4.0
 Requires PHP: 7.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -306,6 +306,17 @@ To make forms work, point them at a static-friendly endpoint: a Cloudflare Pages
 
 == Changelog ==
 
+= 1.4.0 =
+* New: **Partial rebuilds.** Publishing a post used to re-render the whole site. Each page costs one HTTP round-trip to the origin and they run sequentially, so a 1,400-page site paid 1,400 fetches to fix a typo. The plugin now re-renders only the pages an edit invalidates — the post, its term archives, its author archive, its post type archive, the homepage and posts page, plus their translations — and reuses the export cache for the rest.
+* New: **The export directory is now the deploy source.** Rendered pages were always written to `wp-content/uploads/sforge-export/`, but the deploy was built from an in-memory copy and that directory was never read back. It is now the source of truth for the manifest, which is what makes partial rebuilds possible: a Cloudflare Pages deployment is a whole-site snapshot, so the manifest must list every file even when only a few changed.
+* Improved: **Memory no longer scales with site size.** Files are streamed from disk for hashing and read back only for assets Cloudflare reports as new, so peak memory tracks the 25 MB upload batch rather than the whole site. Helps rebuilds that stalled at the Manifest step on memory-limited hosts.
+* New: **Stale pages are pruned.** Deleting or unpublishing a post removes its exported HTML so it stops being served. Pruning is scoped to HTML and refuses to run when a partial rebuild's URL list looks implausibly short, logging a warning instead of deleting most of the live site.
+* New: **Two rebuild buttons.** "Rebuild Changed + Deploy" renders only what changed; "Full Rebuild + Deploy" re-renders everything and reconciles the export cache. Auto-deploy uses the partial path.
+* New: **Per-post Rebuild action** on post and page list tables, for pushing one page live without waiting out the debounce.
+* Improved: bundled uploads already in the export cache are no longer re-fetched from the origin on every rebuild.
+* Improved: a failed render now keeps the previously exported page instead of dropping it from the deploy.
+* Internals: new `SFORGE_Export_Store`, `SFORGE_Rebuild`, `SFORGE_Post_Actions`; new `SFORGE_Deployer::deploy_dir()` / `hash_file()`; new `sforge_partial_rebuild` cron hook. Asset hashing is unchanged, so assets already cached at Cloudflare stay cached.
+
 = 1.3.1 =
 * Fix: removed a UTF-8 byte order mark (BOM) that was saved into the main plugin file during the 1.3.0 release. Those three bytes sit before the opening `<?php` tag, so PHP emitted them as output on every request. Two visible symptoms: WordPress reported "The plugin generated 3 characters of unexpected output during activation" on the Plugins screen, and Site Health failed with "The REST API did not process the `context` query parameter correctly" because the stray bytes were prepended to every REST response and broke JSON parsing. Anyone on 1.3.0 should update. No functional change otherwise — 1.3.0's render origin override is untouched.
 
@@ -380,6 +391,9 @@ To make forms work, point them at a static-friendly endpoint: a Cloudflare Pages
 * Built-in Setup Guide page and WordPress contextual Help tabs.
 
 == Upgrade Notice ==
+
+= 1.4.0 =
+Large sites should update. Editing a post no longer re-renders the entire site, only the pages that edit affects, which cuts rebuild time dramatically on sites with hundreds or thousands of pages. Deploy memory no longer scales with site size, and deleted posts are now removed from the live site. Run one Full Rebuild after updating to populate the export cache.
 
 = 1.3.1 =
 Recommended for anyone on 1.3.0. Fixes a stray byte order mark in the main plugin file that made WordPress report "3 characters of unexpected output" on activation and broke the REST API check in Site Health.

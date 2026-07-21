@@ -6,7 +6,7 @@
 [![PHP](https://img.shields.io/badge/PHP-7.4%2B-777bb4?logo=php&logoColor=white)](https://www.php.net)
 [![Cloudflare Pages](https://img.shields.io/badge/Cloudflare%20Pages-Direct%20Upload-f38020?logo=cloudflare&logoColor=white)](https://pages.cloudflare.com)
 [![License](https://img.shields.io/badge/License-GPL--2.0%2B-success)](https://www.gnu.org/licenses/gpl-2.0.html)
-[![Version](https://img.shields.io/badge/version-1.3.1-blue)](https://github.com/gunjanjaswal/staticforge-for-cloudflare-pages/releases)
+[![Version](https://img.shields.io/badge/version-1.4.0-blue)](https://github.com/gunjanjaswal/staticforge-for-cloudflare-pages/releases)
 [![Author](https://img.shields.io/badge/by-Gunjan%20Jaswal-9333ea)](https://www.gunjanjaswal.me)
 [![Support on Ko-fi](https://img.shields.io/badge/Ko--fi-Support-FF5E5B?logo=ko-fi&logoColor=white)](https://ko-fi.com/gunjanjaswal)
 
@@ -632,6 +632,17 @@ Free tier soft cap. Raise the **Debounce** setting from 120 to 600+ so bulk edit
 ---
 
 ## 📝 Changelog
+
+### 1.4.0
+- **New: partial rebuilds.** Publishing a post used to re-render the entire site. Every page costs one HTTP round-trip to the origin, and they run one after another, so a 1,400-page site paid 1,400 sequential fetches to fix a typo — the single biggest cause of hours-long rebuilds. The plugin now re-renders only the pages an edit actually invalidates (the post itself, its term archives, its author archive, its post type archive, the homepage and posts page) plus their translations, and reuses the export cache for everything else. Editing one post typically touches a handful of URLs instead of the whole site.
+- **New: the export directory is now the deploy source.** Rendered pages were always written to `wp-content/uploads/sforge-export/`, but the deploy was built from an in-memory copy and that directory was never read back. It is now the source of truth for the manifest, which is what makes partial rebuilds possible: a Cloudflare Pages deployment is a whole-site snapshot, so the manifest must list every file even when only a few changed.
+- **Improved: memory no longer scales with site size.** File bodies are streamed from disk for hashing (`hash_update_file`) and read back only for the assets Cloudflare reports as new, so peak memory tracks the 25 MB upload batch rather than the whole site. A 1,400-page export now costs about the same RAM as a 10-page one. This addresses rebuilds that stalled at the *Manifest* step on memory-limited hosts.
+- **New: stale pages are pruned.** Deleting or unpublishing a post now removes its exported HTML, so it stops being served. Pruning is scoped to HTML and refuses to run if a partial rebuild's URL list looks implausibly short (more than a quarter of pages suddenly unaccounted for) — it logs a warning and asks for a full rebuild rather than quietly deleting most of the live site.
+- **New: two rebuild buttons.** **Rebuild Changed + Deploy** renders only what changed; **Full Rebuild + Deploy** re-renders everything and reconciles the export cache from scratch. Auto-deploy uses the partial path.
+- **New: per-post Rebuild action.** A **Rebuild** link on post and page list tables pushes one page live without waiting out the debounce. Useful when a change never went through the publish flow — an edited menu, a widget, a template tweak, a translation saved in place.
+- **Improved: bundled uploads are cached.** With **Bundle `/wp-content/uploads/`** enabled, files already in the export directory are no longer re-fetched from the origin on every rebuild.
+- **Improved: a failed render keeps the previous page.** Renders used to be dropped from the deploy on failure, so a transient error could remove a live page. The last good copy now stays in the export cache and keeps being served.
+- Internals: new `SFORGE_Export_Store`, `SFORGE_Rebuild` and `SFORGE_Post_Actions` classes; rebuild orchestration moved out of `SFORGE_Hooks`; new `SFORGE_Deployer::deploy_dir()` and `SFORGE_Deployer::hash_file()`; new `sforge_partial_rebuild` cron hook alongside `sforge_full_rebuild`. Asset hashing is unchanged, so assets already cached at Cloudflare stay cached across the upgrade.
 
 ### 1.3.1
 - **Fix: stray UTF-8 BOM in the main plugin file.** A byte order mark got saved into `staticforge-for-cloudflare-pages.php` when 1.3.0 was cut. Those three bytes (`EF BB BF`) sit *before* the opening `<?php` tag, so PHP sent them to the browser as output on every request. That surfaced two ways: the Plugins screen warned **"The plugin generated 3 characters of unexpected output during activation"**, and Site Health reported **"The REST API did not process the `context` query parameter correctly"** — the BOM was being prepended to every REST response, so the JSON no longer parsed. Update if you're on 1.3.0. Nothing else changed; the 1.3.0 render origin override is untouched.

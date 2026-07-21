@@ -446,7 +446,7 @@ $has_schema_seo  = $injector->schema_plugin_active();
 			<span class="sforge-section-icon sforge-section-icon-teal"><span class="dashicons dashicons-controls-play"></span></span>
 			<div>
 				<h2>Actions</h2>
-				<p>Verify the connection and push a fresh full deploy.</p>
+				<p>Verify the connection and push a deploy.</p>
 			</div>
 		</header>
 		<div class="sforge-section-body sforge-actions">
@@ -456,9 +456,14 @@ $has_schema_seo  = $injector->schema_plugin_active();
 				<button type="submit" class="button button-secondary button-large"><span class="dashicons dashicons-yes-alt"></span> Test Connection</button>
 			</form>
 			<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
+				<input type="hidden" name="action" value="sforge_partial_rebuild">
+				<?php wp_nonce_field( 'sforge_action' ); ?>
+				<button type="submit" class="button button-primary button-large" title="Re-renders only the pages affected by recent edits, reusing the export cache for everything else."><span class="dashicons dashicons-update"></span> Rebuild Changed + Deploy</button>
+			</form>
+			<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
 				<input type="hidden" name="action" value="sforge_full_rebuild">
 				<?php wp_nonce_field( 'sforge_action' ); ?>
-				<button type="submit" class="button button-primary button-large"><span class="dashicons dashicons-cloud-upload"></span> Rebuild + Deploy Now</button>
+				<button type="submit" class="button button-secondary button-large" title="Re-renders every page on the site. Slower, but reconciles the export cache from scratch."><span class="dashicons dashicons-cloud-upload"></span> Full Rebuild + Deploy</button>
 			</form>
 			<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
 				<input type="hidden" name="action" value="sforge_clear_log">
