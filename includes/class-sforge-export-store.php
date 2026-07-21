@@ -178,7 +178,7 @@ class SFORGE_Export_Store {
 			if ( $entries === false || count( array_diff( $entries, [ '.', '..' ] ) ) > 0 ) {
 				return;
 			}
-			// phpcs:ignore WordPress.WP.AlternativeFunctions.directory_rmdir -- Local export mirror cleanup.
+			// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_rmdir -- Local export mirror cleanup.
 			if ( ! @rmdir( $dir ) ) {
 				return;
 			}

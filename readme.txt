@@ -4,7 +4,7 @@ Donate link: https://ko-fi.com/gunjanjaswal
 Tags: cloudflare, static-site, deploy, seo, sitemap
 Requires at least: 5.8
 Tested up to: 7.0
-Stable tag: 1.4.0
+Stable tag: 1.4.1
 Requires PHP: 7.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -306,6 +306,12 @@ To make forms work, point them at a static-friendly endpoint: a Cloudflare Pages
 
 == Changelog ==
 
+= 1.4.1 =
+* Fix: corrected a phpcs suppression that named a sniff which does not exist (`directory_rmdir` instead of `file_system_operations_rmdir`), so the suppression silently did nothing and Plugin Check reported an error on the export mirror cleanup.
+* Fix: annotated two read-only `$_GET` reads in the post-list Rebuild notice that Plugin Check flagged for nonce verification. The state change behind them was already nonce-verified; the notice only displays.
+* Fix: shortened the 1.4.0 upgrade notice, which exceeded the 300-character limit.
+* No functional change.
+
 = 1.4.0 =
 * New: **Partial rebuilds.** Publishing a post used to re-render the whole site. Each page costs one HTTP round-trip to the origin and they run sequentially, so a 1,400-page site paid 1,400 fetches to fix a typo. The plugin now re-renders only the pages an edit invalidates — the post, its term archives, its author archive, its post type archive, the homepage and posts page, plus their translations — and reuses the export cache for the rest.
 * New: **The export directory is now the deploy source.** Rendered pages were always written to `wp-content/uploads/sforge-export/`, but the deploy was built from an in-memory copy and that directory was never read back. It is now the source of truth for the manifest, which is what makes partial rebuilds possible: a Cloudflare Pages deployment is a whole-site snapshot, so the manifest must list every file even when only a few changed.
@@ -392,8 +398,11 @@ To make forms work, point them at a static-friendly endpoint: a Cloudflare Pages
 
 == Upgrade Notice ==
 
+= 1.4.1 =
+Housekeeping only: fixes a Plugin Check error and two warnings introduced in 1.4.0. No functional change.
+
 = 1.4.0 =
-Large sites should update. Editing a post no longer re-renders the entire site, only the pages that edit affects, which cuts rebuild time dramatically on sites with hundreds or thousands of pages. Deploy memory no longer scales with site size, and deleted posts are now removed from the live site. Run one Full Rebuild after updating to populate the export cache.
+Large sites should update. Editing a post now re-renders only the pages that edit affects, cutting rebuild time dramatically. Deploy memory no longer scales with site size, and deleted posts are removed from the live site. Run one Full Rebuild after updating.
 
 = 1.3.1 =
 Recommended for anyone on 1.3.0. Fixes a stray byte order mark in the main plugin file that made WordPress report "3 characters of unexpected output" on activation and broke the REST API check in Site Health.

@@ -85,9 +85,14 @@ class SFORGE_Post_Actions {
 	}
 
 	public function notice() {
+		// Read-only display of a redirect flag set by handle() after its own nonce
+		// check. Nothing is processed or persisted here, so there is no form data
+		// to verify.
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Display-only; state change already happened behind a verified nonce.
 		if ( empty( $_GET['sforge_queued'] ) ) {
 			return;
 		}
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Display-only; see above.
 		$post_id = absint( $_GET['sforge_queued'] );
 		$title   = $post_id ? get_the_title( $post_id ) : '';
 		printf(
