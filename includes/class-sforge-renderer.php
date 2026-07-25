@@ -314,27 +314,54 @@ class SFORGE_Renderer {
 		$wpc_enc  = $origin_urlenc . '%2Fwp-content%2F';        // canonical uppercase
 		$wpc_encl = strtolower( $wpc_enc );                     // lowercase variant
 
-		// Uploads-specific tokens (only used when bundle_uploads is on and
-		// rewrite_wpcontent is off — pull uploads out of the "keep on origin"
-		// placeholder so the host rewrite *does* touch them.
-		$up_lit  = $origin . '/wp-content/uploads/';
-		$up_esc  = $origin_esc . '\\/wp-content\\/uploads\\/';
-		$up_enc  = $origin_urlenc . '%2Fwp-content%2Fuploads%2F';
-		$up_encl = strtolower( $up_enc );
+		// Sub-paths under /wp-content/ whose files we bundle into the deploy, and
+		// which therefore must resolve to the CF host rather than staying on the
+		// origin: uploads (opt-in) plus any operator-nominated include paths that
+		// live under wp-content. Each is pulled out of the "keep on origin"
+		// placeholder below so the host rewrite *does* touch it. When the
+		// rewrite-everything toggle is on, all of /wp-content/* already points at
+		// CF, so there is nothing to pull out.
+		$bundle_subs = [];
+		if ( ! $rewrite_wpcontent ) {
+			if ( $bundle_uploads ) {
+				$bundle_subs[] = 'uploads/';
+			}
+			if ( class_exists( 'SFORGE_Extra_Assets' ) ) {
+				foreach ( SFORGE_Extra_Assets::wpcontent_prefixes() as $sub ) {
+					$bundle_subs[] = $sub;
+				}
+			}
+			$bundle_subs = array_values( array_unique( $bundle_subs ) );
+		}
 
-		$ph_up_lit  = "\x00SFORGE_BUNDLE_UP_LIT\x00";
-		$ph_up_esc  = "\x00SFORGE_BUNDLE_UP_ESC\x00";
-		$ph_up_enc  = "\x00SFORGE_BUNDLE_UP_ENC\x00";
-		$ph_up_encl = "\x00SFORGE_BUNDLE_UP_ENCL\x00";
+		// Each bundled sub-path in all four serialised forms (literal,
+		// JSON-escaped, percent-encoded upper + lower), paired with unique
+		// placeholders.
+		$bundle_stash = [];
+		foreach ( $bundle_subs as $idx => $sub ) {
+			$sub_esc = str_replace( '/', '\\/', $sub );
+			$sub_enc = str_replace( '/', '%2F', $sub );
+			$forms   = [
+				$origin . '/wp-content/' . $sub,
+				$origin_esc . '\\/wp-content\\/' . $sub_esc,
+				$origin_urlenc . '%2Fwp-content%2F' . $sub_enc,
+				strtolower( $origin_urlenc . '%2Fwp-content%2F' . $sub_enc ),
+			];
+			$phs = [
+				"\x00SFORGE_BUNDLE_{$idx}_L\x00",
+				"\x00SFORGE_BUNDLE_{$idx}_E\x00",
+				"\x00SFORGE_BUNDLE_{$idx}_N\x00",
+				"\x00SFORGE_BUNDLE_{$idx}_NL\x00",
+			];
+			$bundle_stash[] = [ $forms, $phs ];
+		}
 
-		$do_bundle_uploads = ( ! $rewrite_wpcontent && $bundle_uploads );
-		if ( $do_bundle_uploads ) {
-			// Stash uploads URLs out of the way first, so the wp-content
-			// "keep on origin" pass below doesn't catch them.
-			$html = str_replace( $up_lit,  $ph_up_lit,  $html );
-			$html = str_replace( $up_esc,  $ph_up_esc,  $html );
-			$html = str_replace( $up_enc,  $ph_up_enc,  $html );
-			$html = str_replace( $up_encl, $ph_up_encl, $html );
+		// Stash bundled sub-paths out of the way first, so the wp-content
+		// "keep on origin" pass below doesn't catch them.
+		foreach ( $bundle_stash as $b ) {
+			foreach ( $b[0] as $k => $form ) {
+				$html = str_replace( $form, $b[1][ $k ], $html );
+			}
 		}
 
 		if ( ! $rewrite_wpcontent ) {
@@ -348,13 +375,12 @@ class SFORGE_Renderer {
 			$html = str_replace( $wpc_encl, $ph_encl, $html );
 		}
 
-		if ( $do_bundle_uploads ) {
-			// Put uploads URLs back as plain origin form so the host rewrite
-			// below converts them to the CF host (alongside page links).
-			$html = str_replace( $ph_up_lit,  $up_lit,  $html );
-			$html = str_replace( $ph_up_esc,  $up_esc,  $html );
-			$html = str_replace( $ph_up_enc,  $up_enc,  $html );
-			$html = str_replace( $ph_up_encl, $up_encl, $html );
+		// Put bundled sub-paths back as plain origin form so the host rewrite
+		// below converts them to the CF host (alongside page links).
+		foreach ( $bundle_stash as $b ) {
+			foreach ( $b[0] as $k => $form ) {
+				$html = str_replace( $b[1][ $k ], $form, $html );
+			}
 		}
 
 		// Literal-form replacements (page links, canonicals, og:url, etc.).

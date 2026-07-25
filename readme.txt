@@ -4,7 +4,7 @@ Donate link: https://ko-fi.com/gunjanjaswal
 Tags: cloudflare, static-site, deploy, seo, sitemap
 Requires at least: 5.8
 Tested up to: 7.0
-Stable tag: 1.4.1
+Stable tag: 1.5.0
 Requires PHP: 7.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -44,6 +44,7 @@ The WordPress install (your "dashboard") becomes the editor only. Public visitor
   * **Schema-only plugins** (skip ONLY our JSON-LD; meta + og still emit): Schema & Structured Data for WP & AMP (saswp by Magazine3), Schema Pro by Brainstorm Force, WPSSO Core, Schema (by Hesham), Schema App, and Magazine3 Schema variants.
   * Override via setting or filters (`sforge_seo_competing_plugin`, `sforge_schema_competing_plugin`).
 * **Sitemap mirroring + fallback generation** — discovers `/sitemap.xml`, `/sitemap_index.xml`, `/wp-sitemap.xml`, follows index files, fetches child sitemaps, handles CDATA-wrapped `<loc>` entries, rewrites origin URLs to your live domain (including protocol-relative `//host` variants), and strips `<?xml-stylesheet ... ?>` directives so the dashboard host doesn't leak into browser-rendered sitemap views. Bundles them all in the deploy. **When the origin exposes no sitemap** (no SEO plugin, WP core sitemap disabled, sub-directory install with non-standard paths, etc.), the plugin builds a standards-compliant `<urlset>` `sitemap.xml` itself from the crawled URL list — with `<lastmod>` resolved from `get_post_modified_time()`, `<changefreq>weekly</changefreq>`, and `<priority>` (1.0 home / 0.7 elsewhere). Live site always ships a sitemap.
+* **Extra paths to include** — bundle files and folders the crawler never sees in the rendered HTML: a plugin's icon font (e.g. Elementor's Font Awesome), a webfont directory, a downloadable PDF. List them one per line relative to your WordPress root and they're copied straight off local disk into the deploy, with their `/wp-content/*` URLs pointed at the live host so the deployed page loads the bundled copy. Folders recurse, single files copy as-is, trailing wildcards (`*.pdf`) expand. Confined to the WordPress root; capped at 5,000 files / 200 MB per rebuild.
 * **Granular sitemap generator settings** — when the fallback runs, you control exactly what gets listed: per-public-post-type checkboxes, include/exclude homepage, taxonomy archives, author archives, and an option to split the output into a `<sitemapindex>` referencing per-type sub-sitemaps (`sitemap-post.xml`, `sitemap-page.xml`, `sitemap-authors.xml`, `sitemap-taxonomy-category.xml`, etc.) for cleaner Search Console submission. Independent of Export Scope. Filter `sforge_sitemap_groups` to mutate the URL list.
 * **Editable robots.txt for the live site with auto-managed Sitemap: line** — leave blank to auto-generate, or paste your own `Allow:` / `Disallow:` rules. Any `Sitemap:` directive you type is stripped and replaced with the URL of the actually-deployed sitemap (`sitemap.xml` / `sitemap_index.xml` / `wp-sitemap.xml` / etc.) so robots.txt never points at a dead URL. Independent of the dashboard's own robots.txt.
 * **Dashboard auto-noindex on activation (social-aware)** — when the plugin activates it locks the WordPress install out of search engines (so editors only ever appear via the static deployment). Social/messaging/preview scrapers (Facebook, LinkedIn, Twitter/X, Pinterest, WhatsApp, Slack, Discord, Telegram, Applebot, Reddit, Tumblr, Mastodon, Bluesky, iframely, Embedly) are explicitly allowed `/wp-content/uploads/` so og:image previews and oEmbed thumbnails still resolve when a post is shared. Four enforcement layers, all bypassed when the plugin's own renderer fetches a page (detected via `X-SFORGE-Export` header), and additionally bypassed for social-scraper user agents and `/wp-content/uploads/` requests:
@@ -306,6 +307,9 @@ To make forms work, point them at a static-friendly endpoint: a Cloudflare Pages
 
 == Changelog ==
 
+= 1.5.0 =
+* New: **Extra paths to include** (Export Scope settings). List files or folders, one path per line relative to your WordPress root, and the plugin copies them straight off local disk into the Cloudflare Pages deploy. It's for assets the crawler never sees in the rendered HTML — a plugin's icon font (Elementor's Font Awesome at `wp-content/plugins/elementor/assets/lib/font-awesome`, for example), a webfont folder, a downloadable PDF. Whole folders are pulled in recursively, a single file is taken as-is, and a trailing wildcard (`wp-content/uploads/2025/*.pdf`) is expanded. Bundled files under `/wp-content/` get their URLs pointed at the live host so the deployed page loads the bundled copy, while everything else under `/wp-content/` stays on origin as before. Because the files are read locally, there's no origin firewall in the way. Paths are confined to the WordPress root — anything escaping it via `..` or a symlink is skipped and logged — and each rebuild is capped at 5,000 files / 200 MB. New setting `extra_paths`, new class `SFORGE_Extra_Assets`.
+
 = 1.4.1 =
 * Fix: corrected a phpcs suppression that named a sniff which does not exist (`directory_rmdir` instead of `file_system_operations_rmdir`), so the suppression silently did nothing and Plugin Check reported an error on the export mirror cleanup.
 * Fix: annotated two read-only `$_GET` reads in the post-list Rebuild notice that Plugin Check flagged for nonce verification. The state change behind them was already nonce-verified; the notice only displays.
@@ -397,6 +401,9 @@ To make forms work, point them at a static-friendly endpoint: a Cloudflare Pages
 * Built-in Setup Guide page and WordPress contextual Help tabs.
 
 == Upgrade Notice ==
+
+= 1.5.0 =
+Adds an "Extra paths to include" setting to bundle files and folders the crawler never sees in the HTML — plugin icon fonts, webfonts, PDFs — into the deploy from local disk. Optional; nothing changes unless you set it.
 
 = 1.4.1 =
 Housekeeping only: fixes a Plugin Check error and two warnings introduced in 1.4.0. No functional change.

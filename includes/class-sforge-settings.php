@@ -124,6 +124,7 @@ class SFORGE_Settings {
 				'<dt><strong>Debounce</strong></dt><dd>Rapid edits within this many seconds collapse into a single deploy.</dd>' .
 				'<dt><strong>Rewrite <code>/wp-content/</code> URLs</strong></dt><dd>Rewrites every <code>/wp-content/*</code> URL (themes, plugins, uploads) to the live host. Requires a Worker/Nginx proxy on the live host pointing back at the dashboard.</dd>' .
 				'<dt><strong>Bundle <code>/wp-content/uploads/</code> into deploy</strong></dt><dd>Softer alternative for shared-hosting origins whose firewall blocks Cloudflare. Fetches every uploads URL referenced in rendered HTML and ships them inside the CF Pages deploy. Themes/plugins still load from origin. Ignored when the rewrite-all toggle above is on.</dd>' .
+				'<dt><strong>Extra paths to include</strong></dt><dd>One path per line, relative to your WordPress root (e.g. <code>wp-content/plugins/elementor/assets/lib/font-awesome</code>). Files and whole folders are copied straight off disk into the deploy, and their <code>/wp-content/*</code> URLs are pointed at Cloudflare so the bundled copy is what loads. For assets the crawler never sees in the HTML &mdash; plugin icon fonts, a webfont folder, a downloadable PDF.</dd>' .
 				'<dt><strong>Redirect <code>*.pages.dev</code> to live host</strong></dt><dd>Injects a tiny client-side JS snippet so any browser landing on <code>&lt;project&gt;.pages.dev</code> bounces to the canonical Public Site URL (preserves path + query). Auto-skipped when Public Site URL is itself a <code>.pages.dev</code> URL.</dd>' .
 				'</dl>',
 		] );
@@ -215,6 +216,7 @@ class SFORGE_Settings {
 		$out['profile_schema']     = ! empty( $in['profile_schema'] ) ? 1 : 0;
 		$out['rewrite_wpcontent']  = ! empty( $in['rewrite_wpcontent'] ) ? 1 : 0;
 		$out['bundle_uploads']     = ! empty( $in['bundle_uploads'] ) ? 1 : 0;
+		$out['extra_paths']        = SFORGE_Extra_Assets::sanitize_list( preg_split( '/[\r\n]+/', (string) ( $in['extra_paths'] ?? '' ) ) );
 		$out['redirect_pages_dev'] = ! empty( $in['redirect_pages_dev'] ) ? 1 : 0;
 
 		// React to dashboard_block toggle changes by applying / restoring the physical robots.txt.

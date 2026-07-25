@@ -205,6 +205,11 @@ class SFORGE_Rebuild {
 			$this->bundle_uploads( $store, $renderer );
 		}
 
+		// Configured include paths are read from disk, not discovered in HTML, so
+		// this runs on every rebuild regardless of what was re-rendered — a path
+		// added to the settings gets bundled on the next partial run.
+		$this->bundle_extra_assets( $store, $full );
+
 		$this->write_seo_files( $store, $urls );
 
 		$store->prune_html( array_keys( $expected ), $full );
@@ -347,6 +352,53 @@ class SFORGE_Rebuild {
 		foreach ( $bundler->fetch( $needed ) as $rel => $body ) {
 			$store->write( $rel, $body );
 		}
+	}
+
+	/**
+	 * Copy operator-nominated files and folders (Settings → Extra paths to
+	 * include) into the mirror straight off local disk. For assets the crawler
+	 * never encounters in rendered HTML — a plugin's icon font, a webfont folder,
+	 * a downloadable PDF — that would otherwise 404 on a self-contained deploy.
+	 *
+	 * A partial run skips files already mirrored at the same byte size, so a large
+	 * font folder is copied once and left alone thereafter. A full run re-copies,
+	 * so an updated plugin or theme asset propagates.
+	 */
+	protected function bundle_extra_assets( SFORGE_Export_Store $store, $full ) {
+		$assets = ( new SFORGE_Extra_Assets() )->collect();
+		if ( empty( $assets ) ) {
+			return;
+		}
+
+		$copied  = 0;
+		$skipped = 0;
+		$failed  = 0;
+		foreach ( $assets as $rel => $abs ) {
+			if ( ! $full && $store->exists( $rel ) ) {
+				$dest = $store->path_for( $rel );
+				if ( $dest !== '' && @filesize( $dest ) === @filesize( $abs ) ) {
+					$skipped++;
+					continue;
+				}
+			}
+			// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_get_contents -- Reading a local asset off the same box; WP_Filesystem adds no value for a scratch copy and the total is size-capped in SFORGE_Extra_Assets.
+			$body = @file_get_contents( $abs );
+			if ( $body === false ) {
+				$failed++;
+				continue;
+			}
+			if ( $store->write( $rel, $body ) ) {
+				$copied++;
+			} else {
+				$failed++;
+			}
+			unset( $body );
+		}
+
+		SFORGE_Logger::log( sprintf(
+			'Extra assets: %d copied, %d unchanged, %d failed.',
+			$copied, $skipped, $failed
+		) );
 	}
 
 	/**

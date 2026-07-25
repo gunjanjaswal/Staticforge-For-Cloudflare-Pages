@@ -6,7 +6,7 @@
 [![PHP](https://img.shields.io/badge/PHP-7.4%2B-777bb4?logo=php&logoColor=white)](https://www.php.net)
 [![Cloudflare Pages](https://img.shields.io/badge/Cloudflare%20Pages-Direct%20Upload-f38020?logo=cloudflare&logoColor=white)](https://pages.cloudflare.com)
 [![License](https://img.shields.io/badge/License-GPL--2.0%2B-success)](https://www.gnu.org/licenses/gpl-2.0.html)
-[![Version](https://img.shields.io/badge/version-1.4.1-blue)](https://github.com/gunjanjaswal/staticforge-for-cloudflare-pages/releases)
+[![Version](https://img.shields.io/badge/version-1.5.0-blue)](https://github.com/gunjanjaswal/staticforge-for-cloudflare-pages/releases)
 [![Author](https://img.shields.io/badge/by-Gunjan%20Jaswal-9333ea)](https://www.gunjanjaswal.me)
 [![Support on Ko-fi](https://img.shields.io/badge/Ko--fi-Support-FF5E5B?logo=ko-fi&logoColor=white)](https://ko-fi.com/gunjanjaswal)
 
@@ -632,6 +632,9 @@ Free tier soft cap. Raise the **Debounce** setting from 120 to 600+ so bulk edit
 ---
 
 ## 📝 Changelog
+
+### 1.5.0
+- **New: extra paths to include.** A new **Export Scope → Extra paths to include** setting lets you bundle files and folders the crawler never encounters in the rendered HTML — a plugin's icon font (Elementor's Font Awesome at `wp-content/plugins/elementor/assets/lib/font-awesome`, say), a webfont directory, a downloadable PDF. List them one path per line relative to your WordPress root; the plugin copies them straight off local disk into the deploy. A whole folder is pulled in recursively, a single file is copied as-is, and a trailing wildcard (`wp-content/uploads/2025/*.pdf`) is expanded. Bundled files under `/wp-content/` get their URLs pointed at the live host so the deployed page loads the bundled copy, while the rest of `/wp-content/` stays on origin exactly as before. Reading locally means no origin firewall gets in the way. Paths are confined to the WordPress root — anything escaping it via `..` or a symlink is skipped and logged — and each rebuild is capped at 5,000 files / 200 MB. New setting `extra_paths`, new class `SFORGE_Extra_Assets`.
 
 ### 1.4.0
 - **New: partial rebuilds.** Publishing a post used to re-render the entire site. Every page costs one HTTP round-trip to the origin, and they run one after another, so a 1,400-page site paid 1,400 sequential fetches to fix a typo — the single biggest cause of hours-long rebuilds. The plugin now re-renders only the pages an edit actually invalidates (the post itself, its term archives, its author archive, its post type archive, the homepage and posts page) plus their translations, and reuses the export cache for everything else. Editing one post typically touches a handful of URLs instead of the whole site.

@@ -186,6 +186,23 @@ $has_schema_seo  = $injector->schema_plugin_active();
 							</p>
 						</td>
 					</tr>
+					<tr>
+						<th scope="row"><label for="sforge_extra_paths">Extra paths to include</label></th>
+						<td>
+							<?php
+							$extra_paths_val = SFORGE_Settings::get( 'extra_paths', [] );
+							if ( is_array( $extra_paths_val ) ) {
+								$extra_paths_val = implode( "\n", $extra_paths_val );
+							}
+							?>
+							<textarea id="sforge_extra_paths" name="<?php echo esc_attr( SFORGE_OPT ); ?>[extra_paths]" rows="4" class="large-text code" placeholder="wp-content/plugins/elementor/assets/lib/font-awesome"><?php echo esc_textarea( (string) $extra_paths_val ); ?></textarea>
+							<p class="description">
+								<strong>One path per line, relative to your WordPress root.</strong> Point this at files or folders that should be shipped inside the Cloudflare Pages deploy even though the crawler never sees them in the rendered HTML &mdash; a plugin's icon font (e.g. Elementor's Font Awesome at <code>wp-content/plugins/elementor/assets/lib/font-awesome</code>), a webfont directory, a downloadable PDF.<br>
+								A whole folder is copied recursively; a single file is copied as-is; a trailing wildcard (<code>wp-content/uploads/2025/*.pdf</code>) is expanded. Bundled files under <code>/wp-content/</code> get their URLs pointed at the live host so the deployed page loads the bundled copy; everything else stays on origin.<br>
+								Read straight off local disk, so no origin firewall to worry about. Paths are confined to the WordPress root; anything escaping it via <code>..</code> or a symlink is skipped and logged. Capped at 5,000 files / 200&nbsp;MB per rebuild.
+							</p>
+						</td>
+					</tr>
 				</table>
 			</div>
 		</section>

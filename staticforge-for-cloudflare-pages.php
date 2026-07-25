@@ -3,7 +3,7 @@
  * Plugin Name: StaticForge for Cloudflare Pages
  * Plugin URI: https://github.com/gunjanjaswal/staticforge-for-cloudflare-pages
  * Description: Auto-export the entire WordPress site (posts, pages, custom post types, archives, SEO meta) as static HTML with inlined CSS, and deploy to Cloudflare Pages on every publish/update via the Direct Upload API.
- * Version: 1.4.1
+ * Version: 1.5.0
  * Author: Gunjan Jaswal
  * Author URI: https://www.gunjanjaswal.me
  * License: GPLv2 or later
@@ -20,7 +20,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'SFORGE_VERSION', '1.4.1' );
+define( 'SFORGE_VERSION', '1.5.0' );
 define( 'SFORGE_FILE', __FILE__ );
 define( 'SFORGE_DIR', plugin_dir_path( __FILE__ ) );
 define( 'SFORGE_URL', plugin_dir_url( __FILE__ ) );
@@ -39,6 +39,7 @@ require_once SFORGE_DIR . 'includes/class-sforge-featured-image.php';
 require_once SFORGE_DIR . 'includes/class-sforge-dashboard-block.php';
 require_once SFORGE_DIR . 'includes/class-sforge-deployer.php';
 require_once SFORGE_DIR . 'includes/class-sforge-assets-bundler.php';
+require_once SFORGE_DIR . 'includes/class-sforge-extra-assets.php';
 require_once SFORGE_DIR . 'includes/class-sforge-export-store.php';
 require_once SFORGE_DIR . 'includes/class-sforge-rebuild.php';
 require_once SFORGE_DIR . 'includes/class-sforge-post-actions.php';
@@ -100,6 +101,7 @@ add_action( 'plugins_loaded', function() {
 			'profile_schema'          => 1,
 			'rewrite_wpcontent'       => 0,
 			'bundle_uploads'          => 0,
+			'extra_paths'             => [],
 			'redirect_pages_dev'      => 1,
 			'render_origin'           => '',
 		];
@@ -154,6 +156,7 @@ register_activation_hook( __FILE__, function() {
 			'profile_schema'     => 1,
 			'rewrite_wpcontent'  => 0,
 			'bundle_uploads'     => 0,
+			'extra_paths'        => [],
 			'redirect_pages_dev' => 1,
 			'render_origin'      => '',
 		] );
