@@ -216,6 +216,7 @@ class SFORGE_Settings {
 		$out['profile_schema']     = ! empty( $in['profile_schema'] ) ? 1 : 0;
 		$out['rewrite_wpcontent']  = ! empty( $in['rewrite_wpcontent'] ) ? 1 : 0;
 		$out['bundle_uploads']     = ! empty( $in['bundle_uploads'] ) ? 1 : 0;
+		$out['bundle_fonts']       = ! empty( $in['bundle_fonts'] ) ? 1 : 0;
 		$out['extra_paths']        = SFORGE_Extra_Assets::sanitize_list( preg_split( '/[\r\n]+/', (string) ( $in['extra_paths'] ?? '' ) ) );
 		$out['redirect_pages_dev'] = ! empty( $in['redirect_pages_dev'] ) ? 1 : 0;
 

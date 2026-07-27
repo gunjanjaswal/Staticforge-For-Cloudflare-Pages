@@ -13,16 +13,17 @@ if ( ! defined( 'ABSPATH' ) ) {
 class SFORGE_Assets_Bundler {
 
 	/**
-	 * @param array $uploads  [ rel_path => origin_url ] — typically from SFORGE_Renderer::get_collected_uploads()
+	 * @param array  $uploads [ rel_path => origin_url ] — typically from SFORGE_Renderer::get_collected_uploads()
+	 * @param string $label   What is being bundled, for the log line (e.g. '/wp-content/uploads/ file', 'font file').
 	 * @return array          [ rel_path => binary ]    — only successfully fetched entries.
 	 */
-	public function fetch( array $uploads ) {
+	public function fetch( array $uploads, $label = '/wp-content/uploads/ file' ) {
 		$out = [];
 		if ( empty( $uploads ) ) {
 			return $out;
 		}
 		$total = count( $uploads );
-		SFORGE_Logger::log( sprintf( 'Bundling %d /wp-content/uploads/ file(s) into deploy...', $total ) );
+		SFORGE_Logger::log( sprintf( 'Bundling %d %s(s) into deploy...', $total, $label ) );
 
 		$ok = 0;
 		$fail = 0;

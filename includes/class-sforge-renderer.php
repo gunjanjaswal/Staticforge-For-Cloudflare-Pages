@@ -15,8 +15,15 @@ class SFORGE_Renderer {
 	/** @var array Collected /wp-content/uploads/ paths discovered across rendered HTML. [rel_path => origin_url] */
 	protected $collected_uploads = [];
 
+	/** @var array Self-hosted font files discovered across rendered HTML. [rel_path => origin_url] */
+	protected $collected_fonts = [];
+
 	public function get_collected_uploads() {
 		return $this->collected_uploads;
+	}
+
+	public function get_collected_fonts() {
+		return $this->collected_fonts;
 	}
 
 	/**
@@ -80,6 +87,7 @@ class SFORGE_Renderer {
 			$html = $this->inline_stylesheets( $html, $url );
 		}
 		$this->collect_uploads_from_html( $html );
+		$this->collect_fonts_from_html( $html );
 		$html = $this->rewrite_urls( $html );
 		$html = $this->strip_admin_artifacts( $html );
 		$html = $this->strip_noindex( $html );
@@ -124,6 +132,58 @@ class SFORGE_Renderer {
 					$rel = ltrim( $path, '/' );
 					if ( ! isset( $this->collected_uploads[ $rel ] ) ) {
 						$this->collected_uploads[ $rel ] = $clean;
+					}
+				}
+			}
+		}
+	}
+
+	/**
+	 * Scan rendered HTML for self-hosted web fonts served from the WordPress origin
+	 * (woff2/woff/ttf/otf/eot), in literal and JSON-escaped forms, and remember them
+	 * so the rebuild can fetch each one and bundle it into the deploy — and so
+	 * rewrite_urls() points its URL at the CF host.
+	 *
+	 * This is what fixes the classic CORS failure: a font whose `@font-face src`
+	 * still points at the origin is a cross-origin request once the page is served
+	 * from *.pages.dev, and the origin doesn't send `Access-Control-Allow-Origin`,
+	 * so the browser blocks it. Shipping the font alongside the page keeps it
+	 * same-origin. Only the origin host is scanned, so third-party CDN fonts (Google
+	 * Fonts on fonts.gstatic.com, which already send CORS headers) are left alone.
+	 *
+	 * No-op when disabled, or when `rewrite_wpcontent` is on (that setting already
+	 * rewrites every /wp-content/ URL to the live host, fonts included).
+	 */
+	protected function collect_fonts_from_html( $html ) {
+		if ( ! (int) SFORGE_Settings::get( 'bundle_fonts', 1 ) ) {
+			return;
+		}
+		if ( (int) SFORGE_Settings::get( 'rewrite_wpcontent', 0 ) ) {
+			return;
+		}
+		$host = wp_parse_url( home_url(), PHP_URL_HOST );
+		if ( ! $host ) {
+			return;
+		}
+		$h   = preg_quote( $host, '#' );
+		$ext = 'woff2|woff|ttf|otf|eot';
+		$patterns = [
+			// Literal: https://host/path/font.woff2(?ver=...)
+			'#https?://' . $h . '/[^\s"\'<>,()\\\\]+?\.(?:' . $ext . ')(?:\?[^\s"\'<>,()\\\\]*)?#i',
+			// JSON-escaped: https:\/\/host\/path\/font.woff2
+			'#https?:\\\\/\\\\/' . $h . '\\\\/[^\s"\'<>,()]+?\.(?:' . $ext . ')#i',
+		];
+		foreach ( $patterns as $pat ) {
+			if ( preg_match_all( $pat, $html, $m ) ) {
+				foreach ( $m[0] as $hit ) {
+					$clean = str_replace( '\\/', '/', $hit );
+					$path  = wp_parse_url( $clean, PHP_URL_PATH );
+					if ( ! $path ) {
+						continue;
+					}
+					$rel = ltrim( $path, '/' );
+					if ( $rel !== '' && ! isset( $this->collected_fonts[ $rel ] ) ) {
+						$this->collected_fonts[ $rel ] = $clean;
 					}
 				}
 			}
@@ -329,6 +389,18 @@ class SFORGE_Renderer {
 			if ( class_exists( 'SFORGE_Extra_Assets' ) ) {
 				foreach ( SFORGE_Extra_Assets::wpcontent_prefixes() as $sub ) {
 					$bundle_subs[] = $sub;
+				}
+			}
+			// Self-hosted fonts auto-discovered in the rendered HTML: each exact file
+			// under /wp-content/ is pulled out of the keep-origin protection so its
+			// URL resolves to the bundled copy on the CF host. Fonts outside
+			// /wp-content/ are already rewritten by the host swap below.
+			foreach ( $this->collected_fonts as $rel => $url ) {
+				if ( strpos( $rel, 'wp-content/' ) === 0 ) {
+					$sub = substr( $rel, strlen( 'wp-content/' ) );
+					if ( $sub !== '' ) {
+						$bundle_subs[] = $sub;
+					}
 				}
 			}
 			$bundle_subs = array_values( array_unique( $bundle_subs ) );

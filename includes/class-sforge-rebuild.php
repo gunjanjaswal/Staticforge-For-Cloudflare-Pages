@@ -200,9 +200,10 @@ class SFORGE_Rebuild {
 			SFORGE_Logger::log( 'Nothing to re-render — every affected page is already current.' );
 		} else {
 			$this->render( $targets, count( $urls ), $store, $renderer, $full );
-			// Uploads are discovered by scanning rendered HTML, so this only has
-			// anything to say when pages were actually rendered.
+			// Uploads and self-hosted fonts are discovered by scanning rendered
+			// HTML, so these only have anything to say when pages were rendered.
 			$this->bundle_uploads( $store, $renderer );
+			$this->bundle_fonts( $store, $renderer );
 		}
 
 		// Configured include paths are read from disk, not discovered in HTML, so
@@ -350,6 +351,39 @@ class SFORGE_Rebuild {
 
 		$bundler = new SFORGE_Assets_Bundler();
 		foreach ( $bundler->fetch( $needed ) as $rel => $body ) {
+			$store->write( $rel, $body );
+		}
+	}
+
+	/**
+	 * Fetch self-hosted fonts referenced by the pages rendered this run and add them
+	 * to the mirror, so they load same-origin from the CF deploy instead of tripping
+	 * the browser's cross-origin font block against the WordPress host. Discovery and
+	 * URL rewriting live in SFORGE_Renderer; this just pulls the bytes. Files already
+	 * mirrored are skipped — a font filename is stable, so re-fetching is pure waste.
+	 */
+	protected function bundle_fonts( SFORGE_Export_Store $store, SFORGE_Renderer $renderer ) {
+		if ( ! (int) SFORGE_Settings::get( 'bundle_fonts', 1 ) || (int) SFORGE_Settings::get( 'rewrite_wpcontent', 0 ) ) {
+			return;
+		}
+
+		$fonts = $renderer->get_collected_fonts();
+		if ( empty( $fonts ) ) {
+			return;
+		}
+
+		$needed = [];
+		foreach ( $fonts as $rel => $url ) {
+			if ( ! $store->exists( $rel ) ) {
+				$needed[ $rel ] = $url;
+			}
+		}
+		if ( empty( $needed ) ) {
+			return;
+		}
+
+		$bundler = new SFORGE_Assets_Bundler();
+		foreach ( $bundler->fetch( $needed, 'self-hosted font file' ) as $rel => $body ) {
 			$store->write( $rel, $body );
 		}
 	}

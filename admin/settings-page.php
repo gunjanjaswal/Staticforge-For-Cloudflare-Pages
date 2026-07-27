@@ -187,6 +187,17 @@ $has_schema_seo  = $injector->schema_plugin_active();
 						</td>
 					</tr>
 					<tr>
+						<th scope="row">Bundle self-hosted fonts</th>
+						<td>
+							<label class="sforge-cb"><input type="checkbox" name="<?php echo esc_attr( SFORGE_OPT ); ?>[bundle_fonts]" value="1" <?php checked( ! empty( $o['bundle_fonts'] ) ); ?>> Ship <code>@font-face</code> fonts served from your WordPress host alongside the static pages and point their URLs at the live host</label>
+							<p class="description">
+								<strong>Default: ON.</strong> A self-hosted font (a theme webfont, Astra's local Google Fonts at <code>wp-content/astra-local-fonts/</code>, an icon font) whose <code>src</code> still points at your WordPress origin is a cross-origin request once the page is served from <code>*.pages.dev</code>. Browsers fetch fonts in CORS mode, and the origin doesn't send an <code>Access-Control-Allow-Origin</code> header, so the font is blocked and you get a fallback typeface.<br>
+								With this on, every <code>.woff2 / .woff / .ttf / .otf / .eot</code> file referenced from the rendered pages and served from your own host is fetched, bundled into the deploy, and its URL rewritten to the Public Site URL — so it loads same-origin and the CORS error disappears. Third-party fonts (Google Fonts on <code>fonts.gstatic.com</code>, etc.) already send CORS headers and are left untouched.<br>
+								Ignored when "Rewrite <code>/wp-content/</code> URLs" above is ON (that already rewrites fonts along with everything else).
+							</p>
+						</td>
+					</tr>
+					<tr>
 						<th scope="row"><label for="sforge_extra_paths">Extra paths to include</label></th>
 						<td>
 							<?php
@@ -199,6 +210,7 @@ $has_schema_seo  = $injector->schema_plugin_active();
 							<p class="description">
 								<strong>One path per line, relative to your WordPress root.</strong> Point this at files or folders that should be shipped inside the Cloudflare Pages deploy even though the crawler never sees them in the rendered HTML &mdash; a plugin's icon font (e.g. Elementor's Font Awesome at <code>wp-content/plugins/elementor/assets/lib/font-awesome</code>), a webfont directory, a downloadable PDF.<br>
 								A whole folder is copied recursively; a single file is copied as-is; a trailing wildcard (<code>wp-content/uploads/2025/*.pdf</code>) is expanded. Bundled files under <code>/wp-content/</code> get their URLs pointed at the live host so the deployed page loads the bundled copy; everything else stays on origin.<br>
+								You can enter a path relative to <code>wp-content/</code> too (<code>astra-local-fonts</code> instead of <code>wp-content/astra-local-fonts</code>) — if it isn't found at the WordPress root, the plugin looks under <code>wp-content/</code> automatically.<br>
 								Read straight off local disk, so no origin firewall to worry about. Paths are confined to the WordPress root; anything escaping it via <code>..</code> or a symlink is skipped and logged. Capped at 5,000 files / 200&nbsp;MB per rebuild.
 							</p>
 						</td>

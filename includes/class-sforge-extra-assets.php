@@ -35,7 +35,56 @@ class SFORGE_Extra_Assets {
 		if ( is_string( $raw ) ) {
 			$raw = preg_split( '/[\r\n]+/', $raw );
 		}
-		return self::sanitize_list( (array) $raw );
+		$root = self::root();
+		$out  = [];
+		foreach ( self::sanitize_list( (array) $raw ) as $rel ) {
+			$resolved = self::resolve_root_relative( $rel, $root );
+			if ( $resolved !== '' && ! in_array( $resolved, $out, true ) ) {
+				$out[] = $resolved;
+			}
+		}
+		return $out;
+	}
+
+	/**
+	 * Let an operator enter a path either from the WordPress root
+	 * (`wp-content/astra-local-fonts`) or relative to wp-content/
+	 * (`astra-local-fonts`) — whichever they happened to copy. When the entry as
+	 * typed doesn't exist on disk but prefixing `wp-content/` finds it, the
+	 * prefixed form is used, so both the copy and the URL rewrite act on the real
+	 * files. An entry that already resolves, or that resolves under neither, is
+	 * returned unchanged. This is what stops "I added the path but the fonts still
+	 * point at the old domain" — the rewrite hinges on the `wp-content/` prefix
+	 * (see wpcontent_prefixes()).
+	 *
+	 * @return string The effective root-relative path.
+	 */
+	protected static function resolve_root_relative( $rel, $root ) {
+		if ( $rel === '' || strpos( $rel, 'wp-content/' ) === 0 ) {
+			return $rel;
+		}
+		if ( strpos( $rel, '*' ) !== false ) {
+			$base = self::glob_base( $rel );
+			if ( $base !== '' && ! @is_dir( $root . '/' . $base ) && @is_dir( $root . '/wp-content/' . $base ) ) {
+				return 'wp-content/' . $rel;
+			}
+			return $rel;
+		}
+		if ( ! @file_exists( $root . '/' . $rel ) && @file_exists( $root . '/wp-content/' . $rel ) ) {
+			return 'wp-content/' . $rel;
+		}
+		return $rel;
+	}
+
+	/** The directory portion of a glob entry, before the first `*`. */
+	protected static function glob_base( $rel ) {
+		$star = strpos( $rel, '*' );
+		if ( false === $star ) {
+			return $rel;
+		}
+		$head  = substr( $rel, 0, $star );
+		$slash = strrpos( $head, '/' );
+		return ( false === $slash ) ? '' : substr( $head, 0, $slash );
 	}
 
 	/**
