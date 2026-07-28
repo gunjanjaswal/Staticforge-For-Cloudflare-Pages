@@ -3,12 +3,13 @@
  * Plugin Name: StaticForge for Cloudflare Pages
  * Plugin URI: https://github.com/gunjanjaswal/staticforge-for-cloudflare-pages
  * Description: Auto-export the entire WordPress site (posts, pages, custom post types, archives, SEO meta) as static HTML with inlined CSS, and deploy to Cloudflare Pages on every publish/update via the Direct Upload API.
- * Version: 1.6.0
+ * Version: 1.7.0
  * Author: Gunjan Jaswal
  * Author URI: https://www.gunjanjaswal.me
  * License: GPLv2 or later
  * License URI: https://www.gnu.org/licenses/gpl-2.0.html
  * Text Domain: staticforge-for-cloudflare-pages
+ * Domain Path: /languages
  * Requires at least: 5.8
  * Tested up to: 7.0
  * Requires PHP: 7.4
@@ -20,7 +21,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'SFORGE_VERSION', '1.6.0' );
+define( 'SFORGE_VERSION', '1.7.0' );
 define( 'SFORGE_FILE', __FILE__ );
 define( 'SFORGE_DIR', plugin_dir_path( __FILE__ ) );
 define( 'SFORGE_URL', plugin_dir_url( __FILE__ ) );

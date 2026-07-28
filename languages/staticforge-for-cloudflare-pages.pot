@@ -1,0 +1,1809 @@
+# Copyright (C) 2026 Gunjan Jaswal
+# This file is distributed under the same license as the StaticForge for Cloudflare Pages plugin.
+msgid ""
+msgstr ""
+"Project-Id-Version: StaticForge for Cloudflare Pages 1.7.0\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/staticforge-for-cloudflare-pages/\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Domain: staticforge-for-cloudflare-pages\n"
+
+#: staticforge-for-cloudflare-pages.php:183
+#: includes/class-sforge-settings.php:42 includes/class-sforge-settings.php:43
+msgid "Settings"
+msgstr ""
+
+#: staticforge-for-cloudflare-pages.php:184 admin/settings-page.php:507
+msgid "Support on Ko-fi"
+msgstr ""
+
+#: staticforge-for-cloudflare-pages.php:211
+msgid "Plugin Support"
+msgstr ""
+
+#: staticforge-for-cloudflare-pages.php:212 admin/settings-page.php:494
+msgid "Contact Developer"
+msgstr ""
+
+#: staticforge-for-cloudflare-pages.php:237
+#: includes/class-sforge-settings.php:32 includes/class-sforge-settings.php:33
+msgid "StaticForge for Cloudflare Pages"
+msgstr ""
+
+#: staticforge-for-cloudflare-pages.php:238
+msgid ""
+"Cloudflare Pages Direct Upload deployment target. Manage the Account ID, API "
+"Token, project, and branch on the StaticForge settings screen."
+msgstr ""
+
+#: includes/class-sforge-post-actions.php:51
+msgid "Rebuild"
+msgstr ""
+
+#: includes/class-sforge-post-actions.php:59
+msgid "Missing post."
+msgstr ""
+
+#: includes/class-sforge-post-actions.php:65
+#: includes/class-sforge-settings.php:251
+#: includes/class-sforge-settings.php:268
+#: includes/class-sforge-settings.php:283
+#: includes/class-sforge-settings.php:293
+msgid "Forbidden"
+msgstr ""
+
+#: includes/class-sforge-post-actions.php:69
+msgid "This post type is not part of the static export."
+msgstr ""
+
+#. translators: %s: post title
+#: includes/class-sforge-post-actions.php:102
+#, php-format
+msgid ""
+"Rebuild queued for \"%s\". Watch the StaticForge activity log for the deploy."
+msgstr ""
+
+#: includes/class-sforge-seo-injector.php:711
+msgid "Home"
+msgstr ""
+
+#: includes/class-sforge-seo-injector.php:734
+msgid "Authors"
+msgstr ""
+
+#: includes/class-sforge-settings.php:50 includes/class-sforge-settings.php:51
+#: admin/settings-page.php:31
+msgid "Setup Guide"
+msgstr ""
+
+#: includes/class-sforge-settings.php:101
+msgid "Quick Start"
+msgstr ""
+
+#. translators: %s: URL of the full Setup Guide page.
+#: includes/class-sforge-settings.php:104
+#, php-format
+msgid ""
+"<p><strong>Five steps to first deploy:</strong></p><ol><li>Create a "
+"Cloudflare Pages project in <em>Direct Upload</em> mode (note the slug, e.g. "
+"<code>mysite</code>).</li><li>Create an API Token with <code>Account "
+"&middot; Cloudflare Pages &middot; Edit</code>.</li><li>Copy your Account ID "
+"from the CF dashboard sidebar.</li><li>Fill the fields on this page &rarr; "
+"Save &rarr; <em>Test Connection</em>.</li><li>Click <em>Rebuild + Deploy "
+"Now</em> &rarr; watch the activity log.</li></ol><p>Full walkthrough: <a "
+"href=\"%s\">Setup Guide</a></p>"
+msgstr ""
+
+#: includes/class-sforge-settings.php:110
+msgid "Field Reference"
+msgstr ""
+
+#: includes/class-sforge-settings.php:111
+msgid ""
+"<dl><dt><strong>Account ID</strong></dt><dd>32-char hex from CF Dashboard "
+"right sidebar.</dd><dt><strong>API Token</strong></dt><dd>Permission: "
+"<code>Account &middot; Cloudflare Pages &middot; Edit</code>. Shown once at "
+"creation &mdash; copy it.</dd><dt><strong>Pages Project</strong></dt><dd>The "
+"slug only, NOT the <code>.pages.dev</code> URL.</dd><dt><strong>Branch</"
+"strong></dt><dd><code>main</code> = production. Anything else = preview "
+"deployment.</dd><dt><strong>Public Site URL</strong></dt><dd>Where the "
+"static site lives publicly. Used to rewrite WP URLs in HTML output.</"
+"dd><dt><strong>Inline CSS</strong></dt><dd>Embeds linked stylesheets so each "
+"exported page is self-contained.</dd><dt><strong>Debounce</strong></"
+"dt><dd>Rapid edits within this many seconds collapse into a single deploy.</"
+"dd><dt><strong>Rewrite <code>/wp-content/</code> URLs</strong></"
+"dt><dd>Rewrites every <code>/wp-content/*</code> URL (themes, plugins, "
+"uploads) to the live host. Requires a Worker/Nginx proxy on the live host "
+"pointing back at the dashboard.</dd><dt><strong>Bundle <code>/wp-content/"
+"uploads/</code> into deploy</strong></dt><dd>Softer alternative for shared-"
+"hosting origins whose firewall blocks Cloudflare. Fetches every uploads URL "
+"referenced in rendered HTML and ships them inside the CF Pages deploy. "
+"Themes/plugins still load from origin. Ignored when the rewrite-all toggle "
+"above is on.</dd><dt><strong>Bundle self-hosted fonts</strong></dt><dd>Ships "
+"<code>@font-face</code> fonts served from your WordPress host inside the "
+"deploy and rewrites their URLs to the Public Site URL, so they load same-"
+"origin instead of being blocked by CORS. On by default.</"
+"dd><dt><strong>Extra paths to include</strong></dt><dd>One path per line, "
+"relative to your WordPress root (e.g. <code>wp-content/plugins/elementor/"
+"assets/lib/font-awesome</code>). Files and whole folders are copied straight "
+"off disk into the deploy, and their <code>/wp-content/*</code> URLs are "
+"pointed at Cloudflare so the bundled copy is what loads. For assets the "
+"crawler never sees in the HTML &mdash; plugin icon fonts, a webfont folder, "
+"a downloadable PDF.</dd><dt><strong>Redirect <code>*.pages.dev</code> to "
+"live host</strong></dt><dd>Injects a tiny client-side JS snippet so any "
+"browser landing on <code>&lt;project&gt;.pages.dev</code> bounces to the "
+"canonical Public Site URL (preserves path + query). Auto-skipped when Public "
+"Site URL is itself a <code>.pages.dev</code> URL.</dd></dl>"
+msgstr ""
+
+#: includes/class-sforge-settings.php:115 admin/help-page.php:27
+#: admin/help-page.php:241
+msgid "Troubleshooting"
+msgstr ""
+
+#. translators: %s: URL of the full Setup Guide page.
+#: includes/class-sforge-settings.php:118
+#, php-format
+msgid ""
+"<ul><li><code>Project not found</code> &rarr; Pages Project must be the "
+"slug, not the URL.</li><li><code>Request body is incorrect</code> &rarr; old "
+"plugin version. Update.</li><li>Stuck on <em>Manifest</em> &rarr; PHP memory/"
+"timeout limit, or upload batch too large.</li><li>Sub-sitemaps missing "
+"&rarr; ensure plugin v1.0.0+ (handles CDATA-wrapped <code>&lt;loc&gt;</"
+"code>).</li><li>Live site shows <code>noindex</code> &rarr; turn off "
+"WordPress &rarr; Settings &rarr; Reading \"Discourage search engines\".</"
+"li><li>Fonts blocked by CORS on the live site &rarr; keep <strong>Bundle "
+"self-hosted fonts</strong> ticked and run a Full Rebuild so the fonts ship "
+"in the deploy.</li><li>Images return <code>520</code>/<code>522</code> on "
+"the live site &rarr; origin firewall blocks Cloudflare. Tick <strong>Bundle "
+"<code>/wp-content/uploads/</code> into deploy</strong>, untick "
+"<strong>Rewrite <code>/wp-content/</code> URLs</strong>, rebuild.</"
+"li><li><code>*.pages.dev</code> URL doesn't redirect &rarr; redirect is JS-"
+"based (Direct Upload can't activate <code>_worker.js</code>/Functions). "
+"<code>curl -I</code> won't see it; test in a real browser. Make sure "
+"<strong>Public Site URL</strong> is a non-<code>.pages.dev</code> URL.</li></"
+"ul><p>Detailed: <a href=\"%s\">Setup Guide</a></p>"
+msgstr ""
+
+#. translators: %s: author name, linked to their website.
+#: includes/class-sforge-settings.php:125
+#, php-format
+msgid "<p>By %s</p>"
+msgstr ""
+
+#: admin/help-page.php:11
+msgid "StaticForge for Cloudflare Pages — Setup Guide"
+msgstr ""
+
+#: admin/help-page.php:14
+msgid ""
+"Auto-export your WordPress site as static HTML and deploy to Cloudflare "
+"Pages on every publish or update. Follow the steps below in order — first "
+"run takes about 10 minutes."
+msgstr ""
+
+#: admin/help-page.php:18
+msgid "On this page:"
+msgstr ""
+
+#: admin/help-page.php:19
+msgid "1. Cloudflare Pages project"
+msgstr ""
+
+#: admin/help-page.php:20
+msgid "2. API token"
+msgstr ""
+
+#: admin/help-page.php:21
+msgid "3. Account ID"
+msgstr ""
+
+#: admin/help-page.php:22
+msgid "4. Plugin settings"
+msgstr ""
+
+#: admin/help-page.php:23
+msgid "5. First deploy"
+msgstr ""
+
+#: admin/help-page.php:24
+msgid "6. DNS cutover"
+msgstr ""
+
+#: admin/help-page.php:25
+msgid "Clean /wp-content/ URLs (advanced)"
+msgstr ""
+
+#: admin/help-page.php:26
+msgid "Bundle uploads (shared hosting)"
+msgstr ""
+
+#: admin/help-page.php:31
+msgid "Create a Cloudflare Pages project (Direct Upload mode)"
+msgstr ""
+
+#: admin/help-page.php:33
+msgid ""
+"Login to <a href=\"https://dash.cloudflare.com\" target=\"_blank\" "
+"rel=\"noopener\">dash.cloudflare.com</a>."
+msgstr ""
+
+#: admin/help-page.php:34
+msgid ""
+"Sidebar &rarr; <strong>Workers &amp; Pages</strong> &rarr; click "
+"<strong>Create application</strong> (top right)."
+msgstr ""
+
+#: admin/help-page.php:35
+msgid "Switch to the <strong>Pages</strong> tab on the next screen."
+msgstr ""
+
+#: admin/help-page.php:36
+msgid "Click <strong>Upload assets</strong> (NOT \"Connect to Git\")."
+msgstr ""
+
+#: admin/help-page.php:37
+msgid ""
+"<strong>Project name:</strong> use a short lowercase slug, e.g. "
+"<code>mysite</code>. This becomes <code>https://&lt;name&gt;.pages.dev</"
+"code>."
+msgstr ""
+
+#: admin/help-page.php:38
+msgid ""
+"Drag-drop any tiny placeholder file (a one-line <code>index.html</code> "
+"works) just to seed the project. The plugin will overwrite it on first real "
+"deploy."
+msgstr ""
+
+#: admin/help-page.php:39
+msgid ""
+"Click <strong>Deploy site</strong>. Once it lands, copy the project URL — "
+"that's your <em>Public Site URL</em> for testing."
+msgstr ""
+
+#: admin/help-page.php:44
+msgid "Create an API Token"
+msgstr ""
+
+#: admin/help-page.php:46
+msgid ""
+"Top-right avatar &rarr; <strong>My Profile</strong> &rarr; <strong>API "
+"Tokens</strong>."
+msgstr ""
+
+#: admin/help-page.php:47
+msgid "Click <strong>Create Token</strong>."
+msgstr ""
+
+#: admin/help-page.php:48
+msgid ""
+"Scroll down &rarr; under <em>Custom token</em> click <strong>Get started</"
+"strong>."
+msgstr ""
+
+#: admin/help-page.php:49
+msgid "Token name: <code>StaticForge for Cloudflare Pages</code>."
+msgstr ""
+
+#: admin/help-page.php:50
+msgid ""
+"Permissions: <strong>Account &middot; Cloudflare Pages &middot; Edit</strong>"
+msgstr ""
+
+#: admin/help-page.php:51
+msgid ""
+"Account Resources: <strong>Include &rarr; &lt;your account&gt;</strong>."
+msgstr ""
+
+#: admin/help-page.php:52
+msgid "Leave Client IP filter and TTL blank."
+msgstr ""
+
+#: admin/help-page.php:53
+msgid ""
+"Click <strong>Continue to summary</strong> &rarr; <strong>Create Token</"
+"strong>."
+msgstr ""
+
+#: admin/help-page.php:54
+msgid "<strong>Copy the token now</strong> — Cloudflare shows it only once."
+msgstr ""
+
+#: admin/help-page.php:57
+msgid ""
+"<strong>Security:</strong> rotate the token if it ever leaks. Never paste it "
+"into public chats, screenshots, or commits."
+msgstr ""
+
+#: admin/help-page.php:62
+msgid "Find your Account ID"
+msgstr ""
+
+#: admin/help-page.php:64
+msgid ""
+"Cloudflare Dashboard &rarr; <strong>Workers &amp; Pages</strong> overview, "
+"OR any zone's overview."
+msgstr ""
+
+#: admin/help-page.php:65
+msgid ""
+"Right sidebar &rarr; <strong>API</strong> section &rarr; copy "
+"<strong>Account ID</strong>."
+msgstr ""
+
+#: admin/help-page.php:67
+msgid "Format: 32-character hex string."
+msgstr ""
+
+#: admin/help-page.php:71
+msgid "Configure the plugin"
+msgstr ""
+
+#. translators: %s: link to the plugin Settings page.
+#: admin/help-page.php:75
+#, php-format
+msgid "Open %s and fill in:"
+msgstr ""
+
+#: admin/help-page.php:75
+msgid "StaticForge for Cloudflare Pages → Settings"
+msgstr ""
+
+#: admin/help-page.php:79
+msgid "Field"
+msgstr ""
+
+#: admin/help-page.php:79
+msgid "Value"
+msgstr ""
+
+#: admin/help-page.php:80 admin/settings-page.php:69
+msgid "Account ID"
+msgstr ""
+
+#: admin/help-page.php:80
+msgid "From step 3"
+msgstr ""
+
+#: admin/help-page.php:81 admin/settings-page.php:76
+msgid "API Token"
+msgstr ""
+
+#: admin/help-page.php:81
+msgid "From step 2"
+msgstr ""
+
+#: admin/help-page.php:82 admin/settings-page.php:83
+msgid "Pages Project"
+msgstr ""
+
+#: admin/help-page.php:82
+msgid "The slug only, e.g. <code>mysite</code> (NOT the .pages.dev URL)"
+msgstr ""
+
+#: admin/help-page.php:83 admin/settings-page.php:90
+msgid "Branch"
+msgstr ""
+
+#: admin/help-page.php:83
+msgid ""
+"<code>main</code> for production. Anything else creates a preview deployment."
+msgstr ""
+
+#: admin/help-page.php:84 admin/settings-page.php:97
+msgid "Public Site URL"
+msgstr ""
+
+#: admin/help-page.php:84
+msgid ""
+"<code>https://&lt;name&gt;.pages.dev</code> while testing. Switch to "
+"<code>https://yourdomain.com</code> after DNS cutover."
+msgstr ""
+
+#: admin/help-page.php:85 admin/settings-page.php:118
+#: admin/settings-page.php:376
+msgid "Post Types"
+msgstr ""
+
+#: admin/help-page.php:85
+msgid ""
+"Tick the types to export. <code>post</code> + <code>page</code> + any custom "
+"types."
+msgstr ""
+
+#: admin/help-page.php:86 admin/settings-page.php:140
+#: admin/settings-page.php:398
+msgid "Include"
+msgstr ""
+
+#: admin/help-page.php:86
+msgid "Tick all three: Homepage, Taxonomies, Authors."
+msgstr ""
+
+#: admin/help-page.php:87 admin/settings-page.php:150
+msgid "Inline CSS"
+msgstr ""
+
+#: admin/help-page.php:87
+msgid "Tick &mdash; embeds linked stylesheets so each page is self-contained."
+msgstr ""
+
+#: admin/help-page.php:88 admin/settings-page.php:432
+msgid "Auto-deploy"
+msgstr ""
+
+#: admin/help-page.php:88
+msgid "Tick to redeploy on publish/update."
+msgstr ""
+
+#: admin/help-page.php:89 admin/settings-page.php:438
+msgid "Debounce"
+msgstr ""
+
+#: admin/help-page.php:89
+msgid "<code>120</code> seconds. Rapid edits collapse into one deploy."
+msgstr ""
+
+#: admin/help-page.php:90
+msgid "robots.txt"
+msgstr ""
+
+#: admin/help-page.php:90
+msgid ""
+"Leave blank to auto-generate, or paste a custom version. <code>Sitemap:</"
+"code> line is appended automatically."
+msgstr ""
+
+#: admin/help-page.php:92
+msgid ""
+"Save Settings &rarr; click <strong>Test Connection</strong>. Expect "
+"\"Connection OK\" notice and a log entry within a few seconds."
+msgstr ""
+
+#: admin/help-page.php:96
+msgid "First deploy"
+msgstr ""
+
+#: admin/help-page.php:98
+msgid "Click <strong>Rebuild + Deploy Now</strong>."
+msgstr ""
+
+#: admin/help-page.php:99
+msgid "The activity log refreshes live. Expected sequence:"
+msgstr ""
+
+#: admin/help-page.php:110
+msgid "<code>Deploy OK [&lt;id&gt;]</code> with link to the deployment URL."
+msgstr ""
+
+#: admin/help-page.php:113
+msgid ""
+"Open the deployment link &rarr; verify homepage, a post, sitemap.xml, "
+"robots.txt all look right."
+msgstr ""
+
+#: admin/help-page.php:116
+msgid ""
+"<strong>Note:</strong> media files under <code>/wp-content/uploads/</code> "
+"are NOT bundled in the deploy. Image URLs are kept pointing to your "
+"WordPress origin — they keep working as long as origin is reachable."
+msgstr ""
+
+#: admin/help-page.php:121
+msgid "DNS cutover (optional, when ready)"
+msgstr ""
+
+#: admin/help-page.php:123
+msgid ""
+"Add your apex domain (e.g. <code>example.com</code>) to Cloudflare. Update "
+"registrar nameservers."
+msgstr ""
+
+#: admin/help-page.php:124
+msgid ""
+"In your CF Pages project &rarr; <strong>Custom Domains</strong> &rarr; add "
+"<code>example.com</code> + <code>www.example.com</code>. CF auto-creates the "
+"right DNS records and provisions an edge SSL cert."
+msgstr ""
+
+#: admin/help-page.php:125
+msgid "Recommended DNS layout:"
+msgstr ""
+
+#: admin/help-page.php:127
+msgid "Record"
+msgstr ""
+
+#: admin/help-page.php:127
+msgid "Name"
+msgstr ""
+
+#: admin/help-page.php:127
+msgid "Target"
+msgstr ""
+
+#: admin/help-page.php:127
+msgid "Proxy"
+msgstr ""
+
+#: admin/help-page.php:128 admin/help-page.php:129 admin/help-page.php:130
+msgid "orange"
+msgstr ""
+
+#: admin/help-page.php:130
+msgid "your origin server IP"
+msgstr ""
+
+#: admin/help-page.php:133
+msgid ""
+"Add a CF Bulk Redirect <code>www.example.com/*</code> &rarr; <code>https://"
+"example.com/$1</code> 301."
+msgstr ""
+
+#: admin/help-page.php:134
+msgid ""
+"Update plugin's <em>Public Site URL</em> to the final domain &rarr; Save "
+"&rarr; <strong>Rebuild + Deploy Now</strong> &mdash; canonicals + sitemap "
+"entries now point to the live domain."
+msgstr ""
+
+#: admin/help-page.php:139
+msgid "Clean <code>/wp-content/</code> URLs (advanced)"
+msgstr ""
+
+#: admin/help-page.php:141
+msgid ""
+"By default the plugin leaves <code>&lt;origin&gt;/wp-content/...</code> URLs "
+"alone (theme CSS/JS, plugin assets, media uploads) so they keep working "
+"without bundling multi-gigabyte folders into every deploy. That means "
+"structured data such as <code>og:image</code>, JSON-LD <code>image</code>/"
+"<code>logo</code>/<code>thumbnailUrl</code>, and HTML <code>&lt;img src&gt;</"
+"code>/<code>srcset</code> will still reference your <strong>dashboard host</"
+"strong> on the deployed site."
+msgstr ""
+
+#: admin/help-page.php:144
+msgid ""
+"If you want fully clean URLs on the live site, set up a proxy and turn on "
+"<strong>Export Scope &rarr; Rewrite <code>/wp-content/</code> URLs</strong>."
+msgstr ""
+
+#: admin/help-page.php:147
+msgid "Option A &mdash; Cloudflare Worker (recommended)"
+msgstr ""
+
+#: admin/help-page.php:149
+msgid ""
+"Cloudflare Dashboard &rarr; <strong>Workers &amp; Pages</strong> &rarr; "
+"<strong>Create application</strong> &rarr; <strong>Workers</strong> &rarr; "
+"<strong>Hello World</strong> template."
+msgstr ""
+
+#: admin/help-page.php:150
+msgid ""
+"Name it <code>wp-content-proxy</code> &rarr; Deploy &rarr; <strong>Edit "
+"code</strong>."
+msgstr ""
+
+#: admin/help-page.php:151
+msgid "Replace the default code with:"
+msgstr ""
+
+#: admin/help-page.php:163
+msgid ""
+"Replace <code>dashboard.example.com</code> with your actual dashboard host."
+msgstr ""
+
+#: admin/help-page.php:165
+msgid "Click <strong>Deploy</strong>."
+msgstr ""
+
+#: admin/help-page.php:166
+msgid ""
+"Worker &rarr; <strong>Settings</strong> &rarr; <strong>Triggers</strong> "
+"&rarr; <strong>Add route</strong>: <code>example.com/wp-content/*</code> "
+"(and add a second route for <code>www.example.com/wp-content/*</code> if you "
+"serve both)."
+msgstr ""
+
+#: admin/help-page.php:167
+msgid ""
+"In the plugin: tick <strong>Export Scope &rarr; Rewrite <code>/wp-content/</"
+"code> URLs</strong> &rarr; Save &rarr; <strong>Rebuild + Deploy Now</strong>."
+msgstr ""
+
+#: admin/help-page.php:170
+msgid "Option B &mdash; Nginx / Apache reverse proxy"
+msgstr ""
+
+#: admin/help-page.php:171
+msgid "If your live site is served from your own server:"
+msgstr ""
+
+#: admin/help-page.php:185
+msgid "Verify"
+msgstr ""
+
+#: admin/help-page.php:187
+msgid ""
+"<code>curl -I https://example.com/wp-content/uploads/<em>any-file</em>.jpg</"
+"code> &rarr; expect HTTP 200 with image content-type."
+msgstr ""
+
+#: admin/help-page.php:188
+msgid "Rebuild + Deploy Now."
+msgstr ""
+
+#: admin/help-page.php:189
+msgid ""
+"View source of any deployed post &rarr; <code>og:image</code>, JSON-LD "
+"<code>image</code>/<code>logo</code>, and <code>&lt;img src&gt;</code> all "
+"reference your live host (<code>example.com</code>), not the dashboard."
+msgstr ""
+
+#: admin/help-page.php:193
+msgid ""
+"<strong>If the toggle is on but proxy is NOT set up:</strong> every image / "
+"theme stylesheet / plugin script on the live site will return 404. Verify "
+"the curl test above before flipping the toggle on a production site."
+msgstr ""
+
+#: admin/help-page.php:198
+msgid "Bundle <code>/wp-content/uploads/</code> into deploy (shared hosting)"
+msgstr ""
+
+#: admin/help-page.php:200
+msgid ""
+"Use this when the Worker / Nginx proxy approach above doesn't work because "
+"your origin's firewall blocks Cloudflare. Common on shared cPanel hosts "
+"(HostArmada, SiteGround, GoDaddy, Bluehost, etc.) where you can't whitelist "
+"Cloudflare's edge IPs. Symptoms: <code>curl -I https://example.com/wp-"
+"content/uploads/file.jpg</code> returns <code>HTTP/1.1 520</code> or "
+"<code>522</code> while the direct dashboard URL works."
+msgstr ""
+
+#: admin/help-page.php:203
+msgid "What it does"
+msgstr ""
+
+#: admin/help-page.php:205
+msgid ""
+"Tick <strong>Export Scope &rarr; Bundle <code>/wp-content/uploads/</code> "
+"into deploy</strong> (leave <strong>Rewrite <code>/wp-content/</code> URLs</"
+"strong> off). On the next rebuild the plugin:"
+msgstr ""
+
+#: admin/help-page.php:208
+msgid ""
+"Scans every rendered page for <code>/wp-content/uploads/...</code> "
+"references &mdash; <code>&lt;img src&gt;</code>, <code>srcset</code>, "
+"<code>og:image</code>, JSON-LD <code>image</code>/<code>logo</code>/"
+"<code>thumbnailUrl</code>, inline CSS <code>url(...)</code>, oEmbed "
+"thumbnails (literal, JSON-escaped, and percent-encoded forms)."
+msgstr ""
+
+#: admin/help-page.php:209
+msgid "Fetches each unique file from the WordPress origin during rebuild."
+msgstr ""
+
+#: admin/help-page.php:210
+msgid ""
+"Uploads them inside the Cloudflare Pages deploy at their original <code>/wp-"
+"content/uploads/...</code> paths."
+msgstr ""
+
+#: admin/help-page.php:211
+msgid ""
+"Rewrites image URLs in the rendered HTML / JSON-LD to the live host so the "
+"static site is fully self-contained."
+msgstr ""
+
+#: admin/help-page.php:214
+msgid "What still loads from origin"
+msgstr ""
+
+#: admin/help-page.php:216
+msgid ""
+"Theme CSS/JS and plugin assets (everything under <code>/wp-content/themes/</"
+"code> and <code>/wp-content/plugins/</code>) keep loading from the WordPress "
+"dashboard host as before. Those rarely cause shared-hosting firewall issues, "
+"and bundling them on every deploy would balloon the upload size for no SEO "
+"benefit."
+msgstr ""
+
+#: admin/help-page.php:219
+msgid "Cost / size considerations"
+msgstr ""
+
+#: admin/help-page.php:221
+msgid ""
+"Only files <em>referenced</em> from exported pages get bundled &mdash; not "
+"the entire media library. Cloudflare's <code>check-missing</code> API "
+"deduplicates unchanged files by content hash, so subsequent rebuilds only "
+"upload new or modified images. If your origin uses <a href=\"https://"
+"wordpress.org/plugins/webp-express/\" target=\"_blank\" "
+"rel=\"noopener\">WebP Express</a> or similar (serving <code>.webp</code> via "
+"headers), the plugin captures whichever extension your origin actually "
+"returns in the rendered HTML."
+msgstr ""
+
+#: admin/help-page.php:224
+msgid "Verify after deploy"
+msgstr ""
+
+#: admin/help-page.php:226
+msgid ""
+"Watch the activity log &mdash; expect <code>Bundling N /wp-content/uploads/ "
+"file(s) into deploy...</code> then <code>Asset bundle done: X ok, Y failed, "
+"Z MB total</code>."
+msgstr ""
+
+#: admin/help-page.php:227
+msgid ""
+"<code>curl -I https://example.com/wp-content/uploads/<em>any-file</em>.jpg</"
+"code> &rarr; expect <code>HTTP/1.1 200 OK</code> with <code>Server: "
+"cloudflare</code> and a <code>cf-ray</code> header (served by CF Pages "
+"directly, not your origin)."
+msgstr ""
+
+#: admin/help-page.php:228
+msgid ""
+"View any deployed post source &rarr; <code>og:image</code>, JSON-LD image "
+"fields, and <code>&lt;img src&gt;</code> / <code>srcset</code> all point at "
+"the live host."
+msgstr ""
+
+#: admin/help-page.php:232
+msgid ""
+"<strong>Which option do I pick?</strong> If your origin proxies cleanly "
+"through Cloudflare (VPS / dedicated / fully managed with Worker route "
+"accepting CF subrequests), use the Worker/Nginx proxy above &mdash; uploads "
+"stay on the dashboard, deploys stay tiny. If your origin is shared hosting "
+"and you keep getting 520/522 from the Worker route, use this bundle option "
+"instead."
+msgstr ""
+
+#: admin/help-page.php:236
+msgid ""
+"<strong>Ignored when \"Rewrite <code>/wp-content/</code> URLs\" is on.</"
+"strong> That setting rewrites everything (themes, plugins, uploads) and "
+"assumes you have a full proxy. The bundle option only matters when the "
+"broader rewrite toggle is off."
+msgstr ""
+
+#: admin/help-page.php:242
+msgid ""
+"Grouped by where it happens. The <code>code-styled</code> phrases are the "
+"exact <strong>Activity Log</strong> messages, so you can match what you see."
+msgstr ""
+
+#: admin/help-page.php:244
+msgid "Login &amp; DNS cutover"
+msgstr ""
+
+#: admin/help-page.php:246
+msgid ""
+"After DNS cutover, wp-admin bounces to the live site — can't log in or "
+"redeploy"
+msgstr ""
+
+#: admin/help-page.php:248
+msgid ""
+"<strong>Symptom:</strong> opening wp-admin throws you to the <em>public</em> "
+"host's login, e.g. <code>https://example.com/wp-login.php?"
+"redirect_to=https%3A%2F%2Fdashboard.example.com%2Fwp-admin%2F...</code> — "
+"but <code>example.com</code> is now the static Cloudflare site with no "
+"WordPress on it, so login fails and you can't reach this page to redeploy."
+msgstr ""
+
+#: admin/help-page.php:249
+msgid ""
+"<strong>Cause:</strong> WordPress's own <strong>WP Address</strong> "
+"(<code>siteurl</code>) / <strong>Site Address</strong> (<code>home</code>) "
+"still point at the public host instead of your dashboard host. WordPress "
+"builds the login URL from <code>siteurl</code>, so it sends you to the "
+"static site."
+msgstr ""
+
+#: admin/help-page.php:250
+msgid ""
+"<strong>Fix:</strong> pin both to the dashboard host in <code>wp-config.php</"
+"code> (add just above <code>/* That's all, stop editing! Happy publishing. */"
+"</code>):"
+msgstr ""
+
+#: admin/help-page.php:253
+msgid ""
+"Save, then log in from a private/incognito window at <code>https://"
+"dashboard.example.com/wp-admin</code>."
+msgstr ""
+
+#: admin/help-page.php:255
+msgid ""
+"<strong>Keep them separate:</strong> WordPress lives on "
+"<code>dashboard.example.com</code>; the plugin's <strong>Public Site URL</"
+"strong> stays the public host (<code>https://example.com</code>). The "
+"renderer rewrites the dashboard host &rarr; Public Site URL during export, "
+"so the static site still shows clean public links. Only WordPress's own two "
+"addresses move to the dashboard subdomain — never the plugin's Public Site "
+"URL."
+msgstr ""
+
+#: admin/help-page.php:260
+msgid "Setup &amp; connection (Test Connection)"
+msgstr ""
+
+#: admin/help-page.php:263
+msgid ""
+"One of the three credential fields is blank. Fill Account ID, API Token, and "
+"Pages Project, Save, then test again."
+msgstr ""
+
+#: admin/help-page.php:266
+msgid ""
+"The <strong>Pages Project</strong> field must be the project <em>slug</em> "
+"only (e.g. <code>mysite</code>), never the full <code>mysite.pages.dev</"
+"code> URL. Also confirm the project lives in the <em>same</em> Cloudflare "
+"account whose Account ID you pasted."
+msgstr ""
+
+#: admin/help-page.php:268
+msgid "<code>Test FAIL</code> with an authentication / HTTP 403 message"
+msgstr ""
+
+#: admin/help-page.php:269
+msgid ""
+"The API token is wrong, expired, or under-scoped. Create one with exactly "
+"<strong>Account &middot; Cloudflare Pages &middot; Edit</strong> and "
+"<em>Account Resources</em> including the right account, re-paste it (it's "
+"shown only once at creation), and Save."
+msgstr ""
+
+#: admin/help-page.php:272
+msgid ""
+"The connection can test OK with a read-only token, but deploying needs write "
+"access. Recreate the token with <strong>Cloudflare Pages &middot; Edit</"
+"strong> (not Read)."
+msgstr ""
+
+#: admin/help-page.php:275
+msgid "Rebuild won't start or won't finish"
+msgstr ""
+
+#: admin/help-page.php:277
+msgid "\"Rebuild + Deploy Now\" or auto-deploy does nothing — no new log lines"
+msgstr ""
+
+#: admin/help-page.php:278
+msgid ""
+"The rebuild runs on a WordPress scheduled event a few seconds after you "
+"click, so it depends on <strong>WP-Cron</strong>. If <code>DISABLE_WP_CRON</"
+"code> is defined, or the site gets almost no traffic, the event may never "
+"fire — you'll see <code>Full rebuild queued (manual).</code> but never "
+"<code>Full rebuild started.</code> Fixes: load any front-end page to nudge "
+"WP-Cron, or run a real system cron hitting <code>wp-cron.php</code> every "
+"minute."
+msgstr ""
+
+#: admin/help-page.php:281
+msgid ""
+"No post types are ticked under <strong>Export Scope</strong>, or nothing is "
+"published in the selected types. Tick at least one post type (and/or "
+"Homepage / Taxonomies / Authors) and confirm you have published content."
+msgstr ""
+
+#: admin/help-page.php:284
+msgid ""
+"The plugin fetches your own URLs via <code>wp_remote_get</code>. A handful "
+"of failures is usually harmless; many means the site is blocking itself — "
+"HTTP basic auth, an IP allow-list, an aggressive WAF, Cloudflare \"Under "
+"Attack\" mode, or a coming-soon / maintenance plugin. Let the origin fetch "
+"itself (or pause the blocker during deploys). For an invalid / self-signed "
+"origin cert during migration, add <code>add_filter( 'sforge_sslverify', "
+"'__return_false' );</code>."
+msgstr ""
+
+#: admin/help-page.php:287
+msgid ""
+"Every page failed to render, so there was nothing to upload — almost always "
+"the same self-fetch block as above. Check the <code>Render fail</code> lines "
+"just above this one for the HTTP code."
+msgstr ""
+
+#: admin/help-page.php:289
+msgid ""
+"Stuck on <code>Hashing files...</code> / <code>Manifest: ... files</code>"
+msgstr ""
+
+#: admin/help-page.php:290
+msgid ""
+"PHP ran out of memory or hit the time limit while encoding the upload. The "
+"plugin already requests <code>set_time_limit(0)</code> and "
+"<code>memory_limit 512M</code>, but shared hosts can override that. Raise "
+"<code>memory_limit</code> (256&ndash;512MB) and <code>max_execution_time</"
+"code> via <code>php.ini</code> or your host panel."
+msgstr ""
+
+#: admin/help-page.php:293
+msgid "Deploy step errors (Cloudflare API)"
+msgstr ""
+
+#: admin/help-page.php:296
+msgid ""
+"An old build sent the deployment as URL-encoded form data. v1.0.0+ sends "
+"<code>multipart/form-data</code>, which Cloudflare requires — update the "
+"plugin."
+msgstr ""
+
+#: admin/help-page.php:299
+msgid ""
+"Usually a single file over Cloudflare Pages' <strong>25&nbsp;MiB</strong> "
+"per-file limit (a large video / PDF in uploads), or a network timeout on a "
+"big batch. Remove or relocate oversized media and host it elsewhere."
+msgstr ""
+
+#: admin/help-page.php:302
+msgid ""
+"A Cloudflare-side rejection; the exact reason is quoted in the log. Common "
+"cause: more than <strong>20,000 files</strong> in one deployment (CF Pages "
+"free-tier limit). Trim Export Scope, or split a very large site."
+msgstr ""
+
+#: admin/help-page.php:305
+msgid ""
+"A transient Cloudflare API hiccup or a token problem mid-deploy. Re-run "
+"<strong>Rebuild + Deploy Now</strong>; if it persists, re-test the "
+"connection — the token may have been revoked."
+msgstr ""
+
+#: admin/help-page.php:308
+msgid "Live site looks wrong"
+msgstr ""
+
+#: admin/help-page.php:310
+msgid "Images broken on the live site (or only <em>some</em> show)"
+msgstr ""
+
+#: admin/help-page.php:311
+msgid ""
+"By default <code>/wp-content/*</code> URLs (including uploads) keep pointing "
+"at your WordPress origin, so the origin must be reachable over HTTPS with a "
+"valid cert — proxy that subdomain through Cloudflare (orange cloud) so CF "
+"serves a fresh edge cert. If your host blocks Cloudflare (<code>520</code> / "
+"<code>522</code> on uploads), tick <strong>Bundle <code>/wp-content/uploads/"
+"</code> into deploy</strong> so images ship inside the deploy. If only "
+"<em>some</em> broke right after a cutover, it's usually a stale deploy plus "
+"a wrong <strong>Site Address</strong> (see <em>Login &amp; DNS cutover</em> "
+"above) — fix that, then Rebuild + Deploy Now."
+msgstr ""
+
+#: admin/help-page.php:313
+msgid "<code>&lt;project&gt;.pages.dev</code> doesn't redirect to my domain"
+msgstr ""
+
+#: admin/help-page.php:314
+msgid ""
+"The redirect is a client-side JS snippet (the Direct Upload API can't run "
+"<code>_worker.js</code> / Functions), so <code>curl -I</code> won't show it "
+"— test in a real browser. It only fires when <strong>Public Site URL</"
+"strong> is a real domain (not a <code>.pages.dev</code> URL) and the "
+"<strong>Redirect *.pages.dev to live host</strong> toggle is on."
+msgstr ""
+
+#: admin/help-page.php:316
+msgid "Live site shows <code>noindex</code>"
+msgstr ""
+
+#: admin/help-page.php:317
+msgid ""
+"WordPress &rarr; Settings &rarr; Reading: leave <strong>\"Discourage search "
+"engines\"</strong> UNCHECKED on the dashboard. The plugin scrubs "
+"<code>noindex</code> / <code>nofollow</code> meta during render, but that "
+"toggle also changes how SEO plugins build the sitemap."
+msgstr ""
+
+#: admin/help-page.php:319
+msgid "Contact forms don't send on the live site"
+msgstr ""
+
+#: admin/help-page.php:320
+msgid ""
+"Cloudflare Pages is static — no PHP / WordPress runtime — so anything "
+"posting to <code>admin-ajax.php</code> or <code>/wp-json/</code> (Contact "
+"Form 7, WPForms, Gravity Forms) silently fails. Point the form at a static-"
+"friendly endpoint (a Cloudflare Pages Function / Worker, Formspree, Basin, "
+"Web3Forms). A form posting to a <em>different</em> host is left untouched "
+"and keeps working."
+msgstr ""
+
+#: admin/help-page.php:322
+msgid "Duplicate SEO meta or schema in <code>&lt;head&gt;</code>"
+msgstr ""
+
+#: admin/help-page.php:323
+msgid ""
+"An SEO plugin we don't auto-detect is also injecting tags. Two-tier dedup "
+"covers Yoast, Rank Math, AIO SEO, SEOPress, The SEO Framework, Slim SEO, "
+"Squirrly, SmartCrawl, WP Meta SEO (general SEO plugins → all injection "
+"paused) and Schema &amp; Structured Data for WP &amp; AMP, Schema Pro, "
+"WPSSO, Schema by Hesham, Schema App, Magazine3 Schema (schema-only plugins → "
+"only JSON-LD paused). For niche plugins, extend detection via the "
+"<code>sforge_seo_competing_plugin</code> or "
+"<code>sforge_schema_competing_plugin</code> filter, or simply untick "
+"<strong>Inject SEO meta</strong>."
+msgstr ""
+
+#: admin/help-page.php:325
+msgid "FAQ / HowTo schema not appearing"
+msgstr ""
+
+#: admin/help-page.php:326
+msgid ""
+"FAQ schema needs Yoast / Rank Math / SEOPress FAQ blocks OR "
+"<code>&lt;details&gt;&lt;summary&gt;Question&lt;/summary&gt;Answer&lt;/"
+"details&gt;</code> markup in the content. HowTo needs a Yoast or Rank Math "
+"HowTo block, OR a title starting with \"How to\" + a numbered list with 3+ "
+"items. Use the <code>sforge_faq_items</code> / <code>sforge_howto_data</"
+"code> filters to inject manually."
+msgstr ""
+
+#: admin/help-page.php:329
+msgid "Sitemaps &amp; multilingual"
+msgstr ""
+
+#: admin/help-page.php:331
+msgid "Sub-sitemaps missing on deploy"
+msgstr ""
+
+#: admin/help-page.php:332
+msgid ""
+"v1.0.0+ handles CDATA-wrapped <code>&lt;loc&gt;</code> entries in sitemap-"
+"index files. Earlier builds skipped them — update and redeploy."
+msgstr ""
+
+#: admin/help-page.php:335
+msgid ""
+"Your origin exposes no sitemap, so the plugin tried to generate one — but "
+"everything is unticked under <strong>Sitemap Generator</strong>. Tick at "
+"least one post type / Homepage / Taxonomies / Authors."
+msgstr ""
+
+#: admin/help-page.php:338
+msgid ""
+"The generator ran but matched no published URLs. Confirm you have published "
+"content in the selected sitemap post types."
+msgstr ""
+
+#: admin/help-page.php:340
+msgid "TranslatePress languages aren't on the live site"
+msgstr ""
+
+#: admin/help-page.php:341
+msgid ""
+"If the log notes that secondary languages are on <strong>separate "
+"subdomains / domains</strong>, that's expected — one Cloudflare Pages "
+"project serves one hostname. Switch TranslatePress to <strong>subdirectory</"
+"strong> mode (<code>/fr/</code>, <code>/de/</code>) and Rebuild; all "
+"languages then ship in the one deploy."
+msgstr ""
+
+#: admin/help-page.php:344
+msgid ""
+"An image optimiser is swapping image URLs with JavaScript (e.g. EWWW "
+"<strong>Lazy Load</strong> or <strong>Easy IO</strong>), so the real URLs "
+"aren't in the rendered HTML for the bundler to find. Turn off the JS lazy-"
+"load / Easy-IO feature (keep the compression) and Rebuild."
+msgstr ""
+
+#: admin/help-page.php:347
+msgid "Limits &amp; frequency"
+msgstr ""
+
+#: admin/help-page.php:349
+msgid "Hit ~100 deployments per day"
+msgstr ""
+
+#: admin/help-page.php:350
+msgid ""
+"Free Cloudflare Pages tier soft cap. Raise the plugin's <em>Debounce</em> "
+"setting from 120s to e.g. 600s so rapid bulk edits collapse into fewer "
+"deploys."
+msgstr ""
+
+#. translators: 1: plugin version, 2: author name linked to their website.
+#: admin/help-page.php:357
+#, php-format
+msgid ""
+"<strong>StaticForge for Cloudflare Pages</strong> v%1$s &mdash; built by %2$s"
+msgstr ""
+
+#: admin/settings-page.php:25
+msgid ""
+"Auto-export your WordPress site as static HTML &mdash; deploy to Cloudflare "
+"Pages on every publish."
+msgstr ""
+
+#: admin/settings-page.php:37
+msgid "<strong>Connection OK.</strong> Cloudflare Pages project is reachable."
+msgstr ""
+
+#: admin/settings-page.php:39
+msgid ""
+"<strong>Connection failed.</strong> See the activity log below for details."
+msgstr ""
+
+#: admin/settings-page.php:41
+msgid ""
+"<strong>Full rebuild queued.</strong> The activity log refreshes live "
+"&mdash; watch for progress in the next few seconds."
+msgstr ""
+
+#: admin/settings-page.php:48
+msgid "First time? Read the Setup Guide."
+msgstr ""
+
+#: admin/settings-page.php:49
+msgid ""
+"Walk-through for creating a Cloudflare Pages project, generating an API "
+"token, and configuring this plugin."
+msgstr ""
+
+#: admin/settings-page.php:51
+msgid "Open Setup Guide"
+msgstr ""
+
+#: admin/settings-page.php:62
+msgid "Cloudflare"
+msgstr ""
+
+#: admin/settings-page.php:63
+msgid "Connect to your Cloudflare Pages project via the Direct Upload API."
+msgstr ""
+
+#: admin/settings-page.php:71
+msgid "e.g. a2709493ed708e84df53c91fa354c230"
+msgstr ""
+
+#: admin/settings-page.php:72
+msgid ""
+"Cloudflare Dashboard &rarr; right sidebar of any zone or Workers &amp; Pages "
+"overview."
+msgstr ""
+
+#: admin/settings-page.php:79
+msgid ""
+"Create at <code>My Profile &rarr; API Tokens</code>. Required permission: "
+"<code>Account &middot; Cloudflare Pages &middot; Edit</code>."
+msgstr ""
+
+#: admin/settings-page.php:86
+msgid ""
+"The slug only (e.g. <code>my-site</code>), <strong>not</strong> the "
+"<code>.pages.dev</code> URL. Create in the CF dashboard with the Direct "
+"Upload option."
+msgstr ""
+
+#: admin/settings-page.php:93
+msgid ""
+"<code>main</code> = production deployment. Anything else creates a preview "
+"deployment."
+msgstr ""
+
+#: admin/settings-page.php:99
+msgid "https://my-site.pages.dev or https://www.example.com"
+msgstr ""
+
+#: admin/settings-page.php:100
+msgid ""
+"Where the static site lives publicly. Used to rewrite WP origin URLs in "
+"exported HTML and sitemap entries."
+msgstr ""
+
+#: admin/settings-page.php:111
+msgid "Export Scope"
+msgstr ""
+
+#: admin/settings-page.php:112
+msgid "Choose which post types and archives to export."
+msgstr ""
+
+#: admin/settings-page.php:136
+msgid "All published items of selected types are exported."
+msgstr ""
+
+#: admin/settings-page.php:143 admin/settings-page.php:401
+msgid "Homepage"
+msgstr ""
+
+#: admin/settings-page.php:144 admin/settings-page.php:402
+msgid "Taxonomy archives"
+msgstr ""
+
+#: admin/settings-page.php:145 admin/settings-page.php:403
+msgid "Author archives"
+msgstr ""
+
+#: admin/settings-page.php:152
+msgid "Embed all linked stylesheets into each page"
+msgstr ""
+
+#: admin/settings-page.php:153
+msgid "Self-contained pages, no external CSS requests."
+msgstr ""
+
+#: admin/settings-page.php:157
+msgid "Redirect <code>*.pages.dev</code> to live host"
+msgstr ""
+
+#: admin/settings-page.php:159
+msgid ""
+"301-redirect any request hitting <code>&lt;project&gt;.pages.dev</code> to "
+"the canonical Public Site URL"
+msgstr ""
+
+#: admin/settings-page.php:161
+msgid ""
+"Adds a Cloudflare Pages Function (<code>functions/_middleware.js</code>) to "
+"the deploy that intercepts requests with a <code>.pages.dev</code> hostname "
+"and 301-redirects them to your <strong>Public Site URL</strong> (preserving "
+"path + query string). Stops Google from indexing the preview URL alongside "
+"your real domain."
+msgstr ""
+
+#: admin/settings-page.php:162
+msgid ""
+"Automatically skipped when Public Site URL itself is a <code>.pages.dev</"
+"code> URL (e.g. while you're still testing pre-DNS cutover)."
+msgstr ""
+
+#: admin/settings-page.php:163
+msgid ""
+"Counts as a Cloudflare Workers request &mdash; free tier includes 100k/day, "
+"sparse <code>.pages.dev</code> traffic costs effectively nothing."
+msgstr ""
+
+#: admin/settings-page.php:168
+msgid "Rewrite <code>/wp-content/</code> URLs"
+msgstr ""
+
+#: admin/settings-page.php:170
+msgid ""
+"Also rewrite <code>/wp-content/</code> URLs (uploads, themes, plugin assets) "
+"to the live host"
+msgstr ""
+
+#: admin/settings-page.php:172
+msgid ""
+"<strong>Default: OFF.</strong> By default, <code>&lt;origin&gt;/wp-"
+"content/...</code> URLs are kept pointing at your WordPress origin so media, "
+"theme CSS/JS, and plugin assets keep working without bundling gigabytes of "
+"files in every deploy."
+msgstr ""
+
+#: admin/settings-page.php:173
+msgid ""
+"<strong>Turn ON only if you've arranged your own proxy / mirror / CDN for "
+"<code>/wp-content/*</code> on the live host</strong> &mdash; e.g. a "
+"Cloudflare Worker rewriting <code>https://example.com/wp-content/*</code> "
+"&rarr; <code>https://dashboard.example.com/wp-content/*</code>, or an Nginx "
+"reverse-proxy, or a separate CDN domain. Otherwise images, theme styles and "
+"scripts will 404 on the deployed site."
+msgstr ""
+
+#: admin/settings-page.php:174
+msgid ""
+"When ON, schema URLs (<code>og:image</code>, JSON-LD <code>image</code>/"
+"<code>logo</code>, <code>thumbnailUrl</code>) and HTML <code>src</code>/"
+"<code>srcset</code> point to the live host instead of the dashboard."
+msgstr ""
+
+#: admin/settings-page.php:179
+msgid "Bundle <code>/wp-content/uploads/</code> into deploy"
+msgstr ""
+
+#: admin/settings-page.php:181
+msgid ""
+"Fetch every <code>/wp-content/uploads/</code> file referenced by the "
+"rendered HTML and ship it alongside the static pages"
+msgstr ""
+
+#: admin/settings-page.php:183
+msgid ""
+"<strong>Default: OFF.</strong> Softer alternative to the option above "
+"&mdash; only media files (uploads) get rewritten to the live host and "
+"bundled into the CF Pages deploy. Theme &amp; plugin assets (CSS/JS/fonts) "
+"still load from the WordPress origin."
+msgstr ""
+
+#: admin/settings-page.php:184
+msgid ""
+"Use this when your origin can't be reached from Cloudflare Workers / proxies "
+"(shared hosting firewalls, IP allow-lists, etc.). Each rebuild downloads "
+"only files referenced from the rendered pages, so cost scales with what's "
+"actually used, not the full media library."
+msgstr ""
+
+#: admin/settings-page.php:185
+msgid ""
+"Ignored when \"Rewrite <code>/wp-content/</code> URLs\" above is ON (that "
+"setting already rewrites everything)."
+msgstr ""
+
+#: admin/settings-page.php:190
+msgid "Bundle self-hosted fonts"
+msgstr ""
+
+#: admin/settings-page.php:192
+msgid ""
+"Ship <code>@font-face</code> fonts served from your WordPress host alongside "
+"the static pages and point their URLs at the live host"
+msgstr ""
+
+#: admin/settings-page.php:194
+msgid ""
+"<strong>Default: ON.</strong> A self-hosted font (a theme webfont, Astra's "
+"local Google Fonts at <code>wp-content/astra-local-fonts/</code>, an icon "
+"font) whose <code>src</code> still points at your WordPress origin is a "
+"cross-origin request once the page is served from <code>*.pages.dev</code>. "
+"Browsers fetch fonts in CORS mode, and the origin doesn't send an "
+"<code>Access-Control-Allow-Origin</code> header, so the font is blocked and "
+"you get a fallback typeface."
+msgstr ""
+
+#: admin/settings-page.php:195
+msgid ""
+"With this on, every <code>.woff2 / .woff / .ttf / .otf / .eot</code> file "
+"referenced from the rendered pages and served from your own host is fetched, "
+"bundled into the deploy, and its URL rewritten to the Public Site URL "
+"&mdash; so it loads same-origin and the CORS error disappears. Third-party "
+"fonts (Google Fonts on <code>fonts.gstatic.com</code>, etc.) already send "
+"CORS headers and are left untouched."
+msgstr ""
+
+#: admin/settings-page.php:196
+msgid ""
+"Ignored when \"Rewrite <code>/wp-content/</code> URLs\" above is ON (that "
+"already rewrites fonts along with everything else)."
+msgstr ""
+
+#: admin/settings-page.php:201
+msgid "Extra paths to include"
+msgstr ""
+
+#: admin/settings-page.php:211
+msgid ""
+"<strong>One path per line, relative to your WordPress root.</strong> Point "
+"this at files or folders that should be shipped inside the Cloudflare Pages "
+"deploy even though the crawler never sees them in the rendered HTML &mdash; "
+"a plugin's icon font (e.g. Elementor's Font Awesome at <code>wp-content/"
+"plugins/elementor/assets/lib/font-awesome</code>), a webfont directory, a "
+"downloadable PDF."
+msgstr ""
+
+#: admin/settings-page.php:212
+msgid ""
+"A whole folder is copied recursively; a single file is copied as-is; a "
+"trailing wildcard (<code>wp-content/uploads/2025/*.pdf</code>) is expanded. "
+"Bundled files under <code>/wp-content/</code> get their URLs pointed at the "
+"live host so the deployed page loads the bundled copy; everything else stays "
+"on origin."
+msgstr ""
+
+#: admin/settings-page.php:213
+msgid ""
+"You can enter a path relative to <code>wp-content/</code> too (<code>astra-"
+"local-fonts</code> instead of <code>wp-content/astra-local-fonts</code>) "
+"&mdash; if it isn't found at the WordPress root, the plugin looks under "
+"<code>wp-content/</code> automatically."
+msgstr ""
+
+#: admin/settings-page.php:214
+msgid ""
+"Read straight off local disk, so no origin firewall to worry about. Paths "
+"are confined to the WordPress root; anything escaping it via <code>..</code> "
+"or a symlink is skipped and logged. Capped at 5,000 files / 200&nbsp;MB per "
+"rebuild."
+msgstr ""
+
+#: admin/settings-page.php:226
+msgid "Performance"
+msgstr ""
+
+#: admin/settings-page.php:227
+msgid "Core Web Vitals tweaks applied to the rendered HTML."
+msgstr ""
+
+#: admin/settings-page.php:233
+msgid "Featured image priority"
+msgstr ""
+
+#: admin/settings-page.php:235
+msgid "Add <code>fetchpriority=\"high\"</code> to the post's featured image"
+msgstr ""
+
+#: admin/settings-page.php:237
+msgid ""
+"Also sets <code>loading=\"eager\"</code> and <code>decoding=\"async\"</"
+"code>. Helps the browser identify the LCP element earlier &mdash; improves "
+"Core Web Vitals. Works with any theme that uses <code>the_post_thumbnail()</"
+"code> or <code>get_the_post_thumbnail()</code>."
+msgstr ""
+
+#: admin/settings-page.php:242
+msgid "Render origin override"
+msgstr ""
+
+#: admin/settings-page.php:246
+msgid ""
+"<strong>Leave blank unless rebuilds are slow.</strong> The export fetches "
+"every page over HTTP from your site's own URL. When your domain runs behind "
+"a CDN/proxy (e.g. Cloudflare), each of those requests leaves the server and "
+"comes back &mdash; with hundreds of pages that round-trip dominates the "
+"rebuild time."
+msgstr ""
+
+#: admin/settings-page.php:247
+msgid ""
+"Set this to a host that points at WordPress <em>directly on this server</em> "
+"(usually <code>http://127.0.0.1</code>, or <code>http://127.0.0.1:8080</"
+"code> if PHP listens on another port) and the crawl stays on the box. The "
+"plugin keeps your real domain in the <code>Host</code> header, so WordPress "
+"still serves the correct site/language. TLS verification is skipped for the "
+"override only (a loopback cert won't match the public host)."
+msgstr ""
+
+#: admin/settings-page.php:248
+msgid ""
+"Applies to page renders, inlined CSS, mirrored sitemaps, and bundled "
+"uploads. Only URLs on your origin host are redirected; everything else is "
+"fetched unchanged."
+msgstr ""
+
+#: admin/settings-page.php:260
+msgid "SEO Metadata"
+msgstr ""
+
+#: admin/settings-page.php:261
+msgid ""
+"Auto-emit meta tags, Open Graph, Twitter Card, and rich JSON-LD schemas."
+msgstr ""
+
+#: admin/settings-page.php:267
+msgid "Inject SEO meta"
+msgstr ""
+
+#: admin/settings-page.php:269
+msgid "Add baseline SEO tags + JSON-LD schemas to <code>&lt;head&gt;</code>"
+msgstr ""
+
+#: admin/settings-page.php:274
+msgid "Meta + Social"
+msgstr ""
+
+#: admin/settings-page.php:275
+msgid ""
+"<code>description</code>, <code>robots</code>, <code>canonical</code>, Open "
+"Graph (<code>og:type</code>, <code>article:*</code>, <code>profile:*</"
+"code>), Twitter Card."
+msgstr ""
+
+#: admin/settings-page.php:279
+msgid "Core Schemas"
+msgstr ""
+
+#: admin/settings-page.php:280
+msgid ""
+"<code>WebSite</code> + <code>SearchAction</code>, <code>Organization</code>, "
+"<code>Article</code>, <code>WebPage</code>, <code>BreadcrumbList</code>, "
+"<code>CollectionPage</code>."
+msgstr ""
+
+#: admin/settings-page.php:284
+msgid "Author Schema"
+msgstr ""
+
+#: admin/settings-page.php:285
+msgid ""
+"<code>Person</code> + <code>ProfilePage</code> on author archives &mdash; "
+"avatar, bio, sameAs social links."
+msgstr ""
+
+#: admin/settings-page.php:289
+msgid "FAQ &amp; HowTo"
+msgstr ""
+
+#: admin/settings-page.php:290
+msgid ""
+"Auto-detected from FAQ / HowTo blocks (Yoast, Rank Math, SEOPress) or HTML5 "
+"<code>&lt;details&gt;</code> markup."
+msgstr ""
+
+#: admin/settings-page.php:296
+msgid "General SEO plugin detected"
+msgstr ""
+
+#: admin/settings-page.php:297
+msgid ""
+"Yoast / Rank Math / AIO SEO / SEOPress / SEO Framework / etc. emits its own "
+"complete SEO stack. <strong>All our injection is paused</strong> to avoid "
+"duplicate tags."
+msgstr ""
+
+#: admin/settings-page.php:301
+msgid "Schema-only plugin detected"
+msgstr ""
+
+#: admin/settings-page.php:302
+msgid ""
+"Schema &amp; Structured Data for WP &amp; AMP / Schema Pro / WPSSO / etc. "
+"handles JSON-LD. We will <strong>still emit</strong> meta description, "
+"robots, canonical, Open Graph, and Twitter Card &mdash; but skip our JSON-LD "
+"block to avoid schema duplication."
+msgstr ""
+
+#: admin/settings-page.php:306
+msgid "No SEO plugin detected"
+msgstr ""
+
+#: admin/settings-page.php:307
+msgid ""
+"Full injection enabled — meta, Open Graph, Twitter Card, and all JSON-LD "
+"schemas will be emitted."
+msgstr ""
+
+#: admin/settings-page.php:312
+msgid "Force full injection anyway"
+msgstr ""
+
+#: admin/settings-page.php:312
+msgid ""
+"(may produce duplicate tags &mdash; only enable if you've configured the "
+"other plugin to skip)"
+msgstr ""
+
+#: admin/settings-page.php:317
+msgid "Profile schema (author pages)"
+msgstr ""
+
+#: admin/settings-page.php:319
+msgid ""
+"Emit rich <code>Person</code> + <code>ProfilePage</code> JSON-LD on author "
+"archives even when an SEO plugin is active"
+msgstr ""
+
+#: admin/settings-page.php:321
+msgid ""
+"Adds a fuller author graph with <code>sameAs</code> social URLs (Twitter / "
+"X, LinkedIn, Facebook, Instagram, YouTube, GitHub, Pinterest, TikTok, "
+"Threads, Medium, Mastodon, Bluesky &mdash; pulled from <code>user_url</code> "
+"+ matching <code>user_meta</code> keys), <code>givenName</code>, "
+"<code>familyName</code>, <code>description</code>, avatar <code>ImageObject</"
+"code>, and optional <code>jobTitle</code>/<code>worksFor</code> from custom "
+"user meta."
+msgstr ""
+
+#: admin/settings-page.php:322
+msgid ""
+"Skipped automatically when this plugin's own SEO injector is already "
+"covering author pages (no SEO plugin detected and \"Inject SEO meta\" is "
+"on). Distinct <code>@id</code> suffix prevents conflict with Yoast/Rank Math/"
+"etc."
+msgstr ""
+
+#: admin/settings-page.php:334
+msgid "robots.txt &amp; Dashboard Indexing"
+msgstr ""
+
+#: admin/settings-page.php:335
+msgid "Live site robots.txt + dashboard search-engine block."
+msgstr ""
+
+#: admin/settings-page.php:341
+msgid "Block dashboard from search engines"
+msgstr ""
+
+#: admin/settings-page.php:343
+msgid "Force <code>noindex</code> on this WordPress install (recommended)"
+msgstr ""
+
+#: admin/settings-page.php:345
+msgid ""
+"Writes a <code>Disallow: /</code> robots.txt at the webroot (existing file "
+"backed up to <code>robots.txt.sforge-backup</code>), adds a "
+"<code>noindex,nofollow</code> meta robots tag, and emits an <code>X-Robots-"
+"Tag</code> HTTP header on every response. Plugin's own export fetches are "
+"exempt &mdash; deployed pages remain fully indexable. Auto-restores on "
+"plugin deactivation."
+msgstr ""
+
+#: admin/settings-page.php:350
+msgid "Live site robots.txt"
+msgstr ""
+
+#: admin/settings-page.php:354
+msgid ""
+"Independent of the dashboard robots.txt above. Leave blank to auto-generate "
+"(placeholder shows the default). If filled, your <code>Allow:</code> / "
+"<code>Disallow:</code> rules are kept verbatim &mdash; the <code>Sitemap:</"
+"code> line is always <strong>auto-managed</strong> to match the actual "
+"deployed sitemap path (<code>sitemap.xml</code>, <code>sitemap_index.xml</"
+"code>, <code>wp-sitemap.xml</code>, etc.) so the URL in robots.txt always "
+"works. Any <code>Sitemap:</code> lines you type are stripped and replaced. "
+"Deployed to <code>&lt;cf-pages-url&gt;/robots.txt</code> on next rebuild."
+msgstr ""
+
+#: admin/settings-page.php:366
+msgid "Sitemap Generator"
+msgstr ""
+
+#: admin/settings-page.php:367
+msgid ""
+"What to include when the plugin generates <code>sitemap.xml</code> (origin "
+"sitemap missing)."
+msgstr ""
+
+#: admin/settings-page.php:372
+msgid ""
+"If your origin already exposes a sitemap (Yoast / Rank Math / WP core <code>/"
+"wp-sitemap.xml</code>), the plugin <em>mirrors</em> it and these settings "
+"are ignored. Otherwise the plugin builds <code>sitemap.xml</code> itself "
+"from the options below."
+msgstr ""
+
+#: admin/settings-page.php:394
+msgid ""
+"All published items of selected types are listed in the sitemap, plus their "
+"post-type archive URL where applicable."
+msgstr ""
+
+#: admin/settings-page.php:408
+msgid "Split into multiple files"
+msgstr ""
+
+#: admin/settings-page.php:410
+msgid "Generate a sitemap-index pointing to per-type sub-sitemaps"
+msgstr ""
+
+#: admin/settings-page.php:412
+msgid ""
+"<strong>Off</strong> (default) &rarr; single <code>sitemap.xml</code> with "
+"every URL."
+msgstr ""
+
+#: admin/settings-page.php:413
+msgid ""
+"<strong>On</strong> &rarr; <code>sitemap.xml</code> becomes a "
+"<code>&lt;sitemapindex&gt;</code> referencing <code>sitemap-post.xml</code>, "
+"<code>sitemap-page.xml</code>, <code>sitemap-taxonomy-category.xml</code>, "
+"<code>sitemap-authors.xml</code>, etc. Cleaner for large sites and better "
+"understood by Search Console."
+msgstr ""
+
+#: admin/settings-page.php:425
+msgid "Deployment Behaviour"
+msgstr ""
+
+#: admin/settings-page.php:426
+msgid "When and how the plugin re-deploys on changes."
+msgstr ""
+
+#: admin/settings-page.php:434
+msgid "Re-deploy site on publish/update of selected post types"
+msgstr ""
+
+#: admin/settings-page.php:440
+msgid "seconds"
+msgstr ""
+
+#: admin/settings-page.php:441
+msgid ""
+"Rapid edits within this window collapse into a single deploy. Default "
+"<strong>120s</strong> &mdash; comfortable margin under CF Pages free-tier "
+"soft cap of ~100 deploys/day."
+msgstr ""
+
+#: admin/settings-page.php:445
+msgid "Local Export Folder"
+msgstr ""
+
+#. translators: %s: absolute filesystem path to the WordPress uploads directory.
+#: admin/settings-page.php:451
+#, php-format
+msgid ""
+"Inside <code>%s/</code>. HTML files are also kept on disk for inspection."
+msgstr ""
+
+#: admin/settings-page.php:461
+msgid "Save Settings"
+msgstr ""
+
+#: admin/settings-page.php:469
+msgid "Actions"
+msgstr ""
+
+#: admin/settings-page.php:470
+msgid "Verify the connection and push a deploy."
+msgstr ""
+
+#: admin/settings-page.php:477
+msgid "Test Connection"
+msgstr ""
+
+#: admin/settings-page.php:482
+msgid ""
+"Re-renders only the pages affected by recent edits, reusing the export cache "
+"for everything else."
+msgstr ""
+
+#: admin/settings-page.php:482
+msgid "Rebuild Changed + Deploy"
+msgstr ""
+
+#: admin/settings-page.php:487
+msgid ""
+"Re-renders every page on the site. Slower, but reconciles the export cache "
+"from scratch."
+msgstr ""
+
+#: admin/settings-page.php:487
+msgid "Full Rebuild + Deploy"
+msgstr ""
+
+#: admin/settings-page.php:492
+msgid "Clear Log"
+msgstr ""
+
+#: admin/settings-page.php:502
+msgid "Support the developer"
+msgstr ""
+
+#: admin/settings-page.php:503
+msgid "Plugin saving you time or money? Back development on Ko-fi."
+msgstr ""
+
+#: admin/settings-page.php:508
+msgid "Plugin Support Forum"
+msgstr ""
+
+#: admin/settings-page.php:516
+msgid "Activity Log"
+msgstr ""
+
+#: admin/settings-page.php:517
+msgid "Idle"
+msgstr ""
+
+#: admin/settings-page.php:519
+msgid ""
+"Auto-refreshes every 4 seconds. The status pill above shows the live deploy "
+"state."
+msgstr ""
+
+#: admin/settings-page.php:525
+msgid ""
+"No activity yet. Click <strong>Test Connection</strong> or <strong>Rebuild + "
+"Deploy Now</strong> to see entries."
+msgstr ""
+
+#: admin/settings-page.php:528
+msgid "Time"
+msgstr ""
+
+#: admin/settings-page.php:528
+msgid "Level"
+msgstr ""
+
+#: admin/settings-page.php:528
+msgid "Message"
+msgstr ""
+
+#. translators: %s: author name, linked to their website.
+#: admin/settings-page.php:550
+#, php-format
+msgid "Built by %s"
+msgstr ""

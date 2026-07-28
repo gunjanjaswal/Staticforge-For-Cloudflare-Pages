@@ -56,17 +56,17 @@ class SFORGE_Post_Actions {
 	public function handle() {
 		$post_id = isset( $_GET['post'] ) ? absint( $_GET['post'] ) : 0;
 		if ( ! $post_id ) {
-			wp_die( 'Missing post.' );
+			wp_die( esc_html__( 'Missing post.', 'staticforge-for-cloudflare-pages' ) );
 		}
 		check_admin_referer( self::ACTION . '_' . $post_id );
 
 		$post = get_post( $post_id );
 		if ( ! $post || ! current_user_can( 'edit_post', $post_id ) ) {
-			wp_die( 'Forbidden' );
+			wp_die( esc_html__( 'Forbidden', 'staticforge-for-cloudflare-pages' ) );
 		}
 		$allowed = (array) SFORGE_Settings::get( 'post_types', [] );
 		if ( ! in_array( $post->post_type, $allowed, true ) ) {
-			wp_die( 'This post type is not part of the static export.' );
+			wp_die( esc_html__( 'This post type is not part of the static export.', 'staticforge-for-cloudflare-pages' ) );
 		}
 
 		SFORGE_Rebuild::schedule(

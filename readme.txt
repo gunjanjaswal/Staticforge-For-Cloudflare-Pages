@@ -4,7 +4,7 @@ Donate link: https://ko-fi.com/gunjanjaswal
 Tags: cloudflare, static-site, deploy, seo, sitemap
 Requires at least: 5.8
 Tested up to: 7.0
-Stable tag: 1.6.0
+Stable tag: 1.7.0
 Requires PHP: 7.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -308,6 +308,10 @@ To make forms work, point them at a static-friendly endpoint: a Cloudflare Pages
 
 == Changelog ==
 
+= 1.7.0 =
+* New: **Translation-ready.** The admin UI, the Setup Guide, the contextual Help tabs, and the on-screen labels and descriptions are now wrapped in WordPress i18n functions against the `staticforge-for-cloudflare-pages` text domain, and a `languages/staticforge-for-cloudflare-pages.pot` template ships with the plugin. Translations can now be contributed at https://translate.wordpress.org/projects/wp-plugins/staticforge-for-cloudflare-pages/. Nothing changes for English installs.
+* Fix: **More post links get rewritten to your Public Site URL.** The URL rewriter used to match only your site's exact home URL, so a link an editor had pasted as `http://` when the site is `https://`, or with a `www.` that the site doesn't use (or the other way round), or as a protocol-relative `//your-site/...`, was left pointing at the WordPress origin. Those near-miss spellings of your own host are now folded onto the canonical form first, so they rewrite along with everything else. Third-party links are untouched, and `/wp-content/` assets still follow the bundle / keep-on-origin rules as before.
+
 = 1.6.0 =
 * New: **Self-hosted fonts are bundled automatically.** A font whose `@font-face src` still points at your WordPress host is a cross-origin request once the page is served from `*.pages.dev`. Browsers fetch fonts in CORS mode, your origin doesn't send an `Access-Control-Allow-Origin` header, and the font gets blocked — the console fills with "blocked by CORS policy" errors and the page falls back to a system typeface. StaticForge now scans each rendered page for `.woff2 / .woff / .ttf / .otf / .eot` files served from your own host, ships them inside the deploy, and rewrites their URLs to your Public Site URL so they load same-origin. This covers theme webfonts, icon fonts, and Astra's local Google Fonts at `wp-content/astra-local-fonts/`. Third-party fonts (Google Fonts on `fonts.gstatic.com`, etc.) already send CORS headers and are left alone. On by default; new setting `bundle_fonts`. Ignored when "Rewrite `/wp-content/` URLs" is on, since that already rewrites fonts. Run one Full Rebuild after updating so every page picks it up.
 * Improved: **Extra paths to include** now accepts a path relative to `wp-content/`. If an entry isn't found at the WordPress root, the plugin looks under `wp-content/` before giving up — so `astra-local-fonts` resolves the same as `wp-content/astra-local-fonts`, and both the copy and the URL rewrite act on the real files. This removes the most common reason a bundled asset kept pointing at the old domain: the rewrite hinges on the `wp-content/` prefix, and a bare path used to silently miss it.
@@ -406,6 +410,9 @@ To make forms work, point them at a static-friendly endpoint: a Cloudflare Pages
 * Built-in Setup Guide page and WordPress contextual Help tabs.
 
 == Upgrade Notice ==
+
+= 1.7.0 =
+Plugin is now translation-ready (text domain + .pot), and the URL rewriter catches more in-post links: http/https, www/non-www, and protocol-relative spellings of your own host now rewrite to the Public Site URL. Run a Full Rebuild to apply.
 
 = 1.6.0 =
 Fixes self-hosted fonts being blocked by CORS on the deployed site. Fonts served from your WordPress host are now bundled into the deploy and rewritten to your Public Site URL automatically. Run one Full Rebuild after updating.

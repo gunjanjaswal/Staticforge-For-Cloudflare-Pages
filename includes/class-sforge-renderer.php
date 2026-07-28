@@ -336,6 +336,55 @@ class SFORGE_Renderer {
 	}
 
 	/**
+	 * Rewrite every absolute (and protocol-relative) URL that points at the origin
+	 * host onto the canonical home_url() spelling, so the main host swap in
+	 * rewrite_urls() catches links an editor entered in a near-miss form:
+	 *
+	 *   http://host/...   and  https://host/...   -> the home_url() scheme
+	 *   //host/...        (protocol-relative)     -> https?://host/...
+	 *   www.host / host   (whichever isn't canonical)                -> canonical
+	 *
+	 * Only the origin's own host (and its www/non-www counterpart) is touched, so
+	 * third-party and CF URLs are left alone. Folding to the canonical origin here
+	 * means the /wp-content/ keep-origin protection and bundle logic below all keep
+	 * working unchanged — this pass just widens what counts as "the origin".
+	 *
+	 * Literal and protocol-relative forms are handled; JSON-escaped / percent-encoded
+	 * near-miss spellings are rare (serialised feeds use the canonical home_url) and
+	 * are left to the exact-match passes below.
+	 */
+	protected function normalize_origin_aliases( $html, $origin ) {
+		$parts = wp_parse_url( $origin );
+		$host  = isset( $parts['host'] ) ? $parts['host'] : '';
+		if ( $host === '' ) {
+			return $html;
+		}
+		$port = isset( $parts['port'] ) ? ':' . (int) $parts['port'] : '';
+
+		// The host as-is plus its www/non-www counterpart.
+		$hosts = [ $host ];
+		if ( stripos( $host, 'www.' ) === 0 ) {
+			$hosts[] = substr( $host, 4 );
+		} else {
+			$hosts[] = 'www.' . $host;
+		}
+
+		foreach ( array_unique( $hosts ) as $h ) {
+			$he = preg_quote( $h . $port, '~' );
+			// Optional scheme + // + host, ending on a real URL boundary so a longer
+			// hostname that merely starts with this one (example.com vs example.com.au)
+			// is not folded. A `~` delimiter keeps the `#` fragment char usable inside
+			// the boundary class. Case-insensitive for host + scheme.
+			$html = preg_replace(
+				'~(?:https?:)?//' . $he . '(?=[/"\'\\\\?#<\s]|$)~i',
+				$origin,
+				$html
+			);
+		}
+		return $html;
+	}
+
+	/**
 	 * Replace WP origin host with CF Pages host so canonical / page links resolve to the deployed
 	 * static site, BUT keep `/wp-content/*` paths (uploads, theme assets, plugin assets, fonts)
 	 * pointing at the origin so media/static files served by WordPress keep working — those files
@@ -350,6 +399,12 @@ class SFORGE_Renderer {
 		if ( $origin === '' || $origin === $cf ) {
 			return $html;
 		}
+
+		// Fold near-miss spellings of the origin (http vs https, www vs non-www,
+		// protocol-relative //host) onto the canonical home_url() form first, so a
+		// link an editor pasted as http:// or with a stray www still gets rewritten
+		// like every other origin URL below.
+		$html = $this->normalize_origin_aliases( $html, $origin );
 
 		// JSON-LD and inline JSON often serialise URLs with escaped forward slashes
 		// (https:\/\/origin\/...). oEmbed / REST query strings serialise them

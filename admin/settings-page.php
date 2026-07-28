@@ -22,33 +22,33 @@ $has_schema_seo  = $injector->schema_plugin_active();
 					<span class="sforge-version-pill">v<?php echo esc_html( SFORGE_VERSION ); ?></span>
 				</h1>
 				<p class="sforge-hero-sub">
-					Auto-export your WordPress site as static HTML &mdash; deploy to Cloudflare Pages on every publish.
+					<?php echo wp_kses_post( __( 'Auto-export your WordPress site as static HTML &mdash; deploy to Cloudflare Pages on every publish.', 'staticforge-for-cloudflare-pages' ) ); ?>
 				</p>
 			</div>
 		</div>
 		<div class="sforge-hero-actions">
 			<a href="<?php echo esc_url( $help_url ); ?>" class="button button-secondary">
-				<span class="dashicons dashicons-book-alt"></span> Setup Guide
+				<span class="dashicons dashicons-book-alt"></span> <?php esc_html_e( 'Setup Guide', 'staticforge-for-cloudflare-pages' ); ?>
 			</a>
 		</div>
 	</div>
 
 	<?php if ( $msg === 'test_ok' ) : ?>
-		<div class="notice notice-success is-dismissible sforge-notice"><p><strong>Connection OK.</strong> Cloudflare Pages project is reachable.</p></div>
+		<div class="notice notice-success is-dismissible sforge-notice"><p><?php echo wp_kses_post( __( '<strong>Connection OK.</strong> Cloudflare Pages project is reachable.', 'staticforge-for-cloudflare-pages' ) ); ?></p></div>
 	<?php elseif ( $msg === 'test_fail' ) : ?>
-		<div class="notice notice-error is-dismissible sforge-notice"><p><strong>Connection failed.</strong> See the activity log below for details.</p></div>
+		<div class="notice notice-error is-dismissible sforge-notice"><p><?php echo wp_kses_post( __( '<strong>Connection failed.</strong> See the activity log below for details.', 'staticforge-for-cloudflare-pages' ) ); ?></p></div>
 	<?php elseif ( $msg === 'rebuild_scheduled' ) : ?>
-		<div class="notice notice-success is-dismissible sforge-notice"><p><strong>Full rebuild queued.</strong> The activity log refreshes live &mdash; watch for progress in the next few seconds.</p></div>
+		<div class="notice notice-success is-dismissible sforge-notice"><p><?php echo wp_kses_post( __( '<strong>Full rebuild queued.</strong> The activity log refreshes live &mdash; watch for progress in the next few seconds.', 'staticforge-for-cloudflare-pages' ) ); ?></p></div>
 	<?php endif; ?>
 
 	<?php if ( $is_unconfigured ) : ?>
 		<div class="sforge-cta">
 			<div class="sforge-cta-icon"><span class="dashicons dashicons-info-outline"></span></div>
 			<div class="sforge-cta-body">
-				<strong>First time? Read the Setup Guide.</strong>
-				<span>Walk-through for creating a Cloudflare Pages project, generating an API token, and configuring this plugin.</span>
+				<strong><?php esc_html_e( 'First time? Read the Setup Guide.', 'staticforge-for-cloudflare-pages' ); ?></strong>
+				<span><?php esc_html_e( 'Walk-through for creating a Cloudflare Pages project, generating an API token, and configuring this plugin.', 'staticforge-for-cloudflare-pages' ); ?></span>
 			</div>
-			<a href="<?php echo esc_url( $help_url ); ?>" class="button button-primary">Open Setup Guide</a>
+			<a href="<?php echo esc_url( $help_url ); ?>" class="button button-primary"><?php esc_html_e( 'Open Setup Guide', 'staticforge-for-cloudflare-pages' ); ?></a>
 		</div>
 	<?php endif; ?>
 
@@ -59,45 +59,45 @@ $has_schema_seo  = $injector->schema_plugin_active();
 			<header class="sforge-section-head">
 				<span class="sforge-section-icon sforge-section-icon-blue"><span class="dashicons dashicons-cloud"></span></span>
 				<div>
-					<h2>Cloudflare</h2>
-					<p>Connect to your Cloudflare Pages project via the Direct Upload API.</p>
+					<h2><?php esc_html_e( 'Cloudflare', 'staticforge-for-cloudflare-pages' ); ?></h2>
+					<p><?php esc_html_e( 'Connect to your Cloudflare Pages project via the Direct Upload API.', 'staticforge-for-cloudflare-pages' ); ?></p>
 				</div>
 			</header>
 			<div class="sforge-section-body">
 				<table class="form-table" role="presentation">
 					<tr>
-						<th scope="row"><label for="sforge_account_id">Account ID</label></th>
+						<th scope="row"><label for="sforge_account_id"><?php esc_html_e( 'Account ID', 'staticforge-for-cloudflare-pages' ); ?></label></th>
 						<td>
-							<input type="text" id="sforge_account_id" name="<?php echo esc_attr( SFORGE_OPT ); ?>[account_id]" value="<?php echo esc_attr( $o['account_id'] ?? '' ); ?>" class="regular-text code" autocomplete="off" placeholder="e.g. a2709493ed708e84df53c91fa354c230" />
-							<p class="description">Cloudflare Dashboard &rarr; right sidebar of any zone or Workers &amp; Pages overview.</p>
+							<input type="text" id="sforge_account_id" name="<?php echo esc_attr( SFORGE_OPT ); ?>[account_id]" value="<?php echo esc_attr( $o['account_id'] ?? '' ); ?>" class="regular-text code" autocomplete="off" placeholder="<?php esc_attr_e( 'e.g. a2709493ed708e84df53c91fa354c230', 'staticforge-for-cloudflare-pages' ); ?>" />
+							<p class="description"><?php echo wp_kses_post( __( 'Cloudflare Dashboard &rarr; right sidebar of any zone or Workers &amp; Pages overview.', 'staticforge-for-cloudflare-pages' ) ); ?></p>
 						</td>
 					</tr>
 					<tr>
-						<th scope="row"><label for="sforge_api_token">API Token</label></th>
+						<th scope="row"><label for="sforge_api_token"><?php esc_html_e( 'API Token', 'staticforge-for-cloudflare-pages' ); ?></label></th>
 						<td>
 							<input type="password" id="sforge_api_token" name="<?php echo esc_attr( SFORGE_OPT ); ?>[api_token]" value="<?php echo esc_attr( $o['api_token'] ?? '' ); ?>" class="regular-text code" autocomplete="new-password" />
-							<p class="description">Create at <code>My Profile &rarr; API Tokens</code>. Required permission: <code>Account &middot; Cloudflare Pages &middot; Edit</code>.</p>
+							<p class="description"><?php echo wp_kses_post( __( 'Create at <code>My Profile &rarr; API Tokens</code>. Required permission: <code>Account &middot; Cloudflare Pages &middot; Edit</code>.', 'staticforge-for-cloudflare-pages' ) ); ?></p>
 						</td>
 					</tr>
 					<tr>
-						<th scope="row"><label for="sforge_project_name">Pages Project</label></th>
+						<th scope="row"><label for="sforge_project_name"><?php esc_html_e( 'Pages Project', 'staticforge-for-cloudflare-pages' ); ?></label></th>
 						<td>
 							<input type="text" id="sforge_project_name" name="<?php echo esc_attr( SFORGE_OPT ); ?>[project_name]" value="<?php echo esc_attr( $o['project_name'] ?? '' ); ?>" class="regular-text code" placeholder="my-site" />
-							<p class="description">The slug only (e.g. <code>my-site</code>), <strong>not</strong> the <code>.pages.dev</code> URL. Create in the CF dashboard with the Direct Upload option.</p>
+							<p class="description"><?php echo wp_kses_post( __( 'The slug only (e.g. <code>my-site</code>), <strong>not</strong> the <code>.pages.dev</code> URL. Create in the CF dashboard with the Direct Upload option.', 'staticforge-for-cloudflare-pages' ) ); ?></p>
 						</td>
 					</tr>
 					<tr>
-						<th scope="row"><label for="sforge_branch">Branch</label></th>
+						<th scope="row"><label for="sforge_branch"><?php esc_html_e( 'Branch', 'staticforge-for-cloudflare-pages' ); ?></label></th>
 						<td>
 							<input type="text" id="sforge_branch" name="<?php echo esc_attr( SFORGE_OPT ); ?>[branch]" value="<?php echo esc_attr( $o['branch'] ?? 'main' ); ?>" class="small-text code" />
-							<p class="description"><code>main</code> = production deployment. Anything else creates a preview deployment.</p>
+							<p class="description"><?php echo wp_kses_post( __( '<code>main</code> = production deployment. Anything else creates a preview deployment.', 'staticforge-for-cloudflare-pages' ) ); ?></p>
 						</td>
 					</tr>
 					<tr>
-						<th scope="row"><label for="sforge_cf_pages_url">Public Site URL</label></th>
+						<th scope="row"><label for="sforge_cf_pages_url"><?php esc_html_e( 'Public Site URL', 'staticforge-for-cloudflare-pages' ); ?></label></th>
 						<td>
-							<input type="url" id="sforge_cf_pages_url" name="<?php echo esc_attr( SFORGE_OPT ); ?>[cf_pages_url]" value="<?php echo esc_attr( $o['cf_pages_url'] ?? '' ); ?>" class="regular-text" placeholder="https://my-site.pages.dev or https://www.example.com" />
-							<p class="description">Where the static site lives publicly. Used to rewrite WP origin URLs in exported HTML and sitemap entries.</p>
+							<input type="url" id="sforge_cf_pages_url" name="<?php echo esc_attr( SFORGE_OPT ); ?>[cf_pages_url]" value="<?php echo esc_attr( $o['cf_pages_url'] ?? '' ); ?>" class="regular-text" placeholder="<?php esc_attr_e( 'https://my-site.pages.dev or https://www.example.com', 'staticforge-for-cloudflare-pages' ); ?>" />
+							<p class="description"><?php esc_html_e( 'Where the static site lives publicly. Used to rewrite WP origin URLs in exported HTML and sitemap entries.', 'staticforge-for-cloudflare-pages' ); ?></p>
 						</td>
 					</tr>
 				</table>
@@ -108,14 +108,14 @@ $has_schema_seo  = $injector->schema_plugin_active();
 			<header class="sforge-section-head">
 				<span class="sforge-section-icon sforge-section-icon-green"><span class="dashicons dashicons-filter"></span></span>
 				<div>
-					<h2>Export Scope</h2>
-					<p>Choose which post types and archives to export.</p>
+					<h2><?php esc_html_e( 'Export Scope', 'staticforge-for-cloudflare-pages' ); ?></h2>
+					<p><?php esc_html_e( 'Choose which post types and archives to export.', 'staticforge-for-cloudflare-pages' ); ?></p>
 				</div>
 			</header>
 			<div class="sforge-section-body">
 				<table class="form-table" role="presentation">
 					<tr>
-						<th scope="row">Post Types</th>
+						<th scope="row"><?php esc_html_e( 'Post Types', 'staticforge-for-cloudflare-pages' ); ?></th>
 						<td>
 							<div class="sforge-cb-grid">
 								<?php
@@ -133,72 +133,72 @@ $has_schema_seo  = $injector->schema_plugin_active();
 								}
 								?>
 							</div>
-							<p class="description">All published items of selected types are exported.</p>
+							<p class="description"><?php esc_html_e( 'All published items of selected types are exported.', 'staticforge-for-cloudflare-pages' ); ?></p>
 						</td>
 					</tr>
 					<tr>
-						<th scope="row">Include</th>
+						<th scope="row"><?php esc_html_e( 'Include', 'staticforge-for-cloudflare-pages' ); ?></th>
 						<td>
 							<div class="sforge-cb-grid">
-								<label class="sforge-cb"><input type="checkbox" name="<?php echo esc_attr( SFORGE_OPT ); ?>[include_homepage]" value="1" <?php checked( ! empty( $o['include_homepage'] ) ); ?>> <strong>Homepage</strong></label>
-								<label class="sforge-cb"><input type="checkbox" name="<?php echo esc_attr( SFORGE_OPT ); ?>[include_taxonomies]" value="1" <?php checked( ! empty( $o['include_taxonomies'] ) ); ?>> <strong>Taxonomy archives</strong> <code>cat / tag / custom</code></label>
-								<label class="sforge-cb"><input type="checkbox" name="<?php echo esc_attr( SFORGE_OPT ); ?>[include_authors]" value="1" <?php checked( ! empty( $o['include_authors'] ) ); ?>> <strong>Author archives</strong></label>
+								<label class="sforge-cb"><input type="checkbox" name="<?php echo esc_attr( SFORGE_OPT ); ?>[include_homepage]" value="1" <?php checked( ! empty( $o['include_homepage'] ) ); ?>> <strong><?php esc_html_e( 'Homepage', 'staticforge-for-cloudflare-pages' ); ?></strong></label>
+								<label class="sforge-cb"><input type="checkbox" name="<?php echo esc_attr( SFORGE_OPT ); ?>[include_taxonomies]" value="1" <?php checked( ! empty( $o['include_taxonomies'] ) ); ?>> <strong><?php esc_html_e( 'Taxonomy archives', 'staticforge-for-cloudflare-pages' ); ?></strong> <code>cat / tag / custom</code></label>
+								<label class="sforge-cb"><input type="checkbox" name="<?php echo esc_attr( SFORGE_OPT ); ?>[include_authors]" value="1" <?php checked( ! empty( $o['include_authors'] ) ); ?>> <strong><?php esc_html_e( 'Author archives', 'staticforge-for-cloudflare-pages' ); ?></strong></label>
 							</div>
 						</td>
 					</tr>
 					<tr>
-						<th scope="row">Inline CSS</th>
+						<th scope="row"><?php esc_html_e( 'Inline CSS', 'staticforge-for-cloudflare-pages' ); ?></th>
 						<td>
-							<label class="sforge-cb"><input type="checkbox" name="<?php echo esc_attr( SFORGE_OPT ); ?>[inline_css]" value="1" <?php checked( ! empty( $o['inline_css'] ) ); ?>> Embed all linked stylesheets into each page</label>
-							<p class="description">Self-contained pages, no external CSS requests.</p>
+							<label class="sforge-cb"><input type="checkbox" name="<?php echo esc_attr( SFORGE_OPT ); ?>[inline_css]" value="1" <?php checked( ! empty( $o['inline_css'] ) ); ?>> <?php esc_html_e( 'Embed all linked stylesheets into each page', 'staticforge-for-cloudflare-pages' ); ?></label>
+							<p class="description"><?php esc_html_e( 'Self-contained pages, no external CSS requests.', 'staticforge-for-cloudflare-pages' ); ?></p>
 						</td>
 					</tr>
 					<tr>
-						<th scope="row">Redirect <code>*.pages.dev</code> to live host</th>
+						<th scope="row"><?php echo wp_kses_post( __( 'Redirect <code>*.pages.dev</code> to live host', 'staticforge-for-cloudflare-pages' ) ); ?></th>
 						<td>
-							<label class="sforge-cb"><input type="checkbox" name="<?php echo esc_attr( SFORGE_OPT ); ?>[redirect_pages_dev]" value="1" <?php checked( ! empty( $o['redirect_pages_dev'] ) ); ?>> 301-redirect any request hitting <code>&lt;project&gt;.pages.dev</code> to the canonical Public Site URL</label>
+							<label class="sforge-cb"><input type="checkbox" name="<?php echo esc_attr( SFORGE_OPT ); ?>[redirect_pages_dev]" value="1" <?php checked( ! empty( $o['redirect_pages_dev'] ) ); ?>> <?php echo wp_kses_post( __( '301-redirect any request hitting <code>&lt;project&gt;.pages.dev</code> to the canonical Public Site URL', 'staticforge-for-cloudflare-pages' ) ); ?></label>
 							<p class="description">
-								Adds a Cloudflare Pages Function (<code>functions/_middleware.js</code>) to the deploy that intercepts requests with a <code>.pages.dev</code> hostname and 301-redirects them to your <strong>Public Site URL</strong> (preserving path + query string). Stops Google from indexing the preview URL alongside your real domain.
-								Automatically skipped when Public Site URL itself is a <code>.pages.dev</code> URL (e.g. while you're still testing pre-DNS cutover).
-								Counts as a Cloudflare Workers request &mdash; free tier includes 100k/day, sparse <code>.pages.dev</code> traffic costs effectively nothing.
+								<?php echo wp_kses_post( __( 'Adds a Cloudflare Pages Function (<code>functions/_middleware.js</code>) to the deploy that intercepts requests with a <code>.pages.dev</code> hostname and 301-redirects them to your <strong>Public Site URL</strong> (preserving path + query string). Stops Google from indexing the preview URL alongside your real domain.', 'staticforge-for-cloudflare-pages' ) ); ?>
+								<?php echo wp_kses_post( __( 'Automatically skipped when Public Site URL itself is a <code>.pages.dev</code> URL (e.g. while you\'re still testing pre-DNS cutover).', 'staticforge-for-cloudflare-pages' ) ); ?>
+								<?php echo wp_kses_post( __( 'Counts as a Cloudflare Workers request &mdash; free tier includes 100k/day, sparse <code>.pages.dev</code> traffic costs effectively nothing.', 'staticforge-for-cloudflare-pages' ) ); ?>
 							</p>
 						</td>
 					</tr>
 					<tr>
-						<th scope="row">Rewrite <code>/wp-content/</code> URLs</th>
+						<th scope="row"><?php echo wp_kses_post( __( 'Rewrite <code>/wp-content/</code> URLs', 'staticforge-for-cloudflare-pages' ) ); ?></th>
 						<td>
-							<label class="sforge-cb sforge-cb-danger"><input type="checkbox" name="<?php echo esc_attr( SFORGE_OPT ); ?>[rewrite_wpcontent]" value="1" <?php checked( ! empty( $o['rewrite_wpcontent'] ) ); ?>> Also rewrite <code>/wp-content/</code> URLs (uploads, themes, plugin assets) to the live host</label>
+							<label class="sforge-cb sforge-cb-danger"><input type="checkbox" name="<?php echo esc_attr( SFORGE_OPT ); ?>[rewrite_wpcontent]" value="1" <?php checked( ! empty( $o['rewrite_wpcontent'] ) ); ?>> <?php echo wp_kses_post( __( 'Also rewrite <code>/wp-content/</code> URLs (uploads, themes, plugin assets) to the live host', 'staticforge-for-cloudflare-pages' ) ); ?></label>
 							<p class="description">
-								<strong>Default: OFF.</strong> By default, <code>&lt;origin&gt;/wp-content/...</code> URLs are kept pointing at your WordPress origin so media, theme CSS/JS, and plugin assets keep working without bundling gigabytes of files in every deploy.<br>
-								<strong>Turn ON only if you've arranged your own proxy / mirror / CDN for <code>/wp-content/*</code> on the live host</strong> &mdash; e.g. a Cloudflare Worker rewriting <code>https://example.com/wp-content/*</code> &rarr; <code>https://dashboard.example.com/wp-content/*</code>, or an Nginx reverse-proxy, or a separate CDN domain. Otherwise images, theme styles and scripts will 404 on the deployed site.<br>
-								When ON, schema URLs (<code>og:image</code>, JSON-LD <code>image</code>/<code>logo</code>, <code>thumbnailUrl</code>) and HTML <code>src</code>/<code>srcset</code> point to the live host instead of the dashboard.
+								<?php echo wp_kses_post( __( '<strong>Default: OFF.</strong> By default, <code>&lt;origin&gt;/wp-content/...</code> URLs are kept pointing at your WordPress origin so media, theme CSS/JS, and plugin assets keep working without bundling gigabytes of files in every deploy.', 'staticforge-for-cloudflare-pages' ) ); ?><br>
+								<?php echo wp_kses_post( __( '<strong>Turn ON only if you\'ve arranged your own proxy / mirror / CDN for <code>/wp-content/*</code> on the live host</strong> &mdash; e.g. a Cloudflare Worker rewriting <code>https://example.com/wp-content/*</code> &rarr; <code>https://dashboard.example.com/wp-content/*</code>, or an Nginx reverse-proxy, or a separate CDN domain. Otherwise images, theme styles and scripts will 404 on the deployed site.', 'staticforge-for-cloudflare-pages' ) ); ?><br>
+								<?php echo wp_kses_post( __( 'When ON, schema URLs (<code>og:image</code>, JSON-LD <code>image</code>/<code>logo</code>, <code>thumbnailUrl</code>) and HTML <code>src</code>/<code>srcset</code> point to the live host instead of the dashboard.', 'staticforge-for-cloudflare-pages' ) ); ?>
 							</p>
 						</td>
 					</tr>
 					<tr>
-						<th scope="row">Bundle <code>/wp-content/uploads/</code> into deploy</th>
+						<th scope="row"><?php echo wp_kses_post( __( 'Bundle <code>/wp-content/uploads/</code> into deploy', 'staticforge-for-cloudflare-pages' ) ); ?></th>
 						<td>
-							<label class="sforge-cb"><input type="checkbox" name="<?php echo esc_attr( SFORGE_OPT ); ?>[bundle_uploads]" value="1" <?php checked( ! empty( $o['bundle_uploads'] ) ); ?>> Fetch every <code>/wp-content/uploads/</code> file referenced by the rendered HTML and ship it alongside the static pages</label>
+							<label class="sforge-cb"><input type="checkbox" name="<?php echo esc_attr( SFORGE_OPT ); ?>[bundle_uploads]" value="1" <?php checked( ! empty( $o['bundle_uploads'] ) ); ?>> <?php echo wp_kses_post( __( 'Fetch every <code>/wp-content/uploads/</code> file referenced by the rendered HTML and ship it alongside the static pages', 'staticforge-for-cloudflare-pages' ) ); ?></label>
 							<p class="description">
-								<strong>Default: OFF.</strong> Softer alternative to the option above &mdash; only media files (uploads) get rewritten to the live host and bundled into the CF Pages deploy. Theme &amp; plugin assets (CSS/JS/fonts) still load from the WordPress origin.<br>
-								Use this when your origin can't be reached from Cloudflare Workers / proxies (shared hosting firewalls, IP allow-lists, etc.). Each rebuild downloads only files referenced from the rendered pages, so cost scales with what's actually used, not the full media library.<br>
-								Ignored when "Rewrite <code>/wp-content/</code> URLs" above is ON (that setting already rewrites everything).
+								<?php echo wp_kses_post( __( '<strong>Default: OFF.</strong> Softer alternative to the option above &mdash; only media files (uploads) get rewritten to the live host and bundled into the CF Pages deploy. Theme &amp; plugin assets (CSS/JS/fonts) still load from the WordPress origin.', 'staticforge-for-cloudflare-pages' ) ); ?><br>
+								<?php echo wp_kses_post( __( 'Use this when your origin can\'t be reached from Cloudflare Workers / proxies (shared hosting firewalls, IP allow-lists, etc.). Each rebuild downloads only files referenced from the rendered pages, so cost scales with what\'s actually used, not the full media library.', 'staticforge-for-cloudflare-pages' ) ); ?><br>
+								<?php echo wp_kses_post( __( 'Ignored when "Rewrite <code>/wp-content/</code> URLs" above is ON (that setting already rewrites everything).', 'staticforge-for-cloudflare-pages' ) ); ?>
 							</p>
 						</td>
 					</tr>
 					<tr>
-						<th scope="row">Bundle self-hosted fonts</th>
+						<th scope="row"><?php esc_html_e( 'Bundle self-hosted fonts', 'staticforge-for-cloudflare-pages' ); ?></th>
 						<td>
-							<label class="sforge-cb"><input type="checkbox" name="<?php echo esc_attr( SFORGE_OPT ); ?>[bundle_fonts]" value="1" <?php checked( ! empty( $o['bundle_fonts'] ) ); ?>> Ship <code>@font-face</code> fonts served from your WordPress host alongside the static pages and point their URLs at the live host</label>
+							<label class="sforge-cb"><input type="checkbox" name="<?php echo esc_attr( SFORGE_OPT ); ?>[bundle_fonts]" value="1" <?php checked( ! empty( $o['bundle_fonts'] ) ); ?>> <?php echo wp_kses_post( __( 'Ship <code>@font-face</code> fonts served from your WordPress host alongside the static pages and point their URLs at the live host', 'staticforge-for-cloudflare-pages' ) ); ?></label>
 							<p class="description">
-								<strong>Default: ON.</strong> A self-hosted font (a theme webfont, Astra's local Google Fonts at <code>wp-content/astra-local-fonts/</code>, an icon font) whose <code>src</code> still points at your WordPress origin is a cross-origin request once the page is served from <code>*.pages.dev</code>. Browsers fetch fonts in CORS mode, and the origin doesn't send an <code>Access-Control-Allow-Origin</code> header, so the font is blocked and you get a fallback typeface.<br>
-								With this on, every <code>.woff2 / .woff / .ttf / .otf / .eot</code> file referenced from the rendered pages and served from your own host is fetched, bundled into the deploy, and its URL rewritten to the Public Site URL — so it loads same-origin and the CORS error disappears. Third-party fonts (Google Fonts on <code>fonts.gstatic.com</code>, etc.) already send CORS headers and are left untouched.<br>
-								Ignored when "Rewrite <code>/wp-content/</code> URLs" above is ON (that already rewrites fonts along with everything else).
+								<?php echo wp_kses_post( __( '<strong>Default: ON.</strong> A self-hosted font (a theme webfont, Astra\'s local Google Fonts at <code>wp-content/astra-local-fonts/</code>, an icon font) whose <code>src</code> still points at your WordPress origin is a cross-origin request once the page is served from <code>*.pages.dev</code>. Browsers fetch fonts in CORS mode, and the origin doesn\'t send an <code>Access-Control-Allow-Origin</code> header, so the font is blocked and you get a fallback typeface.', 'staticforge-for-cloudflare-pages' ) ); ?><br>
+								<?php echo wp_kses_post( __( 'With this on, every <code>.woff2 / .woff / .ttf / .otf / .eot</code> file referenced from the rendered pages and served from your own host is fetched, bundled into the deploy, and its URL rewritten to the Public Site URL &mdash; so it loads same-origin and the CORS error disappears. Third-party fonts (Google Fonts on <code>fonts.gstatic.com</code>, etc.) already send CORS headers and are left untouched.', 'staticforge-for-cloudflare-pages' ) ); ?><br>
+								<?php echo wp_kses_post( __( 'Ignored when "Rewrite <code>/wp-content/</code> URLs" above is ON (that already rewrites fonts along with everything else).', 'staticforge-for-cloudflare-pages' ) ); ?>
 							</p>
 						</td>
 					</tr>
 					<tr>
-						<th scope="row"><label for="sforge_extra_paths">Extra paths to include</label></th>
+						<th scope="row"><label for="sforge_extra_paths"><?php esc_html_e( 'Extra paths to include', 'staticforge-for-cloudflare-pages' ); ?></label></th>
 						<td>
 							<?php
 							$extra_paths_val = SFORGE_Settings::get( 'extra_paths', [] );
@@ -208,10 +208,10 @@ $has_schema_seo  = $injector->schema_plugin_active();
 							?>
 							<textarea id="sforge_extra_paths" name="<?php echo esc_attr( SFORGE_OPT ); ?>[extra_paths]" rows="4" class="large-text code" placeholder="wp-content/plugins/elementor/assets/lib/font-awesome"><?php echo esc_textarea( (string) $extra_paths_val ); ?></textarea>
 							<p class="description">
-								<strong>One path per line, relative to your WordPress root.</strong> Point this at files or folders that should be shipped inside the Cloudflare Pages deploy even though the crawler never sees them in the rendered HTML &mdash; a plugin's icon font (e.g. Elementor's Font Awesome at <code>wp-content/plugins/elementor/assets/lib/font-awesome</code>), a webfont directory, a downloadable PDF.<br>
-								A whole folder is copied recursively; a single file is copied as-is; a trailing wildcard (<code>wp-content/uploads/2025/*.pdf</code>) is expanded. Bundled files under <code>/wp-content/</code> get their URLs pointed at the live host so the deployed page loads the bundled copy; everything else stays on origin.<br>
-								You can enter a path relative to <code>wp-content/</code> too (<code>astra-local-fonts</code> instead of <code>wp-content/astra-local-fonts</code>) — if it isn't found at the WordPress root, the plugin looks under <code>wp-content/</code> automatically.<br>
-								Read straight off local disk, so no origin firewall to worry about. Paths are confined to the WordPress root; anything escaping it via <code>..</code> or a symlink is skipped and logged. Capped at 5,000 files / 200&nbsp;MB per rebuild.
+								<?php echo wp_kses_post( __( '<strong>One path per line, relative to your WordPress root.</strong> Point this at files or folders that should be shipped inside the Cloudflare Pages deploy even though the crawler never sees them in the rendered HTML &mdash; a plugin\'s icon font (e.g. Elementor\'s Font Awesome at <code>wp-content/plugins/elementor/assets/lib/font-awesome</code>), a webfont directory, a downloadable PDF.', 'staticforge-for-cloudflare-pages' ) ); ?><br>
+								<?php echo wp_kses_post( __( 'A whole folder is copied recursively; a single file is copied as-is; a trailing wildcard (<code>wp-content/uploads/2025/*.pdf</code>) is expanded. Bundled files under <code>/wp-content/</code> get their URLs pointed at the live host so the deployed page loads the bundled copy; everything else stays on origin.', 'staticforge-for-cloudflare-pages' ) ); ?><br>
+								<?php echo wp_kses_post( __( 'You can enter a path relative to <code>wp-content/</code> too (<code>astra-local-fonts</code> instead of <code>wp-content/astra-local-fonts</code>) &mdash; if it isn\'t found at the WordPress root, the plugin looks under <code>wp-content/</code> automatically.', 'staticforge-for-cloudflare-pages' ) ); ?><br>
+								<?php echo wp_kses_post( __( 'Read straight off local disk, so no origin firewall to worry about. Paths are confined to the WordPress root; anything escaping it via <code>..</code> or a symlink is skipped and logged. Capped at 5,000 files / 200&nbsp;MB per rebuild.', 'staticforge-for-cloudflare-pages' ) ); ?>
 							</p>
 						</td>
 					</tr>
@@ -223,30 +223,29 @@ $has_schema_seo  = $injector->schema_plugin_active();
 			<header class="sforge-section-head">
 				<span class="sforge-section-icon sforge-section-icon-teal"><span class="dashicons dashicons-performance"></span></span>
 				<div>
-					<h2>Performance</h2>
-					<p>Core Web Vitals tweaks applied to the rendered HTML.</p>
+					<h2><?php esc_html_e( 'Performance', 'staticforge-for-cloudflare-pages' ); ?></h2>
+					<p><?php esc_html_e( 'Core Web Vitals tweaks applied to the rendered HTML.', 'staticforge-for-cloudflare-pages' ); ?></p>
 				</div>
 			</header>
 			<div class="sforge-section-body">
 				<table class="form-table" role="presentation">
 					<tr>
-						<th scope="row">Featured image priority</th>
+						<th scope="row"><?php esc_html_e( 'Featured image priority', 'staticforge-for-cloudflare-pages' ); ?></th>
 						<td>
-							<label class="sforge-cb"><input type="checkbox" name="<?php echo esc_attr( SFORGE_OPT ); ?>[featured_image_priority]" value="1" <?php checked( ! empty( $o['featured_image_priority'] ) ); ?>> Add <code>fetchpriority="high"</code> to the post's featured image</label>
+							<label class="sforge-cb"><input type="checkbox" name="<?php echo esc_attr( SFORGE_OPT ); ?>[featured_image_priority]" value="1" <?php checked( ! empty( $o['featured_image_priority'] ) ); ?>> <?php echo wp_kses_post( __( 'Add <code>fetchpriority="high"</code> to the post\'s featured image', 'staticforge-for-cloudflare-pages' ) ); ?></label>
 							<p class="description">
-								Also sets <code>loading="eager"</code> and <code>decoding="async"</code>. Helps the browser identify the LCP element earlier &mdash; improves Core Web Vitals.
-								Works with any theme that uses <code>the_post_thumbnail()</code> or <code>get_the_post_thumbnail()</code>.
+								<?php echo wp_kses_post( __( 'Also sets <code>loading="eager"</code> and <code>decoding="async"</code>. Helps the browser identify the LCP element earlier &mdash; improves Core Web Vitals. Works with any theme that uses <code>the_post_thumbnail()</code> or <code>get_the_post_thumbnail()</code>.', 'staticforge-for-cloudflare-pages' ) ); ?>
 							</p>
 						</td>
 					</tr>
 					<tr>
-						<th scope="row"><label for="sforge_render_origin">Render origin override</label></th>
+						<th scope="row"><label for="sforge_render_origin"><?php esc_html_e( 'Render origin override', 'staticforge-for-cloudflare-pages' ); ?></label></th>
 						<td>
 							<input type="text" id="sforge_render_origin" name="<?php echo esc_attr( SFORGE_OPT ); ?>[render_origin]" value="<?php echo esc_attr( $o['render_origin'] ?? '' ); ?>" class="regular-text code" placeholder="http://127.0.0.1" autocomplete="off" />
 							<p class="description">
-								<strong>Leave blank unless rebuilds are slow.</strong> The export fetches every page over HTTP from your site's own URL. When your domain runs behind a CDN/proxy (e.g. Cloudflare), each of those requests leaves the server and comes back &mdash; with hundreds of pages that round-trip dominates the rebuild time.<br>
-								Set this to a host that points at WordPress <em>directly on this server</em> (usually <code>http://127.0.0.1</code>, or <code>http://127.0.0.1:8080</code> if PHP listens on another port) and the crawl stays on the box. The plugin keeps your real domain in the <code>Host</code> header, so WordPress still serves the correct site/language. TLS verification is skipped for the override only (a loopback cert won't match the public host).<br>
-								Applies to page renders, inlined CSS, mirrored sitemaps, and bundled uploads. Only URLs on your origin host are redirected; everything else is fetched unchanged.
+								<?php echo wp_kses_post( __( '<strong>Leave blank unless rebuilds are slow.</strong> The export fetches every page over HTTP from your site\'s own URL. When your domain runs behind a CDN/proxy (e.g. Cloudflare), each of those requests leaves the server and comes back &mdash; with hundreds of pages that round-trip dominates the rebuild time.', 'staticforge-for-cloudflare-pages' ) ); ?><br>
+								<?php echo wp_kses_post( __( 'Set this to a host that points at WordPress <em>directly on this server</em> (usually <code>http://127.0.0.1</code>, or <code>http://127.0.0.1:8080</code> if PHP listens on another port) and the crawl stays on the box. The plugin keeps your real domain in the <code>Host</code> header, so WordPress still serves the correct site/language. TLS verification is skipped for the override only (a loopback cert won\'t match the public host).', 'staticforge-for-cloudflare-pages' ) ); ?><br>
+								<?php echo wp_kses_post( __( 'Applies to page renders, inlined CSS, mirrored sitemaps, and bundled uploads. Only URLs on your origin host are redirected; everything else is fetched unchanged.', 'staticforge-for-cloudflare-pages' ) ); ?>
 							</p>
 						</td>
 					</tr>
@@ -258,70 +257,69 @@ $has_schema_seo  = $injector->schema_plugin_active();
 			<header class="sforge-section-head">
 				<span class="sforge-section-icon sforge-section-icon-purple"><span class="dashicons dashicons-search"></span></span>
 				<div>
-					<h2>SEO Metadata</h2>
-					<p>Auto-emit meta tags, Open Graph, Twitter Card, and rich JSON-LD schemas.</p>
+					<h2><?php esc_html_e( 'SEO Metadata', 'staticforge-for-cloudflare-pages' ); ?></h2>
+					<p><?php esc_html_e( 'Auto-emit meta tags, Open Graph, Twitter Card, and rich JSON-LD schemas.', 'staticforge-for-cloudflare-pages' ); ?></p>
 				</div>
 			</header>
 			<div class="sforge-section-body">
 				<table class="form-table" role="presentation">
 					<tr>
-						<th scope="row">Inject SEO meta</th>
+						<th scope="row"><?php esc_html_e( 'Inject SEO meta', 'staticforge-for-cloudflare-pages' ); ?></th>
 						<td>
-							<label class="sforge-cb"><input type="checkbox" name="<?php echo esc_attr( SFORGE_OPT ); ?>[seo_inject]" value="1" <?php checked( ! empty( $o['seo_inject'] ) ); ?>> Add baseline SEO tags + JSON-LD schemas to <code>&lt;head&gt;</code></label>
+							<label class="sforge-cb"><input type="checkbox" name="<?php echo esc_attr( SFORGE_OPT ); ?>[seo_inject]" value="1" <?php checked( ! empty( $o['seo_inject'] ) ); ?>> <?php echo wp_kses_post( __( 'Add baseline SEO tags + JSON-LD schemas to <code>&lt;head&gt;</code>', 'staticforge-for-cloudflare-pages' ) ); ?></label>
 
 							<div class="sforge-feature-grid">
 								<div class="sforge-feature">
 									<span class="sforge-feature-icon">📝</span>
-									<strong>Meta + Social</strong>
-									<small><code>description</code>, <code>robots</code>, <code>canonical</code>, Open Graph (<code>og:type</code>, <code>article:*</code>, <code>profile:*</code>), Twitter Card.</small>
+									<strong><?php esc_html_e( 'Meta + Social', 'staticforge-for-cloudflare-pages' ); ?></strong>
+									<small><?php echo wp_kses_post( __( '<code>description</code>, <code>robots</code>, <code>canonical</code>, Open Graph (<code>og:type</code>, <code>article:*</code>, <code>profile:*</code>), Twitter Card.', 'staticforge-for-cloudflare-pages' ) ); ?></small>
 								</div>
 								<div class="sforge-feature">
 									<span class="sforge-feature-icon">📜</span>
-									<strong>Core Schemas</strong>
-									<small><code>WebSite</code> + <code>SearchAction</code>, <code>Organization</code>, <code>Article</code>, <code>WebPage</code>, <code>BreadcrumbList</code>, <code>CollectionPage</code>.</small>
+									<strong><?php esc_html_e( 'Core Schemas', 'staticforge-for-cloudflare-pages' ); ?></strong>
+									<small><?php echo wp_kses_post( __( '<code>WebSite</code> + <code>SearchAction</code>, <code>Organization</code>, <code>Article</code>, <code>WebPage</code>, <code>BreadcrumbList</code>, <code>CollectionPage</code>.', 'staticforge-for-cloudflare-pages' ) ); ?></small>
 								</div>
 								<div class="sforge-feature">
 									<span class="sforge-feature-icon">👤</span>
-									<strong>Author Schema</strong>
-									<small><code>Person</code> + <code>ProfilePage</code> on author archives — avatar, bio, sameAs social links.</small>
+									<strong><?php esc_html_e( 'Author Schema', 'staticforge-for-cloudflare-pages' ); ?></strong>
+									<small><?php echo wp_kses_post( __( '<code>Person</code> + <code>ProfilePage</code> on author archives &mdash; avatar, bio, sameAs social links.', 'staticforge-for-cloudflare-pages' ) ); ?></small>
 								</div>
 								<div class="sforge-feature">
 									<span class="sforge-feature-icon">❓</span>
-									<strong>FAQ &amp; HowTo</strong>
-									<small>Auto-detected from FAQ / HowTo blocks (Yoast, Rank Math, SEOPress) or HTML5 <code>&lt;details&gt;</code> markup.</small>
+									<strong><?php echo wp_kses_post( __( 'FAQ &amp; HowTo', 'staticforge-for-cloudflare-pages' ) ); ?></strong>
+									<small><?php echo wp_kses_post( __( 'Auto-detected from FAQ / HowTo blocks (Yoast, Rank Math, SEOPress) or HTML5 <code>&lt;details&gt;</code> markup.', 'staticforge-for-cloudflare-pages' ) ); ?></small>
 								</div>
 							</div>
 
 							<?php if ( $has_general_seo ) : ?>
 								<div class="sforge-callout sforge-callout-warn">
-									<strong>General SEO plugin detected</strong>
-									<span>Yoast / Rank Math / AIO SEO / SEOPress / SEO Framework / etc. emits its own complete SEO stack. <strong>All our injection is paused</strong> to avoid duplicate tags.</span>
+									<strong><?php esc_html_e( 'General SEO plugin detected', 'staticforge-for-cloudflare-pages' ); ?></strong>
+									<span><?php echo wp_kses_post( __( 'Yoast / Rank Math / AIO SEO / SEOPress / SEO Framework / etc. emits its own complete SEO stack. <strong>All our injection is paused</strong> to avoid duplicate tags.', 'staticforge-for-cloudflare-pages' ) ); ?></span>
 								</div>
 							<?php elseif ( $has_schema_seo ) : ?>
 								<div class="sforge-callout sforge-callout-info">
-									<strong>Schema-only plugin detected</strong>
-									<span>Schema &amp; Structured Data for WP &amp; AMP / Schema Pro / WPSSO / etc. handles JSON-LD. We will <strong>still emit</strong> meta description, robots, canonical, Open Graph, and Twitter Card &mdash; but skip our JSON-LD block to avoid schema duplication.</span>
+									<strong><?php esc_html_e( 'Schema-only plugin detected', 'staticforge-for-cloudflare-pages' ); ?></strong>
+									<span><?php echo wp_kses_post( __( 'Schema &amp; Structured Data for WP &amp; AMP / Schema Pro / WPSSO / etc. handles JSON-LD. We will <strong>still emit</strong> meta description, robots, canonical, Open Graph, and Twitter Card &mdash; but skip our JSON-LD block to avoid schema duplication.', 'staticforge-for-cloudflare-pages' ) ); ?></span>
 								</div>
 							<?php else : ?>
 								<div class="sforge-callout sforge-callout-success">
-									<strong>No SEO plugin detected</strong>
-									<span>Full injection enabled &mdash; meta, Open Graph, Twitter Card, and all JSON-LD schemas will be emitted.</span>
+									<strong><?php esc_html_e( 'No SEO plugin detected', 'staticforge-for-cloudflare-pages' ); ?></strong>
+									<span><?php esc_html_e( 'Full injection enabled — meta, Open Graph, Twitter Card, and all JSON-LD schemas will be emitted.', 'staticforge-for-cloudflare-pages' ); ?></span>
 								</div>
 							<?php endif; ?>
 
 							<?php if ( $has_general_seo || $has_schema_seo ) : ?>
-								<label class="sforge-cb sforge-cb-danger"><input type="checkbox" name="<?php echo esc_attr( SFORGE_OPT ); ?>[seo_inject_force]" value="1" <?php checked( ! empty( $o['seo_inject_force'] ) ); ?>> <strong>Force full injection anyway</strong> <small>(may produce duplicate tags &mdash; only enable if you've configured the other plugin to skip)</small></label>
+								<label class="sforge-cb sforge-cb-danger"><input type="checkbox" name="<?php echo esc_attr( SFORGE_OPT ); ?>[seo_inject_force]" value="1" <?php checked( ! empty( $o['seo_inject_force'] ) ); ?>> <strong><?php esc_html_e( 'Force full injection anyway', 'staticforge-for-cloudflare-pages' ); ?></strong> <small><?php echo wp_kses_post( __( '(may produce duplicate tags &mdash; only enable if you\'ve configured the other plugin to skip)', 'staticforge-for-cloudflare-pages' ) ); ?></small></label>
 							<?php endif; ?>
 						</td>
 					</tr>
 					<tr>
-						<th scope="row">Profile schema (author pages)</th>
+						<th scope="row"><?php esc_html_e( 'Profile schema (author pages)', 'staticforge-for-cloudflare-pages' ); ?></th>
 						<td>
-							<label class="sforge-cb"><input type="checkbox" name="<?php echo esc_attr( SFORGE_OPT ); ?>[profile_schema]" value="1" <?php checked( ! empty( $o['profile_schema'] ) ); ?>> Emit rich <code>Person</code> + <code>ProfilePage</code> JSON-LD on author archives even when an SEO plugin is active</label>
+							<label class="sforge-cb"><input type="checkbox" name="<?php echo esc_attr( SFORGE_OPT ); ?>[profile_schema]" value="1" <?php checked( ! empty( $o['profile_schema'] ) ); ?>> <?php echo wp_kses_post( __( 'Emit rich <code>Person</code> + <code>ProfilePage</code> JSON-LD on author archives even when an SEO plugin is active', 'staticforge-for-cloudflare-pages' ) ); ?></label>
 							<p class="description">
-								Adds a fuller author graph with <code>sameAs</code> social URLs (Twitter / X, LinkedIn, Facebook, Instagram, YouTube, GitHub, Pinterest, TikTok, Threads, Medium, Mastodon, Bluesky &mdash; pulled from <code>user_url</code> + matching <code>user_meta</code> keys),
-								<code>givenName</code>, <code>familyName</code>, <code>description</code>, avatar <code>ImageObject</code>, and optional <code>jobTitle</code>/<code>worksFor</code> from custom user meta.
-								Skipped automatically when this plugin's own SEO injector is already covering author pages (no SEO plugin detected and "Inject SEO meta" is on). Distinct <code>@id</code> suffix prevents conflict with Yoast/Rank Math/etc.
+								<?php echo wp_kses_post( __( 'Adds a fuller author graph with <code>sameAs</code> social URLs (Twitter / X, LinkedIn, Facebook, Instagram, YouTube, GitHub, Pinterest, TikTok, Threads, Medium, Mastodon, Bluesky &mdash; pulled from <code>user_url</code> + matching <code>user_meta</code> keys), <code>givenName</code>, <code>familyName</code>, <code>description</code>, avatar <code>ImageObject</code>, and optional <code>jobTitle</code>/<code>worksFor</code> from custom user meta.', 'staticforge-for-cloudflare-pages' ) ); ?>
+								<?php echo wp_kses_post( __( 'Skipped automatically when this plugin\'s own SEO injector is already covering author pages (no SEO plugin detected and "Inject SEO meta" is on). Distinct <code>@id</code> suffix prevents conflict with Yoast/Rank Math/etc.', 'staticforge-for-cloudflare-pages' ) ); ?>
 							</p>
 						</td>
 					</tr>
@@ -333,35 +331,27 @@ $has_schema_seo  = $injector->schema_plugin_active();
 			<header class="sforge-section-head">
 				<span class="sforge-section-icon sforge-section-icon-orange"><span class="dashicons dashicons-admin-network"></span></span>
 				<div>
-					<h2>robots.txt &amp; Dashboard Indexing</h2>
-					<p>Live site robots.txt + dashboard search-engine block.</p>
+					<h2><?php echo wp_kses_post( __( 'robots.txt &amp; Dashboard Indexing', 'staticforge-for-cloudflare-pages' ) ); ?></h2>
+					<p><?php esc_html_e( 'Live site robots.txt + dashboard search-engine block.', 'staticforge-for-cloudflare-pages' ); ?></p>
 				</div>
 			</header>
 			<div class="sforge-section-body">
 				<table class="form-table" role="presentation">
 					<tr>
-						<th scope="row">Block dashboard from search engines</th>
+						<th scope="row"><?php esc_html_e( 'Block dashboard from search engines', 'staticforge-for-cloudflare-pages' ); ?></th>
 						<td>
-							<label class="sforge-cb"><input type="checkbox" name="<?php echo esc_attr( SFORGE_OPT ); ?>[dashboard_block]" value="1" <?php checked( ! empty( $o['dashboard_block'] ) ); ?>> Force <code>noindex</code> on this WordPress install (recommended)</label>
+							<label class="sforge-cb"><input type="checkbox" name="<?php echo esc_attr( SFORGE_OPT ); ?>[dashboard_block]" value="1" <?php checked( ! empty( $o['dashboard_block'] ) ); ?>> <?php echo wp_kses_post( __( 'Force <code>noindex</code> on this WordPress install (recommended)', 'staticforge-for-cloudflare-pages' ) ); ?></label>
 							<p class="description">
-								Writes a <code>Disallow: /</code> robots.txt at the webroot (existing file backed up to <code>robots.txt.sforge-backup</code>),
-								adds a <code>noindex,nofollow</code> meta robots tag, and emits an <code>X-Robots-Tag</code> HTTP header on every response.
-								Plugin's own export fetches are exempt &mdash; deployed pages remain fully indexable.
-								Auto-restores on plugin deactivation.
+								<?php echo wp_kses_post( __( 'Writes a <code>Disallow: /</code> robots.txt at the webroot (existing file backed up to <code>robots.txt.sforge-backup</code>), adds a <code>noindex,nofollow</code> meta robots tag, and emits an <code>X-Robots-Tag</code> HTTP header on every response. Plugin\'s own export fetches are exempt &mdash; deployed pages remain fully indexable. Auto-restores on plugin deactivation.', 'staticforge-for-cloudflare-pages' ) ); ?>
 							</p>
 						</td>
 					</tr>
 					<tr>
-						<th scope="row"><label for="sforge_robots_txt">Live site robots.txt</label></th>
+						<th scope="row"><label for="sforge_robots_txt"><?php esc_html_e( 'Live site robots.txt', 'staticforge-for-cloudflare-pages' ); ?></label></th>
 						<td>
 							<textarea id="sforge_robots_txt" name="<?php echo esc_attr( SFORGE_OPT ); ?>[robots_txt]" rows="8" class="large-text code" placeholder="<?php echo esc_attr( SFORGE_Seo::preview_default_robots() ); ?>"><?php echo esc_textarea( $o['robots_txt'] ?? '' ); ?></textarea>
 							<p class="description">
-								Independent of the dashboard robots.txt above. Leave blank to auto-generate (placeholder shows the default).
-								If filled, your <code>Allow:</code> / <code>Disallow:</code> rules are kept verbatim &mdash; the <code>Sitemap:</code> line is always
-								<strong>auto-managed</strong> to match the actual deployed sitemap path
-								(<code>sitemap.xml</code>, <code>sitemap_index.xml</code>, <code>wp-sitemap.xml</code>, etc.) so the URL in robots.txt always works.
-								Any <code>Sitemap:</code> lines you type are stripped and replaced.
-								Deployed to <code>&lt;cf-pages-url&gt;/robots.txt</code> on next rebuild.
+								<?php echo wp_kses_post( __( 'Independent of the dashboard robots.txt above. Leave blank to auto-generate (placeholder shows the default). If filled, your <code>Allow:</code> / <code>Disallow:</code> rules are kept verbatim &mdash; the <code>Sitemap:</code> line is always <strong>auto-managed</strong> to match the actual deployed sitemap path (<code>sitemap.xml</code>, <code>sitemap_index.xml</code>, <code>wp-sitemap.xml</code>, etc.) so the URL in robots.txt always works. Any <code>Sitemap:</code> lines you type are stripped and replaced. Deployed to <code>&lt;cf-pages-url&gt;/robots.txt</code> on next rebuild.', 'staticforge-for-cloudflare-pages' ) ); ?>
 							</p>
 						</td>
 					</tr>
@@ -373,18 +363,17 @@ $has_schema_seo  = $injector->schema_plugin_active();
 			<header class="sforge-section-head">
 				<span class="sforge-section-icon sforge-section-icon-green"><span class="dashicons dashicons-networking"></span></span>
 				<div>
-					<h2>Sitemap Generator</h2>
-					<p>What to include when the plugin generates <code>sitemap.xml</code> (origin sitemap missing).</p>
+					<h2><?php esc_html_e( 'Sitemap Generator', 'staticforge-for-cloudflare-pages' ); ?></h2>
+					<p><?php echo wp_kses_post( __( 'What to include when the plugin generates <code>sitemap.xml</code> (origin sitemap missing).', 'staticforge-for-cloudflare-pages' ) ); ?></p>
 				</div>
 			</header>
 			<div class="sforge-section-body">
 				<p class="description" style="margin-top:8px;">
-					If your origin already exposes a sitemap (Yoast / Rank Math / WP core <code>/wp-sitemap.xml</code>), the plugin <em>mirrors</em> it and these settings are ignored.
-					Otherwise the plugin builds <code>sitemap.xml</code> itself from the options below.
+					<?php echo wp_kses_post( __( 'If your origin already exposes a sitemap (Yoast / Rank Math / WP core <code>/wp-sitemap.xml</code>), the plugin <em>mirrors</em> it and these settings are ignored. Otherwise the plugin builds <code>sitemap.xml</code> itself from the options below.', 'staticforge-for-cloudflare-pages' ) ); ?>
 				</p>
 				<table class="form-table" role="presentation">
 					<tr>
-						<th scope="row">Post Types</th>
+						<th scope="row"><?php esc_html_e( 'Post Types', 'staticforge-for-cloudflare-pages' ); ?></th>
 						<td>
 							<div class="sforge-cb-grid">
 								<?php
@@ -402,28 +391,26 @@ $has_schema_seo  = $injector->schema_plugin_active();
 								}
 								?>
 							</div>
-							<p class="description">All published items of selected types are listed in the sitemap, plus their post-type archive URL where applicable.</p>
+							<p class="description"><?php esc_html_e( 'All published items of selected types are listed in the sitemap, plus their post-type archive URL where applicable.', 'staticforge-for-cloudflare-pages' ); ?></p>
 						</td>
 					</tr>
 					<tr>
-						<th scope="row">Include</th>
+						<th scope="row"><?php esc_html_e( 'Include', 'staticforge-for-cloudflare-pages' ); ?></th>
 						<td>
 							<div class="sforge-cb-grid">
-								<label class="sforge-cb"><input type="checkbox" name="<?php echo esc_attr( SFORGE_OPT ); ?>[sitemap_homepage]" value="1" <?php checked( ! empty( $o['sitemap_homepage'] ) ); ?>> <strong>Homepage</strong></label>
-								<label class="sforge-cb"><input type="checkbox" name="<?php echo esc_attr( SFORGE_OPT ); ?>[sitemap_taxonomies]" value="1" <?php checked( ! empty( $o['sitemap_taxonomies'] ) ); ?>> <strong>Taxonomy archives</strong> <code>cat / tag / custom</code></label>
-								<label class="sforge-cb"><input type="checkbox" name="<?php echo esc_attr( SFORGE_OPT ); ?>[sitemap_authors]" value="1" <?php checked( ! empty( $o['sitemap_authors'] ) ); ?>> <strong>Author archives</strong></label>
+								<label class="sforge-cb"><input type="checkbox" name="<?php echo esc_attr( SFORGE_OPT ); ?>[sitemap_homepage]" value="1" <?php checked( ! empty( $o['sitemap_homepage'] ) ); ?>> <strong><?php esc_html_e( 'Homepage', 'staticforge-for-cloudflare-pages' ); ?></strong></label>
+								<label class="sforge-cb"><input type="checkbox" name="<?php echo esc_attr( SFORGE_OPT ); ?>[sitemap_taxonomies]" value="1" <?php checked( ! empty( $o['sitemap_taxonomies'] ) ); ?>> <strong><?php esc_html_e( 'Taxonomy archives', 'staticforge-for-cloudflare-pages' ); ?></strong> <code>cat / tag / custom</code></label>
+								<label class="sforge-cb"><input type="checkbox" name="<?php echo esc_attr( SFORGE_OPT ); ?>[sitemap_authors]" value="1" <?php checked( ! empty( $o['sitemap_authors'] ) ); ?>> <strong><?php esc_html_e( 'Author archives', 'staticforge-for-cloudflare-pages' ); ?></strong></label>
 							</div>
 						</td>
 					</tr>
 					<tr>
-						<th scope="row">Split into multiple files</th>
+						<th scope="row"><?php esc_html_e( 'Split into multiple files', 'staticforge-for-cloudflare-pages' ); ?></th>
 						<td>
-							<label class="sforge-cb"><input type="checkbox" name="<?php echo esc_attr( SFORGE_OPT ); ?>[sitemap_split]" value="1" <?php checked( ! empty( $o['sitemap_split'] ) ); ?>> Generate a sitemap-index pointing to per-type sub-sitemaps</label>
+							<label class="sforge-cb"><input type="checkbox" name="<?php echo esc_attr( SFORGE_OPT ); ?>[sitemap_split]" value="1" <?php checked( ! empty( $o['sitemap_split'] ) ); ?>> <?php esc_html_e( 'Generate a sitemap-index pointing to per-type sub-sitemaps', 'staticforge-for-cloudflare-pages' ); ?></label>
 							<p class="description">
-								<strong>Off</strong> (default) &rarr; single <code>sitemap.xml</code> with every URL.<br>
-								<strong>On</strong> &rarr; <code>sitemap.xml</code> becomes a <code>&lt;sitemapindex&gt;</code> referencing
-								<code>sitemap-post.xml</code>, <code>sitemap-page.xml</code>, <code>sitemap-taxonomy-category.xml</code>,
-								<code>sitemap-authors.xml</code>, etc. Cleaner for large sites and better understood by Search Console.
+								<?php echo wp_kses_post( __( '<strong>Off</strong> (default) &rarr; single <code>sitemap.xml</code> with every URL.', 'staticforge-for-cloudflare-pages' ) ); ?><br>
+								<?php echo wp_kses_post( __( '<strong>On</strong> &rarr; <code>sitemap.xml</code> becomes a <code>&lt;sitemapindex&gt;</code> referencing <code>sitemap-post.xml</code>, <code>sitemap-page.xml</code>, <code>sitemap-taxonomy-category.xml</code>, <code>sitemap-authors.xml</code>, etc. Cleaner for large sites and better understood by Search Console.', 'staticforge-for-cloudflare-pages' ) ); ?>
 							</p>
 						</td>
 					</tr>
@@ -435,30 +422,35 @@ $has_schema_seo  = $injector->schema_plugin_active();
 			<header class="sforge-section-head">
 				<span class="sforge-section-icon sforge-section-icon-pink"><span class="dashicons dashicons-update"></span></span>
 				<div>
-					<h2>Deployment Behaviour</h2>
-					<p>When and how the plugin re-deploys on changes.</p>
+					<h2><?php esc_html_e( 'Deployment Behaviour', 'staticforge-for-cloudflare-pages' ); ?></h2>
+					<p><?php esc_html_e( 'When and how the plugin re-deploys on changes.', 'staticforge-for-cloudflare-pages' ); ?></p>
 				</div>
 			</header>
 			<div class="sforge-section-body">
 				<table class="form-table" role="presentation">
 					<tr>
-						<th scope="row">Auto-deploy</th>
+						<th scope="row"><?php esc_html_e( 'Auto-deploy', 'staticforge-for-cloudflare-pages' ); ?></th>
 						<td>
-							<label class="sforge-cb"><input type="checkbox" name="<?php echo esc_attr( SFORGE_OPT ); ?>[auto_deploy]" value="1" <?php checked( ! empty( $o['auto_deploy'] ) ); ?>> Re-deploy site on publish/update of selected post types</label>
+							<label class="sforge-cb"><input type="checkbox" name="<?php echo esc_attr( SFORGE_OPT ); ?>[auto_deploy]" value="1" <?php checked( ! empty( $o['auto_deploy'] ) ); ?>> <?php esc_html_e( 'Re-deploy site on publish/update of selected post types', 'staticforge-for-cloudflare-pages' ); ?></label>
 						</td>
 					</tr>
 					<tr>
-						<th scope="row"><label for="sforge_debounce">Debounce</label></th>
+						<th scope="row"><label for="sforge_debounce"><?php esc_html_e( 'Debounce', 'staticforge-for-cloudflare-pages' ); ?></label></th>
 						<td>
-							<input type="number" id="sforge_debounce" name="<?php echo esc_attr( SFORGE_OPT ); ?>[debounce]" min="10" max="3600" value="<?php echo esc_attr( $o['debounce'] ?? 120 ); ?>" class="small-text" /> <span class="sforge-unit">seconds</span>
-							<p class="description">Rapid edits within this window collapse into a single deploy. Default <strong>120s</strong> &mdash; comfortable margin under CF Pages free-tier soft cap of ~100 deploys/day.</p>
+							<input type="number" id="sforge_debounce" name="<?php echo esc_attr( SFORGE_OPT ); ?>[debounce]" min="10" max="3600" value="<?php echo esc_attr( $o['debounce'] ?? 120 ); ?>" class="small-text" /> <span class="sforge-unit"><?php esc_html_e( 'seconds', 'staticforge-for-cloudflare-pages' ); ?></span>
+							<p class="description"><?php echo wp_kses_post( __( 'Rapid edits within this window collapse into a single deploy. Default <strong>120s</strong> &mdash; comfortable margin under CF Pages free-tier soft cap of ~100 deploys/day.', 'staticforge-for-cloudflare-pages' ) ); ?></p>
 						</td>
 					</tr>
 					<tr>
-						<th scope="row"><label for="sforge_export_dir">Local Export Folder</label></th>
+						<th scope="row"><label for="sforge_export_dir"><?php esc_html_e( 'Local Export Folder', 'staticforge-for-cloudflare-pages' ); ?></label></th>
 						<td>
 							<input type="text" id="sforge_export_dir" name="<?php echo esc_attr( SFORGE_OPT ); ?>[export_dir]" value="<?php echo esc_attr( $o['export_dir'] ?? 'sforge-export' ); ?>" class="regular-text code" />
-							<p class="description">Inside <code><?php echo esc_html( wp_upload_dir()['basedir'] ); ?>/</code>. HTML files are also kept on disk for inspection.</p>
+							<p class="description">
+								<?php
+								/* translators: %s: absolute filesystem path to the WordPress uploads directory. */
+								printf( wp_kses_post( __( 'Inside <code>%s/</code>. HTML files are also kept on disk for inspection.', 'staticforge-for-cloudflare-pages' ) ), esc_html( wp_upload_dir()['basedir'] ) );
+								?>
+							</p>
 						</td>
 					</tr>
 				</table>
@@ -466,7 +458,7 @@ $has_schema_seo  = $injector->schema_plugin_active();
 		</section>
 
 		<div class="sforge-form-foot">
-			<?php submit_button( 'Save Settings', 'primary large', 'submit', false ); ?>
+			<?php submit_button( __( 'Save Settings', 'staticforge-for-cloudflare-pages' ), 'primary large', 'submit', false ); ?>
 		</div>
 	</form>
 
@@ -474,30 +466,30 @@ $has_schema_seo  = $injector->schema_plugin_active();
 		<header class="sforge-section-head">
 			<span class="sforge-section-icon sforge-section-icon-teal"><span class="dashicons dashicons-controls-play"></span></span>
 			<div>
-				<h2>Actions</h2>
-				<p>Verify the connection and push a deploy.</p>
+				<h2><?php esc_html_e( 'Actions', 'staticforge-for-cloudflare-pages' ); ?></h2>
+				<p><?php esc_html_e( 'Verify the connection and push a deploy.', 'staticforge-for-cloudflare-pages' ); ?></p>
 			</div>
 		</header>
 		<div class="sforge-section-body sforge-actions">
 			<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
 				<input type="hidden" name="action" value="sforge_test_connection">
 				<?php wp_nonce_field( 'sforge_action' ); ?>
-				<button type="submit" class="button button-secondary button-large"><span class="dashicons dashicons-yes-alt"></span> Test Connection</button>
+				<button type="submit" class="button button-secondary button-large"><span class="dashicons dashicons-yes-alt"></span> <?php esc_html_e( 'Test Connection', 'staticforge-for-cloudflare-pages' ); ?></button>
 			</form>
 			<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
 				<input type="hidden" name="action" value="sforge_partial_rebuild">
 				<?php wp_nonce_field( 'sforge_action' ); ?>
-				<button type="submit" class="button button-primary button-large" title="Re-renders only the pages affected by recent edits, reusing the export cache for everything else."><span class="dashicons dashicons-update"></span> Rebuild Changed + Deploy</button>
+				<button type="submit" class="button button-primary button-large" title="<?php esc_attr_e( 'Re-renders only the pages affected by recent edits, reusing the export cache for everything else.', 'staticforge-for-cloudflare-pages' ); ?>"><span class="dashicons dashicons-update"></span> <?php esc_html_e( 'Rebuild Changed + Deploy', 'staticforge-for-cloudflare-pages' ); ?></button>
 			</form>
 			<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
 				<input type="hidden" name="action" value="sforge_full_rebuild">
 				<?php wp_nonce_field( 'sforge_action' ); ?>
-				<button type="submit" class="button button-secondary button-large" title="Re-renders every page on the site. Slower, but reconciles the export cache from scratch."><span class="dashicons dashicons-cloud-upload"></span> Full Rebuild + Deploy</button>
+				<button type="submit" class="button button-secondary button-large" title="<?php esc_attr_e( 'Re-renders every page on the site. Slower, but reconciles the export cache from scratch.', 'staticforge-for-cloudflare-pages' ); ?>"><span class="dashicons dashicons-cloud-upload"></span> <?php esc_html_e( 'Full Rebuild + Deploy', 'staticforge-for-cloudflare-pages' ); ?></button>
 			</form>
 			<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
 				<input type="hidden" name="action" value="sforge_clear_log">
 				<?php wp_nonce_field( 'sforge_action' ); ?>
-				<button type="submit" class="button button-link-delete button-large"><span class="dashicons dashicons-trash"></span> Clear Log</button>
+				<button type="submit" class="button button-link-delete button-large"><span class="dashicons dashicons-trash"></span> <?php esc_html_e( 'Clear Log', 'staticforge-for-cloudflare-pages' ); ?></button>
 			</form>
 			<a href="mailto:hello@gunjanjaswal.me" class="button button-secondary button-large"><span class="dashicons dashicons-email-alt"></span> <?php esc_html_e( 'Contact Developer', 'staticforge-for-cloudflare-pages' ); ?></a>
 		</div>
@@ -521,19 +513,19 @@ $has_schema_seo  = $injector->schema_plugin_active();
 		<header class="sforge-section-head">
 			<span class="sforge-section-icon sforge-section-icon-indigo"><span class="dashicons dashicons-list-view"></span></span>
 			<div>
-				<h2>Activity Log
-					<span class="sforge-status sforge-status-idle"><span class="sforge-dot sforge-dot-idle"></span><span>Idle</span></span>
+				<h2><?php esc_html_e( 'Activity Log', 'staticforge-for-cloudflare-pages' ); ?>
+					<span class="sforge-status sforge-status-idle"><span class="sforge-dot sforge-dot-idle"></span><span><?php esc_html_e( 'Idle', 'staticforge-for-cloudflare-pages' ); ?></span></span>
 				</h2>
-				<p>Auto-refreshes every 4 seconds. The status pill above shows the live deploy state.</p>
+				<p><?php esc_html_e( 'Auto-refreshes every 4 seconds. The status pill above shows the live deploy state.', 'staticforge-for-cloudflare-pages' ); ?></p>
 			</div>
 		</header>
 		<div class="sforge-log">
 			<?php $log = SFORGE_Logger::get(); ?>
 			<?php if ( empty( $log ) ) : ?>
-				<p class="sforge-log-empty"><em>No activity yet. Click <strong>Test Connection</strong> or <strong>Rebuild + Deploy Now</strong> to see entries.</em></p>
+				<p class="sforge-log-empty"><em><?php echo wp_kses_post( __( 'No activity yet. Click <strong>Test Connection</strong> or <strong>Rebuild + Deploy Now</strong> to see entries.', 'staticforge-for-cloudflare-pages' ) ); ?></em></p>
 			<?php else : ?>
 				<table class="widefat striped">
-					<thead><tr><th class="sforge-col-time">Time</th><th class="sforge-col-level">Level</th><th>Message</th></tr></thead>
+					<thead><tr><th class="sforge-col-time"><?php esc_html_e( 'Time', 'staticforge-for-cloudflare-pages' ); ?></th><th class="sforge-col-level"><?php esc_html_e( 'Level', 'staticforge-for-cloudflare-pages' ); ?></th><th><?php esc_html_e( 'Message', 'staticforge-for-cloudflare-pages' ); ?></th></tr></thead>
 					<tbody>
 					<?php foreach ( $log as $e ) : ?>
 						<tr class="sforge-row sforge-level-<?php echo esc_attr( $e['level'] ); ?>">
@@ -553,7 +545,10 @@ $has_schema_seo  = $injector->schema_plugin_active();
 			<strong>StaticForge for Cloudflare Pages</strong> &mdash; v<?php echo esc_html( SFORGE_VERSION ); ?>
 		</div>
 		<div>
-			Built by <a href="https://www.gunjanjaswal.me" target="_blank" rel="noopener">Gunjan Jaswal</a> &middot;
+			<?php
+			/* translators: %s: author name, linked to their website. */
+			printf( wp_kses_post( __( 'Built by %s', 'staticforge-for-cloudflare-pages' ) ), '<a href="https://www.gunjanjaswal.me" target="_blank" rel="noopener">Gunjan Jaswal</a>' );
+			?> &middot;
 			<a href="mailto:hello@gunjanjaswal.me">hello@gunjanjaswal.me</a>
 		</div>
 	</footer>

@@ -99,53 +99,30 @@ class SFORGE_Settings {
 		$screen->add_help_tab( [
 			'id'      => 'sforge_quickstart',
 			'title'   => __( 'Quick Start', 'staticforge-for-cloudflare-pages' ),
-			'content' =>
-				'<p><strong>Five steps to first deploy:</strong></p>' .
-				'<ol>' .
-				'<li>Create a Cloudflare Pages project in <em>Direct Upload</em> mode (note the slug, e.g. <code>mysite</code>).</li>' .
-				'<li>Create an API Token with <code>Account &middot; Cloudflare Pages &middot; Edit</code>.</li>' .
-				'<li>Copy your Account ID from the CF dashboard sidebar.</li>' .
-				'<li>Fill the fields on this page &rarr; Save &rarr; <em>Test Connection</em>.</li>' .
-				'<li>Click <em>Rebuild + Deploy Now</em> &rarr; watch the activity log.</li>' .
-				'</ol>' .
-				'<p>Full walkthrough: <a href="' . esc_url( $help_url ) . '">Setup Guide</a></p>',
+			'content' => sprintf(
+				/* translators: %s: URL of the full Setup Guide page. */
+				__( '<p><strong>Five steps to first deploy:</strong></p><ol><li>Create a Cloudflare Pages project in <em>Direct Upload</em> mode (note the slug, e.g. <code>mysite</code>).</li><li>Create an API Token with <code>Account &middot; Cloudflare Pages &middot; Edit</code>.</li><li>Copy your Account ID from the CF dashboard sidebar.</li><li>Fill the fields on this page &rarr; Save &rarr; <em>Test Connection</em>.</li><li>Click <em>Rebuild + Deploy Now</em> &rarr; watch the activity log.</li></ol><p>Full walkthrough: <a href="%s">Setup Guide</a></p>', 'staticforge-for-cloudflare-pages' ),
+				esc_url( $help_url )
+			),
 		] );
 		$screen->add_help_tab( [
 			'id'      => 'sforge_fields',
 			'title'   => __( 'Field Reference', 'staticforge-for-cloudflare-pages' ),
-			'content' =>
-				'<dl>' .
-				'<dt><strong>Account ID</strong></dt><dd>32-char hex from CF Dashboard right sidebar.</dd>' .
-				'<dt><strong>API Token</strong></dt><dd>Permission: <code>Account &middot; Cloudflare Pages &middot; Edit</code>. Shown once at creation &mdash; copy it.</dd>' .
-				'<dt><strong>Pages Project</strong></dt><dd>The slug only, NOT the <code>.pages.dev</code> URL.</dd>' .
-				'<dt><strong>Branch</strong></dt><dd><code>main</code> = production. Anything else = preview deployment.</dd>' .
-				'<dt><strong>Public Site URL</strong></dt><dd>Where the static site lives publicly. Used to rewrite WP URLs in HTML output.</dd>' .
-				'<dt><strong>Inline CSS</strong></dt><dd>Embeds linked stylesheets so each exported page is self-contained.</dd>' .
-				'<dt><strong>Debounce</strong></dt><dd>Rapid edits within this many seconds collapse into a single deploy.</dd>' .
-				'<dt><strong>Rewrite <code>/wp-content/</code> URLs</strong></dt><dd>Rewrites every <code>/wp-content/*</code> URL (themes, plugins, uploads) to the live host. Requires a Worker/Nginx proxy on the live host pointing back at the dashboard.</dd>' .
-				'<dt><strong>Bundle <code>/wp-content/uploads/</code> into deploy</strong></dt><dd>Softer alternative for shared-hosting origins whose firewall blocks Cloudflare. Fetches every uploads URL referenced in rendered HTML and ships them inside the CF Pages deploy. Themes/plugins still load from origin. Ignored when the rewrite-all toggle above is on.</dd>' .
-				'<dt><strong>Extra paths to include</strong></dt><dd>One path per line, relative to your WordPress root (e.g. <code>wp-content/plugins/elementor/assets/lib/font-awesome</code>). Files and whole folders are copied straight off disk into the deploy, and their <code>/wp-content/*</code> URLs are pointed at Cloudflare so the bundled copy is what loads. For assets the crawler never sees in the HTML &mdash; plugin icon fonts, a webfont folder, a downloadable PDF.</dd>' .
-				'<dt><strong>Redirect <code>*.pages.dev</code> to live host</strong></dt><dd>Injects a tiny client-side JS snippet so any browser landing on <code>&lt;project&gt;.pages.dev</code> bounces to the canonical Public Site URL (preserves path + query). Auto-skipped when Public Site URL is itself a <code>.pages.dev</code> URL.</dd>' .
-				'</dl>',
+			'content' => __( '<dl><dt><strong>Account ID</strong></dt><dd>32-char hex from CF Dashboard right sidebar.</dd><dt><strong>API Token</strong></dt><dd>Permission: <code>Account &middot; Cloudflare Pages &middot; Edit</code>. Shown once at creation &mdash; copy it.</dd><dt><strong>Pages Project</strong></dt><dd>The slug only, NOT the <code>.pages.dev</code> URL.</dd><dt><strong>Branch</strong></dt><dd><code>main</code> = production. Anything else = preview deployment.</dd><dt><strong>Public Site URL</strong></dt><dd>Where the static site lives publicly. Used to rewrite WP URLs in HTML output.</dd><dt><strong>Inline CSS</strong></dt><dd>Embeds linked stylesheets so each exported page is self-contained.</dd><dt><strong>Debounce</strong></dt><dd>Rapid edits within this many seconds collapse into a single deploy.</dd><dt><strong>Rewrite <code>/wp-content/</code> URLs</strong></dt><dd>Rewrites every <code>/wp-content/*</code> URL (themes, plugins, uploads) to the live host. Requires a Worker/Nginx proxy on the live host pointing back at the dashboard.</dd><dt><strong>Bundle <code>/wp-content/uploads/</code> into deploy</strong></dt><dd>Softer alternative for shared-hosting origins whose firewall blocks Cloudflare. Fetches every uploads URL referenced in rendered HTML and ships them inside the CF Pages deploy. Themes/plugins still load from origin. Ignored when the rewrite-all toggle above is on.</dd><dt><strong>Bundle self-hosted fonts</strong></dt><dd>Ships <code>@font-face</code> fonts served from your WordPress host inside the deploy and rewrites their URLs to the Public Site URL, so they load same-origin instead of being blocked by CORS. On by default.</dd><dt><strong>Extra paths to include</strong></dt><dd>One path per line, relative to your WordPress root (e.g. <code>wp-content/plugins/elementor/assets/lib/font-awesome</code>). Files and whole folders are copied straight off disk into the deploy, and their <code>/wp-content/*</code> URLs are pointed at Cloudflare so the bundled copy is what loads. For assets the crawler never sees in the HTML &mdash; plugin icon fonts, a webfont folder, a downloadable PDF.</dd><dt><strong>Redirect <code>*.pages.dev</code> to live host</strong></dt><dd>Injects a tiny client-side JS snippet so any browser landing on <code>&lt;project&gt;.pages.dev</code> bounces to the canonical Public Site URL (preserves path + query). Auto-skipped when Public Site URL is itself a <code>.pages.dev</code> URL.</dd></dl>', 'staticforge-for-cloudflare-pages' ),
 		] );
 		$screen->add_help_tab( [
 			'id'      => 'sforge_trouble',
 			'title'   => __( 'Troubleshooting', 'staticforge-for-cloudflare-pages' ),
-			'content' =>
-				'<ul>' .
-				'<li><code>Project not found</code> &rarr; Pages Project must be the slug, not the URL.</li>' .
-				'<li><code>Request body is incorrect</code> &rarr; old plugin version. Update.</li>' .
-				'<li>Stuck on <em>Manifest</em> &rarr; PHP memory/timeout limit, or upload batch too large.</li>' .
-				'<li>Sub-sitemaps missing &rarr; ensure plugin v1.0.0+ (handles CDATA-wrapped <code>&lt;loc&gt;</code>).</li>' .
-				'<li>Live site shows <code>noindex</code> &rarr; turn off WordPress &rarr; Settings &rarr; Reading "Discourage search engines".</li>' .
-				'<li>Images return <code>520</code>/<code>522</code> on the live site &rarr; origin firewall blocks Cloudflare. Tick <strong>Bundle <code>/wp-content/uploads/</code> into deploy</strong>, untick <strong>Rewrite <code>/wp-content/</code> URLs</strong>, rebuild.</li>' .
-				'<li><code>*.pages.dev</code> URL doesn\'t redirect &rarr; redirect is JS-based (Direct Upload can\'t activate <code>_worker.js</code>/Functions). <code>curl -I</code> won\'t see it; test in a real browser. Make sure <strong>Public Site URL</strong> is a non-<code>.pages.dev</code> URL.</li>' .
-				'</ul>' .
-				'<p>Detailed: <a href="' . esc_url( $help_url ) . '">Setup Guide</a></p>',
+			'content' => sprintf(
+				/* translators: %s: URL of the full Setup Guide page. */
+				__( '<ul><li><code>Project not found</code> &rarr; Pages Project must be the slug, not the URL.</li><li><code>Request body is incorrect</code> &rarr; old plugin version. Update.</li><li>Stuck on <em>Manifest</em> &rarr; PHP memory/timeout limit, or upload batch too large.</li><li>Sub-sitemaps missing &rarr; ensure plugin v1.0.0+ (handles CDATA-wrapped <code>&lt;loc&gt;</code>).</li><li>Live site shows <code>noindex</code> &rarr; turn off WordPress &rarr; Settings &rarr; Reading "Discourage search engines".</li><li>Fonts blocked by CORS on the live site &rarr; keep <strong>Bundle self-hosted fonts</strong> ticked and run a Full Rebuild so the fonts ship in the deploy.</li><li>Images return <code>520</code>/<code>522</code> on the live site &rarr; origin firewall blocks Cloudflare. Tick <strong>Bundle <code>/wp-content/uploads/</code> into deploy</strong>, untick <strong>Rewrite <code>/wp-content/</code> URLs</strong>, rebuild.</li><li><code>*.pages.dev</code> URL doesn\'t redirect &rarr; redirect is JS-based (Direct Upload can\'t activate <code>_worker.js</code>/Functions). <code>curl -I</code> won\'t see it; test in a real browser. Make sure <strong>Public Site URL</strong> is a non-<code>.pages.dev</code> URL.</li></ul><p>Detailed: <a href="%s">Setup Guide</a></p>', 'staticforge-for-cloudflare-pages' ),
+				esc_url( $help_url )
+			),
 		] );
 		$screen->set_help_sidebar(
 			'<p><strong>StaticForge for Cloudflare Pages</strong></p>' .
-			'<p>By <a href="https://www.gunjanjaswal.me" target="_blank" rel="noopener">Gunjan Jaswal</a></p>' .
+			/* translators: %s: author name, linked to their website. */
+			sprintf( __( '<p>By %s</p>', 'staticforge-for-cloudflare-pages' ), '<a href="https://www.gunjanjaswal.me" target="_blank" rel="noopener">Gunjan Jaswal</a>' ) .
 			'<p><a href="mailto:hello@gunjanjaswal.me">hello@gunjanjaswal.me</a></p>'
 		);
 	}
@@ -271,7 +248,7 @@ class SFORGE_Settings {
 
 	public function action_test_connection() {
 		if ( ! current_user_can( 'manage_options' ) ) {
-			wp_die( 'Forbidden' );
+			wp_die( esc_html__( 'Forbidden', 'staticforge-for-cloudflare-pages' ) );
 		}
 		check_admin_referer( 'sforge_action' );
 		$d = new SFORGE_Deployer();
@@ -288,7 +265,7 @@ class SFORGE_Settings {
 
 	public function action_full_rebuild() {
 		if ( ! current_user_can( 'manage_options' ) ) {
-			wp_die( 'Forbidden' );
+			wp_die( esc_html__( 'Forbidden', 'staticforge-for-cloudflare-pages' ) );
 		}
 		check_admin_referer( 'sforge_action' );
 		SFORGE_Rebuild::schedule( SFORGE_Rebuild::MODE_FULL, [], 'manual', 5 );
@@ -303,7 +280,7 @@ class SFORGE_Settings {
 	 */
 	public function action_partial_rebuild() {
 		if ( ! current_user_can( 'manage_options' ) ) {
-			wp_die( 'Forbidden' );
+			wp_die( esc_html__( 'Forbidden', 'staticforge-for-cloudflare-pages' ) );
 		}
 		check_admin_referer( 'sforge_action' );
 		SFORGE_Rebuild::schedule( SFORGE_Rebuild::MODE_PARTIAL, [], 'manual', 5 );
@@ -313,7 +290,7 @@ class SFORGE_Settings {
 
 	public function action_clear_log() {
 		if ( ! current_user_can( 'manage_options' ) ) {
-			wp_die( 'Forbidden' );
+			wp_die( esc_html__( 'Forbidden', 'staticforge-for-cloudflare-pages' ) );
 		}
 		check_admin_referer( 'sforge_action' );
 		SFORGE_Logger::clear();
