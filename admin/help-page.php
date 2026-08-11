@@ -14,18 +14,27 @@ $settings_url = admin_url( 'admin.php?page=sforge' );
 		<?php esc_html_e( 'Auto-export your WordPress site as static HTML and deploy to Cloudflare Pages on every publish or update. Follow the steps below in order — first run takes about 10 minutes.', 'staticforge-for-cloudflare-pages' ); ?>
 	</p>
 
-	<div class="sforge-help-toc">
-		<strong><?php esc_html_e( 'On this page:', 'staticforge-for-cloudflare-pages' ); ?></strong>
-		<a href="#sforge-step1"><?php esc_html_e( '1. Cloudflare Pages project', 'staticforge-for-cloudflare-pages' ); ?></a>
-		<a href="#sforge-step2"><?php esc_html_e( '2. API token', 'staticforge-for-cloudflare-pages' ); ?></a>
-		<a href="#sforge-step3"><?php esc_html_e( '3. Account ID', 'staticforge-for-cloudflare-pages' ); ?></a>
-		<a href="#sforge-step4"><?php esc_html_e( '4. Plugin settings', 'staticforge-for-cloudflare-pages' ); ?></a>
-		<a href="#sforge-step5"><?php esc_html_e( '5. First deploy', 'staticforge-for-cloudflare-pages' ); ?></a>
-		<a href="#sforge-step6"><?php esc_html_e( '6. DNS cutover', 'staticforge-for-cloudflare-pages' ); ?></a>
-		<a href="#sforge-wpcontent"><?php esc_html_e( 'Clean /wp-content/ URLs (advanced)', 'staticforge-for-cloudflare-pages' ); ?></a>
-		<a href="#sforge-bundle-uploads"><?php esc_html_e( 'Bundle uploads (shared hosting)', 'staticforge-for-cloudflare-pages' ); ?></a>
-		<a href="#sforge-trouble"><?php esc_html_e( 'Troubleshooting', 'staticforge-for-cloudflare-pages' ); ?></a>
-	</div>
+	<div class="sforge-help-layout">
+		<nav class="sforge-help-nav" aria-label="<?php esc_attr_e( 'Setup guide sections', 'staticforge-for-cloudflare-pages' ); ?>">
+			<div class="sforge-help-nav-inner">
+				<p class="sforge-help-nav-title"><?php esc_html_e( 'On this page', 'staticforge-for-cloudflare-pages' ); ?></p>
+				<span class="sforge-help-nav-group"><?php esc_html_e( 'Get started', 'staticforge-for-cloudflare-pages' ); ?></span>
+				<a href="#sforge-step1"><span class="sforge-nav-badge">1</span> <?php esc_html_e( 'Cloudflare Pages project', 'staticforge-for-cloudflare-pages' ); ?></a>
+				<a href="#sforge-step2"><span class="sforge-nav-badge">2</span> <?php esc_html_e( 'API token', 'staticforge-for-cloudflare-pages' ); ?></a>
+				<a href="#sforge-step3"><span class="sforge-nav-badge">3</span> <?php esc_html_e( 'Account ID', 'staticforge-for-cloudflare-pages' ); ?></a>
+				<a href="#sforge-step4"><span class="sforge-nav-badge">4</span> <?php esc_html_e( 'Plugin settings', 'staticforge-for-cloudflare-pages' ); ?></a>
+				<a href="#sforge-step5"><span class="sforge-nav-badge">5</span> <?php esc_html_e( 'First deploy', 'staticforge-for-cloudflare-pages' ); ?></a>
+				<a href="#sforge-step6"><span class="sforge-nav-badge">6</span> <?php esc_html_e( 'DNS cutover', 'staticforge-for-cloudflare-pages' ); ?></a>
+				<span class="sforge-help-nav-group"><?php esc_html_e( 'Add-ons', 'staticforge-for-cloudflare-pages' ); ?></span>
+				<a href="#sforge-forms"><span class="sforge-nav-badge sforge-nav-badge-plus">+</span> <?php esc_html_e( 'Forms (email on submit)', 'staticforge-for-cloudflare-pages' ); ?></a>
+				<a href="#sforge-wpcontent"><span class="sforge-nav-badge sforge-nav-badge-plus">+</span> <?php esc_html_e( 'Clean /wp-content/ URLs', 'staticforge-for-cloudflare-pages' ); ?></a>
+				<a href="#sforge-bundle-uploads"><span class="sforge-nav-badge sforge-nav-badge-plus">+</span> <?php esc_html_e( 'Bundle uploads (shared hosting)', 'staticforge-for-cloudflare-pages' ); ?></a>
+				<span class="sforge-help-nav-group"><?php esc_html_e( 'Help', 'staticforge-for-cloudflare-pages' ); ?></span>
+				<a href="#sforge-trouble"><span class="sforge-nav-badge sforge-nav-badge-plus">?</span> <?php esc_html_e( 'Troubleshooting', 'staticforge-for-cloudflare-pages' ); ?></a>
+			</div>
+		</nav>
+
+		<div class="sforge-help-content">
 
 	<section class="sforge-card sforge-card-blue" id="sforge-step1">
 		<h2><span class="sforge-num">1</span> <?php esc_html_e( 'Create a Cloudflare Pages project (Direct Upload mode)', 'staticforge-for-cloudflare-pages' ); ?></h2>
@@ -237,6 +246,27 @@ location /wp-content/ {
 		</p>
 	</section>
 
+	<section class="sforge-card sforge-card-blue" id="sforge-forms">
+		<h2><span class="sforge-num">+</span> <?php esc_html_e( 'Forms that email you on submit', 'staticforge-for-cloudflare-pages' ); ?></h2>
+		<p>
+			<?php echo wp_kses_post( __( 'A static site can\'t run PHP, and the Direct Upload deploy can\'t run Cloudflare Functions &mdash; so StaticForge deploys a tiny <strong>standalone Cloudflare Worker</strong> that takes the submitted fields and hands them to <em>your own</em> email API. Your API key is stored as a Worker secret, never written into the page or sent to the browser.', 'staticforge-for-cloudflare-pages' ) ); ?>
+		</p>
+		<p class="sforge-callout sforge-callout-warn">
+			<?php echo wp_kses_post( __( '<strong>One-time setup:</strong> your Cloudflare API token needs the <strong>Account &middot; Workers Scripts &middot; Edit</strong> permission (in addition to Cloudflare Pages &middot; Edit), and the account needs a free <code>workers.dev</code> subdomain &mdash; claimed once by opening <strong>Workers &amp; Pages</strong> in the Cloudflare dashboard.', 'staticforge-for-cloudflare-pages' ) ); ?>
+		</p>
+		<ol>
+			<li><?php echo wp_kses_post( __( 'Sign up with an email provider and create an API key &mdash; <a href="https://resend.com" target="_blank" rel="noopener">Resend</a> is the quickest, and SendGrid, Postmark and Mailgun work too. Verify your sending domain in their dashboard.', 'staticforge-for-cloudflare-pages' ) ); ?></li>
+			<li><?php echo wp_kses_post( __( 'In <strong>Settings &rarr; Forms</strong>, tick <strong>Enable forms</strong> and pick your provider &mdash; the endpoint, auth header and a request-body template are filled in for you.', 'staticforge-for-cloudflare-pages' ) ); ?></li>
+			<li><?php echo wp_kses_post( __( 'Edit the body template so <code>to</code> / <code>from</code> are your real addresses. Tokens like <code>{{name}}</code>, <code>{{email}}</code>, <code>{{message}}</code> are filled from the submission; <code>{{all_fields}}</code> expands to the whole message.', 'staticforge-for-cloudflare-pages' ) ); ?></li>
+			<li><?php echo wp_kses_post( __( '(Optional) tick <strong>Turnstile</strong> and paste the site key for a real bot check. A honeypot field is always on regardless.', 'staticforge-for-cloudflare-pages' ) ); ?></li>
+			<li><?php echo wp_kses_post( __( 'Save, then in <strong>Form Handler Deployment</strong> paste your API key and click <strong>Deploy form handler</strong>. The Worker URL appears once it lands.', 'staticforge-for-cloudflare-pages' ) ); ?></li>
+			<li><?php echo wp_kses_post( __( 'Drop <code>[sforge_form]</code> into any page or post, then run a rebuild so the page ships. Optional attributes: <code>[sforge_form button="Send" success="Thanks!"]</code>.', 'staticforge-for-cloudflare-pages' ) ); ?></li>
+		</ol>
+		<p class="sforge-callout sforge-callout-info">
+			<?php echo wp_kses_post( __( '<strong>Prefer not to widen the token?</strong> You can skip the Worker entirely and point a plain HTML form at an outside service (Formspree, Web3Forms, Basin) instead &mdash; a form posting to a different host is left untouched on the static site. The built-in handler is the tidier option when you want to keep everything on your own Cloudflare account and email API.', 'staticforge-for-cloudflare-pages' ) ); ?>
+		</p>
+	</section>
+
 	<section class="sforge-card sforge-card-red" id="sforge-trouble">
 		<h2><?php esc_html_e( 'Troubleshooting', 'staticforge-for-cloudflare-pages' ); ?></h2>
 		<p class="sforge-help-lead" style="margin-top:0"><?php echo wp_kses_post( __( 'Grouped by where it happens. The <code>code-styled</code> phrases are the exact <strong>Activity Log</strong> messages, so you can match what you see.', 'staticforge-for-cloudflare-pages' ) ); ?></p>
@@ -245,7 +275,10 @@ location /wp-content/ {
 		<dl class="sforge-faq">
 			<dt><?php esc_html_e( 'After DNS cutover, wp-admin bounces to the live site — can\'t log in or redeploy', 'staticforge-for-cloudflare-pages' ); ?></dt>
 			<dd>
-				<?php echo wp_kses_post( __( '<strong>Symptom:</strong> opening wp-admin throws you to the <em>public</em> host\'s login, e.g. <code>https://example.com/wp-login.php?redirect_to=https%3A%2F%2Fdashboard.example.com%2Fwp-admin%2F...</code> — but <code>example.com</code> is now the static Cloudflare site with no WordPress on it, so login fails and you can\'t reach this page to redeploy.', 'staticforge-for-cloudflare-pages' ) ); ?><br><br>
+				<?php
+				/* translators: %s: example encoded wp-login redirect URL, shown as code. */
+				printf( wp_kses_post( __( '<strong>Symptom:</strong> opening wp-admin throws you to the <em>public</em> host\'s login, e.g. %s — but <code>example.com</code> is now the static Cloudflare site with no WordPress on it, so login fails and you can\'t reach this page to redeploy.', 'staticforge-for-cloudflare-pages' ) ), '<code>https://example.com/wp-login.php?redirect_to=https%3A%2F%2Fdashboard.example.com%2Fwp-admin%2F...</code>' );
+				?><br><br>
 				<?php echo wp_kses_post( __( '<strong>Cause:</strong> WordPress\'s own <strong>WP Address</strong> (<code>siteurl</code>) / <strong>Site Address</strong> (<code>home</code>) still point at the public host instead of your dashboard host. WordPress builds the login URL from <code>siteurl</code>, so it sends you to the static site.', 'staticforge-for-cloudflare-pages' ) ); ?><br><br>
 				<?php echo wp_kses_post( __( '<strong>Fix:</strong> pin both to the dashboard host in <code>wp-config.php</code> (add just above <code>/* That\'s all, stop editing! Happy publishing. */</code>):', 'staticforge-for-cloudflare-pages' ) ); ?>
 <pre><code>define( 'WP_HOME',    'https://dashboard.example.com' );
@@ -317,7 +350,7 @@ define( 'WP_SITEURL', 'https://dashboard.example.com' );</code></pre>
 			<dd><?php echo wp_kses_post( __( 'WordPress &rarr; Settings &rarr; Reading: leave <strong>"Discourage search engines"</strong> UNCHECKED on the dashboard. The plugin scrubs <code>noindex</code> / <code>nofollow</code> meta during render, but that toggle also changes how SEO plugins build the sitemap.', 'staticforge-for-cloudflare-pages' ) ); ?></dd>
 
 			<dt><?php esc_html_e( 'Contact forms don\'t send on the live site', 'staticforge-for-cloudflare-pages' ); ?></dt>
-			<dd><?php echo wp_kses_post( __( 'Cloudflare Pages is static — no PHP / WordPress runtime — so anything posting to <code>admin-ajax.php</code> or <code>/wp-json/</code> (Contact Form 7, WPForms, Gravity Forms) silently fails. Point the form at a static-friendly endpoint (a Cloudflare Pages Function / Worker, Formspree, Basin, Web3Forms). A form posting to a <em>different</em> host is left untouched and keeps working.', 'staticforge-for-cloudflare-pages' ) ); ?></dd>
+			<dd><?php echo wp_kses_post( __( 'Cloudflare Pages is static — no PHP / WordPress runtime — so anything posting to <code>admin-ajax.php</code> or <code>/wp-json/</code> (Contact Form 7, WPForms, Gravity Forms) silently fails. Use the built-in handler instead: <strong>Settings &rarr; Forms</strong> deploys a small Worker and gives you the <code>[sforge_form]</code> shortcode (see <em>Forms that email you on submit</em> above). A form posting to a <em>different</em> host (Formspree, Basin, Web3Forms) is left untouched and keeps working.', 'staticforge-for-cloudflare-pages' ) ); ?></dd>
 
 			<dt><?php echo wp_kses_post( __( 'Duplicate SEO meta or schema in <code>&lt;head&gt;</code>', 'staticforge-for-cloudflare-pages' ) ); ?></dt>
 			<dd><?php echo wp_kses_post( __( 'An SEO plugin we don\'t auto-detect is also injecting tags. Two-tier dedup covers Yoast, Rank Math, AIO SEO, SEOPress, The SEO Framework, Slim SEO, Squirrly, SmartCrawl, WP Meta SEO (general SEO plugins → all injection paused) and Schema &amp; Structured Data for WP &amp; AMP, Schema Pro, WPSSO, Schema by Hesham, Schema App, Magazine3 Schema (schema-only plugins → only JSON-LD paused). For niche plugins, extend detection via the <code>sforge_seo_competing_plugin</code> or <code>sforge_schema_competing_plugin</code> filter, or simply untick <strong>Inject SEO meta</strong>.', 'staticforge-for-cloudflare-pages' ) ); ?></dd>
@@ -358,4 +391,7 @@ define( 'WP_SITEURL', 'https://dashboard.example.com' );</code></pre>
 		?> &middot;
 		<a href="mailto:hello@gunjanjaswal.me">hello@gunjanjaswal.me</a>
 	</p>
+
+		</div><!-- .sforge-help-content -->
+	</div><!-- .sforge-help-layout -->
 </div>

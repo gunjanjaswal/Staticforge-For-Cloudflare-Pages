@@ -4,7 +4,7 @@ Donate link: https://ko-fi.com/gunjanjaswal
 Tags: cloudflare, static-site, deploy, seo, sitemap
 Requires at least: 5.8
 Tested up to: 7.0
-Stable tag: 1.7.0
+Stable tag: 1.8.0
 Requires PHP: 7.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -308,6 +308,10 @@ To make forms work, point them at a static-friendly endpoint: a Cloudflare Pages
 
 == Changelog ==
 
+= 1.8.0 =
+* New: **Forms that email you on submit.** A static site can't process a POST, and the Direct Upload deploy can't run Cloudflare Functions, so a contact form has always meant reaching for an outside service. StaticForge now deploys a tiny standalone Cloudflare Worker for you that takes the submitted fields and hands them to your own email API. It's email-API-agnostic: pick a preset for Resend, SendGrid, Postmark or Mailgun (or wire up any other endpoint under "Custom"), and it fills in the endpoint, auth header and a request-body template you can edit. Your API key is stored as a Worker secret, never written into the page or sent to the browser. Drop `[sforge_form]` into any page to render a name/email/message form pointed at the handler. A honeypot is always on, and Cloudflare Turnstile is a one-tick add for real spam protection. New classes `SFORGE_Forms` and `SFORGE_Worker_Deployer`; new Forms settings section.
+* Note: deploying the form handler needs your Cloudflare API token to also carry the `Account · Workers Scripts · Edit` permission, plus a free `workers.dev` subdomain on the account (claimed once from Workers & Pages). The rest of the plugin is unchanged and needs neither.
+
 = 1.7.0 =
 * New: **Translation-ready.** The admin UI, the Setup Guide, the contextual Help tabs, and the on-screen labels and descriptions are now wrapped in WordPress i18n functions against the `staticforge-for-cloudflare-pages` text domain, and a `languages/staticforge-for-cloudflare-pages.pot` template ships with the plugin. Translations can now be contributed at https://translate.wordpress.org/projects/wp-plugins/staticforge-for-cloudflare-pages/. Nothing changes for English installs.
 * Fix: **More post links get rewritten to your Public Site URL.** The URL rewriter used to match only your site's exact home URL, so a link an editor had pasted as `http://` when the site is `https://`, or with a `www.` that the site doesn't use (or the other way round), or as a protocol-relative `//your-site/...`, was left pointing at the WordPress origin. Those near-miss spellings of your own host are now folded onto the canonical form first, so they rewrite along with everything else. Third-party links are untouched, and `/wp-content/` assets still follow the bundle / keep-on-origin rules as before.
@@ -410,6 +414,9 @@ To make forms work, point them at a static-friendly endpoint: a Cloudflare Pages
 * Built-in Setup Guide page and WordPress contextual Help tabs.
 
 == Upgrade Notice ==
+
+= 1.8.0 =
+Adds optional form handling: a form on your static site that emails submissions via your own email API (Resend, SendGrid, Postmark, Mailgun or custom), through a small Cloudflare Worker the plugin deploys. Honeypot plus optional Turnstile. Nothing changes unless you set it up.
 
 = 1.7.0 =
 Plugin is now translation-ready (text domain + .pot), and the URL rewriter catches more in-post links: http/https, www/non-www, and protocol-relative spellings of your own host now rewrite to the Public Site URL. Run a Full Rebuild to apply.

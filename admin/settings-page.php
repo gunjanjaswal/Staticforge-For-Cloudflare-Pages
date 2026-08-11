@@ -39,6 +39,12 @@ $has_schema_seo  = $injector->schema_plugin_active();
 		<div class="notice notice-error is-dismissible sforge-notice"><p><?php echo wp_kses_post( __( '<strong>Connection failed.</strong> See the activity log below for details.', 'staticforge-for-cloudflare-pages' ) ); ?></p></div>
 	<?php elseif ( $msg === 'rebuild_scheduled' ) : ?>
 		<div class="notice notice-success is-dismissible sforge-notice"><p><?php echo wp_kses_post( __( '<strong>Full rebuild queued.</strong> The activity log refreshes live &mdash; watch for progress in the next few seconds.', 'staticforge-for-cloudflare-pages' ) ); ?></p></div>
+		<?php elseif ( $msg === 'form_deployed' ) : ?>
+			<div class="notice notice-success is-dismissible sforge-notice"><p><?php echo wp_kses_post( __( '<strong>Form handler deployed.</strong> The Worker URL is shown in the Forms section below &mdash; drop the <code>[sforge_form]</code> shortcode into a page and rebuild.', 'staticforge-for-cloudflare-pages' ) ); ?></p></div>
+		<?php elseif ( $msg === 'form_removed' ) : ?>
+			<div class="notice notice-success is-dismissible sforge-notice"><p><?php echo wp_kses_post( __( '<strong>Form handler removed.</strong> The Worker has been deleted from your Cloudflare account.', 'staticforge-for-cloudflare-pages' ) ); ?></p></div>
+		<?php elseif ( $msg === 'form_fail' ) : ?>
+			<div class="notice notice-error is-dismissible sforge-notice"><p><?php echo wp_kses_post( __( '<strong>Form handler action failed.</strong> See the activity log below for the exact error.', 'staticforge-for-cloudflare-pages' ) ); ?></p></div>
 	<?php endif; ?>
 
 	<?php if ( $is_unconfigured ) : ?>
@@ -158,9 +164,9 @@ $has_schema_seo  = $injector->schema_plugin_active();
 						<td>
 							<label class="sforge-cb"><input type="checkbox" name="<?php echo esc_attr( SFORGE_OPT ); ?>[redirect_pages_dev]" value="1" <?php checked( ! empty( $o['redirect_pages_dev'] ) ); ?>> <?php echo wp_kses_post( __( '301-redirect any request hitting <code>&lt;project&gt;.pages.dev</code> to the canonical Public Site URL', 'staticforge-for-cloudflare-pages' ) ); ?></label>
 							<p class="description">
-								<?php echo wp_kses_post( __( 'Adds a Cloudflare Pages Function (<code>functions/_middleware.js</code>) to the deploy that intercepts requests with a <code>.pages.dev</code> hostname and 301-redirects them to your <strong>Public Site URL</strong> (preserving path + query string). Stops Google from indexing the preview URL alongside your real domain.', 'staticforge-for-cloudflare-pages' ) ); ?>
+								<?php echo wp_kses_post( __( 'Injects a small client-side JavaScript snippet into every exported page that redirects any request landing on a <code>.pages.dev</code> hostname to your <strong>Public Site URL</strong> (preserving path + query string). Runs client-side because the Direct Upload API serves everything as static assets and never executes <code>_worker.js</code> / Functions. Stops Google from indexing the preview URL alongside your real domain.', 'staticforge-for-cloudflare-pages' ) ); ?>
 								<?php echo wp_kses_post( __( 'Automatically skipped when Public Site URL itself is a <code>.pages.dev</code> URL (e.g. while you\'re still testing pre-DNS cutover).', 'staticforge-for-cloudflare-pages' ) ); ?>
-								<?php echo wp_kses_post( __( 'Counts as a Cloudflare Workers request &mdash; free tier includes 100k/day, sparse <code>.pages.dev</code> traffic costs effectively nothing.', 'staticforge-for-cloudflare-pages' ) ); ?>
+								<?php echo wp_kses_post( __( 'No Workers, no Functions, no extra cost &mdash; it is plain JavaScript in the page, so it works on every deploy regardless of upload method.', 'staticforge-for-cloudflare-pages' ) ); ?>
 							</p>
 						</td>
 					</tr>
@@ -457,10 +463,194 @@ $has_schema_seo  = $injector->schema_plugin_active();
 			</div>
 		</section>
 
+		<section class="sforge-section">
+			<header class="sforge-section-head">
+				<span class="sforge-section-icon sforge-section-icon-blue"><span class="dashicons dashicons-email"></span></span>
+				<div>
+					<h2><?php esc_html_e( 'Forms (email on submit)', 'staticforge-for-cloudflare-pages' ); ?></h2>
+					<p><?php esc_html_e( 'Accept form submissions on the static site and email them, using your own email API.', 'staticforge-for-cloudflare-pages' ); ?></p>
+				</div>
+			</header>
+			<div class="sforge-section-body">
+				<p class="description" style="margin-top:8px;">
+					<?php echo wp_kses_post( __( 'A static site can\'t process a POST, and the Direct Upload deploy can\'t run Cloudflare Functions. So the form is handled by a tiny <strong>standalone Cloudflare Worker</strong> this plugin generates and deploys for you. Your email-provider API key is stored as a Worker secret &mdash; never in the page, never sent to the browser.', 'staticforge-for-cloudflare-pages' ) ); ?><br>
+					<?php echo wp_kses_post( __( 'This needs your API token to also carry the <code>Account &middot; Workers Scripts &middot; Edit</code> permission, plus a free <code>workers.dev</code> subdomain on the account.', 'staticforge-for-cloudflare-pages' ) ); ?>
+				</p>
+				<table class="form-table" role="presentation">
+					<tr>
+						<th scope="row"><?php esc_html_e( 'Enable forms', 'staticforge-for-cloudflare-pages' ); ?></th>
+						<td>
+							<label class="sforge-cb"><input type="checkbox" name="<?php echo esc_attr( SFORGE_OPT ); ?>[form_enabled]" value="1" <?php checked( ! empty( $o['form_enabled'] ) ); ?>> <?php echo wp_kses_post( __( 'Render the <code>[sforge_form]</code> shortcode and route it to the deployed handler', 'staticforge-for-cloudflare-pages' ) ); ?></label>
+						</td>
+					</tr>
+					<tr>
+						<th scope="row"><label for="sforge_form_provider"><?php esc_html_e( 'Email provider', 'staticforge-for-cloudflare-pages' ); ?></label></th>
+						<td>
+							<select id="sforge_form_provider" name="<?php echo esc_attr( SFORGE_OPT ); ?>[form_provider]">
+								<?php
+								$cur_provider = $o['form_provider'] ?? 'resend';
+								foreach ( SFORGE_Forms::presets() as $pkey => $preset ) {
+									printf( '<option value="%s" %s>%s</option>', esc_attr( $pkey ), selected( $cur_provider, $pkey, false ), esc_html( $preset['label'] ) );
+								}
+								?>
+							</select>
+							<p class="description sforge-provider-hint"><?php esc_html_e( 'Pick your provider to prefill the fields below, then paste your key in the deploy box. Choose “Custom / other” to wire up any other email API by hand.', 'staticforge-for-cloudflare-pages' ); ?></p>
+						</td>
+					</tr>
+					<tr>
+						<th scope="row"><label for="sforge_form_endpoint"><?php esc_html_e( 'API endpoint', 'staticforge-for-cloudflare-pages' ); ?></label></th>
+						<td>
+							<input type="url" id="sforge_form_endpoint" name="<?php echo esc_attr( SFORGE_OPT ); ?>[form_endpoint]" value="<?php echo esc_attr( $o['form_endpoint'] ?? '' ); ?>" class="regular-text code" placeholder="https://api.resend.com/emails">
+						</td>
+					</tr>
+					<tr>
+						<th scope="row"><?php esc_html_e( 'Auth header', 'staticforge-for-cloudflare-pages' ); ?></th>
+						<td>
+							<input type="text" id="sforge_form_auth_name" name="<?php echo esc_attr( SFORGE_OPT ); ?>[form_auth_header_name]" value="<?php echo esc_attr( $o['form_auth_header_name'] ?? 'Authorization' ); ?>" class="small-text code" style="width:12em" placeholder="Authorization">
+							<code>:</code>
+							<input type="text" id="sforge_form_auth_tpl" name="<?php echo esc_attr( SFORGE_OPT ); ?>[form_auth_header_tpl]" value="<?php echo esc_attr( $o['form_auth_header_tpl'] ?? 'Bearer ${SFORGE_FORM_KEY}' ); ?>" class="regular-text code" placeholder="Bearer ${SFORGE_FORM_KEY}">
+							<p class="description"><?php echo wp_kses_post( __( 'Use <code>${SFORGE_FORM_KEY}</code> where your API key goes &mdash; it is swapped in from the Worker secret at runtime and never stored here.', 'staticforge-for-cloudflare-pages' ) ); ?></p>
+						</td>
+					</tr>
+					<tr>
+						<th scope="row"><label for="sforge_form_content_type"><?php esc_html_e( 'Request format', 'staticforge-for-cloudflare-pages' ); ?></label></th>
+						<td>
+							<?php $ctype = $o['form_content_type'] ?? 'json'; ?>
+							<select id="sforge_form_content_type" name="<?php echo esc_attr( SFORGE_OPT ); ?>[form_content_type]">
+								<option value="json" <?php selected( $ctype, 'json' ); ?>><?php esc_html_e( 'JSON (Resend, SendGrid, Postmark, most APIs)', 'staticforge-for-cloudflare-pages' ); ?></option>
+								<option value="form" <?php selected( $ctype, 'form' ); ?>><?php esc_html_e( 'Form-encoded (Mailgun)', 'staticforge-for-cloudflare-pages' ); ?></option>
+							</select>
+						</td>
+					</tr>
+					<tr>
+						<th scope="row"><label for="sforge_form_body_template"><?php esc_html_e( 'Request body template', 'staticforge-for-cloudflare-pages' ); ?></label></th>
+						<td>
+							<textarea id="sforge_form_body_template" name="<?php echo esc_attr( SFORGE_OPT ); ?>[form_body_template]" rows="9" class="large-text code"><?php echo esc_textarea( $o['form_body_template'] ?? '' ); ?></textarea>
+							<p class="description">
+								<?php echo wp_kses_post( __( 'JSON sent to your provider. <code>{{name}}</code>, <code>{{email}}</code>, <code>{{message}}</code> (any submitted field) are filled in; <code>{{all_fields}}</code> expands to every field as <code>Label: value</code> lines. Set your real <code>to:</code> / <code>from:</code> address here.', 'staticforge-for-cloudflare-pages' ) ); ?>
+							</p>
+						</td>
+					</tr>
+					<tr>
+						<th scope="row"><label for="sforge_form_required"><?php esc_html_e( 'Required fields', 'staticforge-for-cloudflare-pages' ); ?></label></th>
+						<td>
+							<?php
+							$req_val = SFORGE_Settings::get( 'form_required_fields', [ 'name', 'email', 'message' ] );
+							if ( is_array( $req_val ) ) {
+								$req_val = implode( ', ', $req_val );
+							}
+							?>
+							<input type="text" id="sforge_form_required" name="<?php echo esc_attr( SFORGE_OPT ); ?>[form_required_fields]" value="<?php echo esc_attr( $req_val ); ?>" class="regular-text code" placeholder="name, email, message">
+							<p class="description"><?php esc_html_e( 'Comma-separated field names the Worker rejects the submission without.', 'staticforge-for-cloudflare-pages' ); ?></p>
+						</td>
+					</tr>
+					<tr>
+						<th scope="row"><?php esc_html_e( 'Spam protection (Turnstile)', 'staticforge-for-cloudflare-pages' ); ?></th>
+						<td>
+							<label class="sforge-cb"><input type="checkbox" name="<?php echo esc_attr( SFORGE_OPT ); ?>[form_turnstile]" value="1" <?php checked( ! empty( $o['form_turnstile'] ) ); ?>> <?php echo wp_kses_post( __( 'Verify submissions with Cloudflare Turnstile', 'staticforge-for-cloudflare-pages' ) ); ?></label>
+							<p style="margin:8px 0 4px"><label for="sforge_form_turnstile_site"><?php esc_html_e( 'Turnstile site key (public)', 'staticforge-for-cloudflare-pages' ); ?></label></p>
+							<input type="text" id="sforge_form_turnstile_site" name="<?php echo esc_attr( SFORGE_OPT ); ?>[form_turnstile_site]" value="<?php echo esc_attr( $o['form_turnstile_site'] ?? '' ); ?>" class="regular-text code" placeholder="0x4AAAAAAA...">
+							<p class="description"><?php echo wp_kses_post( __( 'A honeypot is always on. Turnstile adds a real bot check &mdash; create a widget at Cloudflare &rarr; Turnstile, paste the <strong>site key</strong> here, and the <strong>secret key</strong> in the deploy box below.', 'staticforge-for-cloudflare-pages' ) ); ?></p>
+						</td>
+					</tr>
+					<tr>
+						<th scope="row"><label for="sforge_form_worker_name"><?php esc_html_e( 'Worker name', 'staticforge-for-cloudflare-pages' ); ?></label></th>
+						<td>
+							<input type="text" id="sforge_form_worker_name" name="<?php echo esc_attr( SFORGE_OPT ); ?>[form_worker_name]" value="<?php echo esc_attr( $o['form_worker_name'] ?? '' ); ?>" class="regular-text code" placeholder="<?php echo esc_attr( ( $o['project_name'] ?? 'staticforge' ) . '-forms' ); ?>">
+							<p class="description"><?php esc_html_e( 'Optional. The Cloudflare Worker script name. Leave blank to derive it from the project slug.', 'staticforge-for-cloudflare-pages' ); ?></p>
+						</td>
+					</tr>
+				</table>
+			</div>
+		</section>
+
 		<div class="sforge-form-foot">
 			<?php submit_button( __( 'Save Settings', 'staticforge-for-cloudflare-pages' ), 'primary large', 'submit', false ); ?>
 		</div>
 	</form>
+
+	<section class="sforge-section" id="sforge-forms">
+		<header class="sforge-section-head">
+			<span class="sforge-section-icon sforge-section-icon-teal"><span class="dashicons dashicons-cloud-upload"></span></span>
+			<div>
+				<h2><?php esc_html_e( 'Form Handler Deployment', 'staticforge-for-cloudflare-pages' ); ?></h2>
+				<p><?php esc_html_e( 'Deploy (or update) the Worker that emails your submissions. Save your Forms settings above first.', 'staticforge-for-cloudflare-pages' ); ?></p>
+			</div>
+		</header>
+		<div class="sforge-section-body">
+			<?php $worker_url = (string) ( $o['form_worker_url'] ?? '' ); ?>
+			<?php if ( $worker_url !== '' ) : ?>
+				<div class="sforge-callout sforge-callout-success">
+					<strong><?php esc_html_e( 'Handler deployed', 'staticforge-for-cloudflare-pages' ); ?></strong>
+					<span>
+						<?php echo wp_kses_post( __( 'Submissions post to:', 'staticforge-for-cloudflare-pages' ) ); ?>
+						<code><?php echo esc_html( $worker_url ); ?></code>
+					</span>
+				</div>
+				<p class="description">
+					<?php echo wp_kses_post( __( 'Add the form to any page with the shortcode <code>[sforge_form]</code>, then run a rebuild so the page ships. Optional attributes: <code>[sforge_form button="Send" success="Thanks!"]</code>.', 'staticforge-for-cloudflare-pages' ) ); ?>
+				</p>
+			<?php else : ?>
+				<div class="sforge-callout sforge-callout-info">
+					<strong><?php esc_html_e( 'Not deployed yet', 'staticforge-for-cloudflare-pages' ); ?></strong>
+					<span><?php esc_html_e( 'Fill in the Forms settings above, save, then paste your API key and deploy.', 'staticforge-for-cloudflare-pages' ); ?></span>
+				</div>
+			<?php endif; ?>
+
+			<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" class="sforge-deploy-form" autocomplete="off">
+				<input type="hidden" name="action" value="sforge_deploy_form">
+				<?php wp_nonce_field( 'sforge_action' ); ?>
+				<table class="form-table" role="presentation">
+					<tr>
+						<th scope="row"><label for="sforge_form_key"><?php esc_html_e( 'Email API key', 'staticforge-for-cloudflare-pages' ); ?></label></th>
+						<td>
+							<input type="password" id="sforge_form_key" name="sforge_form_key" value="" class="regular-text code" autocomplete="new-password" placeholder="<?php echo ! empty( $o['form_key_set'] ) ? esc_attr__( 'Already set — re-enter to redeploy', 'staticforge-for-cloudflare-pages' ) : ''; ?>">
+							<p class="description"><?php esc_html_e( 'Pushed to the Worker as a secret on deploy. Never saved in WordPress, so re-enter it whenever you redeploy.', 'staticforge-for-cloudflare-pages' ); ?></p>
+						</td>
+					</tr>
+					<?php if ( ! empty( $o['form_turnstile'] ) ) : ?>
+					<tr>
+						<th scope="row"><label for="sforge_turnstile_secret"><?php esc_html_e( 'Turnstile secret key', 'staticforge-for-cloudflare-pages' ); ?></label></th>
+						<td>
+							<input type="password" id="sforge_turnstile_secret" name="sforge_turnstile_secret" value="" class="regular-text code" autocomplete="new-password">
+							<p class="description"><?php esc_html_e( 'Required while Turnstile is enabled. Also set on every deploy, never stored.', 'staticforge-for-cloudflare-pages' ); ?></p>
+						</td>
+					</tr>
+					<?php endif; ?>
+				</table>
+				<button type="submit" class="button button-primary button-large"><span class="dashicons dashicons-cloud-upload"></span> <?php echo $worker_url !== '' ? esc_html__( 'Redeploy form handler', 'staticforge-for-cloudflare-pages' ) : esc_html__( 'Deploy form handler', 'staticforge-for-cloudflare-pages' ); ?></button>
+			</form>
+
+			<?php if ( $worker_url !== '' ) : ?>
+				<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" style="margin-top:12px" onsubmit="return confirm(<?php echo esc_attr( wp_json_encode( __( 'Delete the form handler Worker from Cloudflare? The form will stop working until you deploy again.', 'staticforge-for-cloudflare-pages' ) ) ); ?>);">
+					<input type="hidden" name="action" value="sforge_remove_form">
+					<?php wp_nonce_field( 'sforge_action' ); ?>
+					<button type="submit" class="button button-link-delete"><span class="dashicons dashicons-trash"></span> <?php esc_html_e( 'Remove form handler', 'staticforge-for-cloudflare-pages' ); ?></button>
+				</form>
+			<?php endif; ?>
+		</div>
+	</section>
+
+	<script>
+	(function () {
+		var presets = <?php echo wp_json_encode( SFORGE_Forms::presets() ); ?>;
+		var sel = document.getElementById('sforge_form_provider');
+		if (!sel) return;
+		sel.addEventListener('change', function () {
+			var p = presets[sel.value];
+			if (!p) return;
+			var set = function (id, val) { var el = document.getElementById(id); if (el) el.value = val; };
+			set('sforge_form_endpoint', p.endpoint);
+			set('sforge_form_auth_name', p.auth_header_name);
+			set('sforge_form_auth_tpl', p.auth_header_tpl);
+			set('sforge_form_body_template', p.body_template);
+			var ct = document.getElementById('sforge_form_content_type');
+			if (ct) ct.value = p.content_type;
+			var hint = document.querySelector('.sforge-provider-hint');
+			if (hint && p.key_hint) hint.textContent = p.key_hint;
+		});
+	})();
+	</script>
 
 	<section class="sforge-section sforge-section-actions">
 		<header class="sforge-section-head">

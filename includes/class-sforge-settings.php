@@ -12,6 +12,8 @@ class SFORGE_Settings {
 		add_action( 'admin_post_sforge_full_rebuild',    [ $this, 'action_full_rebuild' ] );
 		add_action( 'admin_post_sforge_partial_rebuild', [ $this, 'action_partial_rebuild' ] );
 		add_action( 'admin_post_sforge_clear_log',       [ $this, 'action_clear_log' ] );
+		add_action( 'admin_post_sforge_deploy_form',     [ $this, 'action_deploy_form' ] );
+		add_action( 'admin_post_sforge_remove_form',     [ $this, 'action_remove_form' ] );
 		add_action( 'admin_enqueue_scripts',           [ $this, 'enqueue' ] );
 		add_action( 'wp_ajax_sforge_get_log',            [ $this, 'ajax_get_log' ] );
 	}
@@ -81,6 +83,7 @@ class SFORGE_Settings {
 		if ( $hook === 'static-to-pages_page_sforge-help' || strpos( (string) $hook, 'sforge-help' ) !== false ) {
 			wp_enqueue_style( 'dashicons' );
 			wp_enqueue_style( 'sforge-help', SFORGE_URL . 'admin/help.css', [ 'dashicons' ], $help_v );
+			wp_enqueue_script( 'sforge-help', SFORGE_URL . 'admin/help.js', [], $this->asset_ver( 'admin/help.js' ), true );
 		}
 	}
 
@@ -122,7 +125,7 @@ class SFORGE_Settings {
 		$screen->set_help_sidebar(
 			'<p><strong>StaticForge for Cloudflare Pages</strong></p>' .
 			/* translators: %s: author name, linked to their website. */
-			sprintf( __( '<p>By %s</p>', 'staticforge-for-cloudflare-pages' ), '<a href="https://www.gunjanjaswal.me" target="_blank" rel="noopener">Gunjan Jaswal</a>' ) .
+			'<p>' . sprintf( __( 'By %s', 'staticforge-for-cloudflare-pages' ), '<a href="https://www.gunjanjaswal.me" target="_blank" rel="noopener">Gunjan Jaswal</a>' ) . '</p>' .
 			'<p><a href="mailto:hello@gunjanjaswal.me">hello@gunjanjaswal.me</a></p>'
 		);
 	}
@@ -197,6 +200,29 @@ class SFORGE_Settings {
 		$out['extra_paths']        = SFORGE_Extra_Assets::sanitize_list( preg_split( '/[\r\n]+/', (string) ( $in['extra_paths'] ?? '' ) ) );
 		$out['redirect_pages_dev'] = ! empty( $in['redirect_pages_dev'] ) ? 1 : 0;
 
+		// Form handler config. Secrets (the email-provider key, Turnstile secret) are
+		// never part of this form — they are submitted straight to the deploy handler
+		// and pushed to the Worker, never stored. See action_deploy_form().
+		$presets              = SFORGE_Forms::presets();
+		$provider             = sanitize_key( $in['form_provider'] ?? 'resend' );
+		$out['form_enabled']  = ! empty( $in['form_enabled'] ) ? 1 : 0;
+		$out['form_worker_name']      = sanitize_text_field( $in['form_worker_name'] ?? '' );
+		$out['form_provider']         = isset( $presets[ $provider ] ) ? $provider : 'resend';
+		$out['form_endpoint']         = esc_url_raw( $in['form_endpoint'] ?? '' );
+		$out['form_auth_header_name'] = sanitize_text_field( $in['form_auth_header_name'] ?? 'Authorization' );
+		$out['form_auth_header_tpl']  = sanitize_text_field( $in['form_auth_header_tpl'] ?? 'Bearer ${SFORGE_FORM_KEY}' );
+		$out['form_content_type']     = ( ( $in['form_content_type'] ?? 'json' ) === 'form' ) ? 'form' : 'json';
+		$out['form_body_template']    = $this->sanitize_body_template( (string) ( $in['form_body_template'] ?? '' ) );
+		$out['form_required_fields']  = $this->sanitize_field_list( (string) ( $in['form_required_fields'] ?? 'name,email,message' ) );
+		$out['form_turnstile']        = ! empty( $in['form_turnstile'] ) ? 1 : 0;
+		$out['form_turnstile_site']   = sanitize_text_field( $in['form_turnstile_site'] ?? '' );
+
+		// The deployed Worker URL and the "key is set" flag are written by the deploy
+		// handler, not this form. Carry them over so a normal Save doesn't wipe them.
+		$existing                 = get_option( SFORGE_OPT, [] );
+		$out['form_worker_url']   = isset( $existing['form_worker_url'] ) ? esc_url_raw( $existing['form_worker_url'] ) : '';
+		$out['form_key_set']      = ! empty( $existing['form_key_set'] ) ? 1 : 0;
+
 		// React to dashboard_block toggle changes by applying / restoring the physical robots.txt.
 		if ( class_exists( 'SFORGE_Dashboard_Block' ) ) {
 			$prev = (int) ( get_option( SFORGE_OPT, [] )['dashboard_block'] ?? 1 );
@@ -229,6 +255,31 @@ class SFORGE_Settings {
 		$scheme = ( isset( $p['scheme'] ) && strtolower( $p['scheme'] ) === 'https' ) ? 'https' : 'http';
 		$port   = isset( $p['port'] ) ? ':' . (int) $p['port'] : '';
 		return $scheme . '://' . strtolower( $p['host'] ) . $port;
+	}
+
+	/**
+	 * The email-provider request body template. Kept close to verbatim (it is JSON
+	 * with {{tokens}}), only normalising line endings, stripping control chars
+	 * except tab/newline, and capping length. JSON validity is checked at deploy
+	 * time, not here, so a half-edited template can still be saved.
+	 */
+	protected function sanitize_body_template( $txt ) {
+		$txt = str_replace( [ "\r\n", "\r" ], "\n", (string) $txt );
+		$txt = preg_replace( '/[^\P{C}\n\t]+/u', '', $txt );
+		return substr( trim( $txt ), 0, 10000 );
+	}
+
+	/** Comma or newline separated field names -> a clean list of sanitised keys. */
+	protected function sanitize_field_list( $csv ) {
+		$parts = preg_split( '/[\s,]+/', (string) $csv );
+		$out   = [];
+		foreach ( (array) $parts as $p ) {
+			$k = sanitize_key( $p );
+			if ( $k !== '' && ! in_array( $k, $out, true ) ) {
+				$out[] = $k;
+			}
+		}
+		return $out;
 	}
 
 	protected function sanitize_robots( $txt ) {
@@ -285,6 +336,114 @@ class SFORGE_Settings {
 		check_admin_referer( 'sforge_action' );
 		SFORGE_Rebuild::schedule( SFORGE_Rebuild::MODE_PARTIAL, [], 'manual', 5 );
 		wp_safe_redirect( add_query_arg( [ 'page' => 'sforge', 'sforge_msg' => 'rebuild_scheduled' ], admin_url( 'admin.php' ) ) . '#sforge-activity-log' );
+		exit;
+	}
+
+	/**
+	 * Build the form handler from the saved config plus the secret(s) entered on
+	 * this request, deploy it as a standalone Worker, and remember its URL.
+	 *
+	 * The email-provider key (and Turnstile secret) arrive only in this POST and
+	 * are pushed straight to the Worker as secrets — never written to options.
+	 */
+	public function action_deploy_form() {
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_die( esc_html__( 'Forbidden', 'staticforge-for-cloudflare-pages' ) );
+		}
+		check_admin_referer( 'sforge_action' );
+
+		$key = isset( $_POST['sforge_form_key'] ) ? trim( sanitize_text_field( wp_unslash( $_POST['sforge_form_key'] ) ) ) : '';
+		$ts  = isset( $_POST['sforge_turnstile_secret'] ) ? trim( sanitize_text_field( wp_unslash( $_POST['sforge_turnstile_secret'] ) ) ) : '';
+
+		$err = $this->validate_form_config( $key, $ts );
+		if ( $err ) {
+			SFORGE_Logger::log( 'Form handler: ' . $err, 'error' );
+			$this->redirect_forms( 'form_fail' );
+		}
+
+		$config = SFORGE_Forms::worker_config();
+		$script = SFORGE_Forms::build_worker_script( $config );
+
+		$secrets = [ SFORGE_Forms::SECRET_KEY => $key ];
+		if ( ! empty( $config['turnstile'] ) ) {
+			$secrets[ SFORGE_Forms::SECRET_TURNSTILE ] = $ts;
+		}
+
+		$deployer = new SFORGE_Worker_Deployer();
+		$result   = $deployer->deploy( $script, $secrets );
+		if ( is_wp_error( $result ) ) {
+			SFORGE_Logger::log( 'Form handler deploy FAIL: ' . $result->get_error_message(), 'error' );
+			$this->redirect_forms( 'form_fail' );
+		}
+
+		$o = get_option( SFORGE_OPT, [] );
+		$o['form_worker_url']  = esc_url_raw( $result['url'] );
+		$o['form_worker_name'] = sanitize_text_field( $result['name'] );
+		$o['form_key_set']     = 1;
+		$o['form_enabled']     = 1;
+		update_option( SFORGE_OPT, $o );
+
+		SFORGE_Logger::log( sprintf(
+			'Form handler deployed: <a href="%s" target="_blank" rel="noopener">%s</a>',
+			esc_url( $result['url'] ),
+			esc_html( $result['url'] )
+		) );
+		$this->redirect_forms( 'form_deployed' );
+	}
+
+	/**
+	 * Pre-deploy validation. Returns an error string, or '' when the config is
+	 * ready to ship.
+	 */
+	protected function validate_form_config( $key, $ts ) {
+		if ( self::get( 'account_id', '' ) === '' || self::get( 'api_token', '' ) === '' ) {
+			return 'add your Cloudflare Account ID and API token first.';
+		}
+		if ( $key === '' ) {
+			return 'enter the email-provider API key to deploy (it is never stored, so re-enter it to redeploy).';
+		}
+		$endpoint = (string) self::get( 'form_endpoint', '' );
+		if ( $endpoint === '' || ! preg_match( '#^https?://#i', $endpoint ) ) {
+			return 'set a valid provider endpoint URL under Forms first.';
+		}
+		$tpl = (string) self::get( 'form_body_template', '' );
+		json_decode( $tpl, true );
+		if ( json_last_error() !== JSON_ERROR_NONE ) {
+			return 'the request body template is not valid JSON — fix it under Forms and save before deploying.';
+		}
+		if ( (int) self::get( 'form_turnstile', 0 ) && $ts === '' ) {
+			return 'Turnstile is enabled, so the Turnstile secret key is required (it is set on every deploy).';
+		}
+		return '';
+	}
+
+	/** Tear down the deployed Worker and forget its URL. */
+	public function action_remove_form() {
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_die( esc_html__( 'Forbidden', 'staticforge-for-cloudflare-pages' ) );
+		}
+		check_admin_referer( 'sforge_action' );
+
+		$deployer = new SFORGE_Worker_Deployer();
+		$result   = $deployer->delete();
+		if ( is_wp_error( $result ) ) {
+			SFORGE_Logger::log( 'Form handler removal FAIL: ' . $result->get_error_message(), 'error' );
+			$this->redirect_forms( 'form_fail' );
+		}
+
+		$o = get_option( SFORGE_OPT, [] );
+		$o['form_worker_url'] = '';
+		$o['form_key_set']    = 0;
+		$o['form_enabled']    = 0;
+		update_option( SFORGE_OPT, $o );
+
+		SFORGE_Logger::log( 'Form handler removed.' );
+		$this->redirect_forms( 'form_removed' );
+	}
+
+	/** Redirect back to the settings page with a flash message, anchored at Forms. */
+	protected function redirect_forms( $msg ) {
+		wp_safe_redirect( add_query_arg( [ 'page' => 'sforge', 'sforge_msg' => $msg ], admin_url( 'admin.php' ) ) . '#sforge-forms' );
 		exit;
 	}
 

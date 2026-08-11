@@ -3,7 +3,7 @@
  * Plugin Name: StaticForge for Cloudflare Pages
  * Plugin URI: https://github.com/gunjanjaswal/staticforge-for-cloudflare-pages
  * Description: Auto-export the entire WordPress site (posts, pages, custom post types, archives, SEO meta) as static HTML with inlined CSS, and deploy to Cloudflare Pages on every publish/update via the Direct Upload API.
- * Version: 1.7.0
+ * Version: 1.8.0
  * Author: Gunjan Jaswal
  * Author URI: https://www.gunjanjaswal.me
  * License: GPLv2 or later
@@ -21,7 +21,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'SFORGE_VERSION', '1.7.0' );
+define( 'SFORGE_VERSION', '1.8.0' );
 define( 'SFORGE_FILE', __FILE__ );
 define( 'SFORGE_DIR', plugin_dir_path( __FILE__ ) );
 define( 'SFORGE_URL', plugin_dir_url( __FILE__ ) );
@@ -39,6 +39,8 @@ require_once SFORGE_DIR . 'includes/class-sforge-profile-schema.php';
 require_once SFORGE_DIR . 'includes/class-sforge-featured-image.php';
 require_once SFORGE_DIR . 'includes/class-sforge-dashboard-block.php';
 require_once SFORGE_DIR . 'includes/class-sforge-deployer.php';
+require_once SFORGE_DIR . 'includes/class-sforge-worker-deployer.php';
+require_once SFORGE_DIR . 'includes/class-sforge-forms.php';
 require_once SFORGE_DIR . 'includes/class-sforge-assets-bundler.php';
 require_once SFORGE_DIR . 'includes/class-sforge-extra-assets.php';
 require_once SFORGE_DIR . 'includes/class-sforge-export-store.php';
@@ -107,6 +109,7 @@ add_action( 'plugins_loaded', function() {
 			'redirect_pages_dev'      => 1,
 			'render_origin'           => '',
 		];
+		$defaults = array_merge( $defaults, SFORGE_Forms::default_settings() );
 		$changed = false;
 		foreach ( $defaults as $k => $v ) {
 			if ( ! array_key_exists( $k, $o ) ) {
@@ -120,6 +123,7 @@ add_action( 'plugins_loaded', function() {
 	}
 
 	new SFORGE_Settings();
+	new SFORGE_Forms();
 	new SFORGE_Hooks();
 	new SFORGE_Post_Actions();
 	new SFORGE_Seo_Injector();
@@ -162,7 +166,7 @@ register_activation_hook( __FILE__, function() {
 			'extra_paths'        => [],
 			'redirect_pages_dev' => 1,
 			'render_origin'      => '',
-		] );
+		] + SFORGE_Forms::default_settings() );
 	}
 	if ( class_exists( 'SFORGE_Dashboard_Block' ) ) {
 		SFORGE_Dashboard_Block::on_activate();
