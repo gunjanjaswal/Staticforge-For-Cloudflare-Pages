@@ -3,8 +3,8 @@ Contributors: gunjanjaswal
 Donate link: https://ko-fi.com/gunjanjaswal
 Tags: cloudflare, static-site, deploy, seo, sitemap
 Requires at least: 5.8
-Tested up to: 7.0
-Stable tag: 1.8.0
+Tested up to: 7.1
+Stable tag: 1.8.1
 Requires PHP: 7.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -205,6 +205,24 @@ Theme CSS/JS and plugin assets still load from the origin (those rarely cause sh
 
 Verify after deploy: `curl -I https://example.com/wp-content/uploads/<any-image>.jpg` should return `HTTP 200` with `Server: cloudflare` (served by CF Pages, not your origin).
 
+= How do I ship a BIMI logo or other file that isn't linked from any page? =
+
+The crawler finds files by following the links in your rendered pages, so anything nothing links to never gets discovered. A BIMI logo is the classic case: your DNS record points straight at it, no page references it, and so it's missing from the deploy. The same goes for `ads.txt`, an `apple-app-site-association` file, a domain-verification file, `security.txt`, or a PDF you only hand out by direct link.
+
+Use **Extra paths to include** in the plugin settings (a text box, one path per line, relative to your WordPress root). Everything you list there is copied straight off disk into the deploy whether or not a page links to it.
+
+For a BIMI image, put the SVG somewhere inside your WordPress install and list its path. If you want a tidy URL like `/.well-known/bimi/logo.svg`, create a `.well-known/bimi/` folder in your WordPress root, drop the file in, and add:
+
+  .well-known/bimi/logo.svg
+
+If the exact URL doesn't matter (BIMI lets your DNS record point at any URL), the uploads folder is fine:
+
+  wp-content/uploads/bimi/logo.svg
+
+You can also list a whole folder (`wp-content/uploads/bimi`) or a wildcard (`wp-content/uploads/bimi/*.svg`) instead of naming each file. Rebuild + Deploy, and the file lands at the matching path on the live site. Then set your BIMI DNS record's location to that final URL.
+
+Two BIMI-specific notes the plugin can't do for you: the SVG must be the "SVG Tiny Portable/Secure" profile that mailbox providers require, and if you use a VMC certificate its URL goes in the `a=` tag of the same record. The plugin's job here is just making sure the file is actually there to be fetched.
+
 = After DNS cutover I can't log in to wp-admin — it bounces me to the live site. =
 
 This is the most common cutover mistake, and it also blocks redeploys. **Symptom:** clicking into wp-admin sends you to the *public* host's login, e.g. `https://example.com/wp-login.php?redirect_to=https%3A%2F%2Fdashboard.example.com%2Fwp-admin%2F...`. But `example.com` is now the static Cloudflare Pages site with no WordPress on it, so login fails — and you can't reach the plugin to redeploy.
@@ -307,6 +325,9 @@ To make forms work, point them at a static-friendly endpoint: a Cloudflare Pages
 5. Sample author archive: Person + ProfilePage schema with sameAs social links.
 
 == Changelog ==
+
+= 1.8.1 =
+* Docs: added an FAQ on shipping files that aren't linked from any page — a BIMI logo, `ads.txt`, `security.txt`, `apple-app-site-association`, a domain-verification file — using the existing **Extra paths to include** setting. Covers where to place a BIMI SVG for a `/.well-known/bimi/` URL and the SVG-profile / VMC gotchas that are on you rather than the plugin. Documentation only; no code changes.
 
 = 1.8.0 =
 * New: **Forms that email you on submit.** A static site can't process a POST, and the Direct Upload deploy can't run Cloudflare Functions, so a contact form has always meant reaching for an outside service. StaticForge now deploys a tiny standalone Cloudflare Worker for you that takes the submitted fields and hands them to your own email API. It's email-API-agnostic: pick a preset for Resend, SendGrid, Postmark or Mailgun (or wire up any other endpoint under "Custom"), and it fills in the endpoint, auth header and a request-body template you can edit. Your API key is stored as a Worker secret, never written into the page or sent to the browser. Drop `[sforge_form]` into any page to render a name/email/message form pointed at the handler. A honeypot is always on, and Cloudflare Turnstile is a one-tick add for real spam protection. New classes `SFORGE_Forms` and `SFORGE_Worker_Deployer`; new Forms settings section.

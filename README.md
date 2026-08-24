@@ -28,7 +28,7 @@ A WordPress plugin that turns your install into a headless dashboard: editors ke
 | 📝 **Editable robots.txt with auto-managed Sitemap line** | In-admin textarea. Leave blank to auto-generate, or paste your own `Allow:` / `Disallow:` rules. The `Sitemap:` line is **always auto-managed** — any directive you type is stripped and replaced with the URL that points to the actual deployed sitemap path (`sitemap.xml`, `sitemap_index.xml`, `wp-sitemap.xml`, etc.) so robots.txt never points at a dead URL. |
 | 🚧 **Dashboard auto-noindex (social-aware)** | On activation, blocks the WordPress install from search engines via 4-layer enforcement: physical `Disallow: /` robots.txt at webroot (existing file backed up), `wp_robots` filter adding `noindex,nofollow` meta, `X-Robots-Tag` HTTP header on every response, and a `robots_txt` filter for the dynamic fallback. **Social/messaging scrapers** (Facebook, LinkedIn, Twitter/X, Pinterest, WhatsApp, Slack, Discord, Telegram, Apple, Reddit, Tumblr, Mastodon, Bluesky, iframely, Embedly) are explicitly allowed `/wp-content/uploads/` so og:image previews still render when shared. Plugin's own export fetches are exempt — deployed pages remain fully indexable. Auto-restores backup robots.txt on plugin deactivation. |
 | 🛡️ **noindex stripping** | Defensive removal of `noindex` / `nofollow` / `noarchive` directives from rendered HTML — your live site stays indexable even if the dashboard is locked down. |
-| ⏱️ **Debounced auto-deploy** | Rapid edit clusters collapse into one deploy. Configurable 10s–3600s. |
+| ⏱ **Debounced auto-deploy** | Rapid edit clusters collapse into one deploy. Configurable 10s–3600s. |
 | ☁️ **Cloudflare Direct Upload** | Content-addressable upload API: only changed assets re-uploaded. No Git integration needed. No build minutes consumed. |
 | 📊 **Live progress UI** | Activity log auto-refreshes every 4 seconds with batch-by-batch telemetry, render percentages, and a status pill (Idle / Queued / Working). |
 | 📚 **Built-in Setup Guide** | Full colour-coded walk-through inside WP admin — no docs hunting. |
@@ -578,6 +578,16 @@ Means an SEO plugin we don't auto-detect is also injecting tags. Either: (a) unt
 FAQ schema needs Yoast / Rank Math / SEOPress FAQ blocks **or** `<details><summary>Question</summary>Answer</details>` markup in the content. HowTo needs a Yoast or Rank Math HowTo block, **or** a title starting with "How to" + a numbered list with 3+ items. Override with the `sforge_faq_items` / `sforge_howto_data` filters.
 </details>
 
+<details>
+<summary><b>A BIMI logo (or other unlinked file) is missing from the deploy</b></summary>
+
+The crawler only finds files that are linked from your rendered pages, so anything nothing links to never gets discovered. A BIMI logo is the classic case — your DNS record points straight at it, no page references it — and the same goes for `ads.txt`, `apple-app-site-association`, a domain-verification file, `security.txt`, or a PDF you only share by direct link.
+
+List its path in **Export Scope → Extra paths to include** (one path per line, relative to your WordPress root) and it's copied straight off disk into the deploy. For a tidy `/.well-known/bimi/logo.svg` URL, create a `.well-known/bimi/` folder in your WordPress root, drop the SVG in, and add `.well-known/bimi/logo.svg`. Or put it in uploads (`wp-content/uploads/bimi/logo.svg`) and point your DNS record at that URL instead — BIMI accepts any location. Rebuild + Deploy, then set the record's location to the final URL.
+
+BIMI-specific: the SVG must be the "SVG Tiny Portable/Secure" profile providers require, and a VMC certificate's URL goes in the record's `a=` tag. The plugin just makes sure the file is there to fetch.
+</details>
+
 ### Sitemaps & multilingual
 
 <details>
@@ -632,6 +642,10 @@ Free tier soft cap. Raise the **Debounce** setting from 120 to 600+ so bulk edit
 ---
 
 ## 📝 Changelog
+
+### 1.8.1
+
+- **Docs: shipping files that aren't linked from any page.** New FAQ covering how to include a BIMI logo, `ads.txt`, `security.txt`, `apple-app-site-association`, or a domain-verification file via the existing **Extra paths to include** setting — including where to place a BIMI SVG for a `/.well-known/bimi/` URL and the SVG-profile / VMC caveats that are on you, not the plugin. Documentation only; no code changes.
 
 ### 1.8.0
 - **New: forms that email you on submit.** A static site can't process a POST, and the Pages Direct Upload deploy can't run Cloudflare Functions, so a contact form has always meant an external service. StaticForge now generates and deploys a small **standalone Cloudflare Worker** that takes the submitted fields and forwards them to your own email API. It's email-API-agnostic: choose a preset for **Resend, SendGrid, Postmark or Mailgun** (or wire up any endpoint under **Custom**) and it fills in the endpoint, the auth header, and an editable JSON body template. Tokens like `{{name}}` / `{{email}}` are filled from the submission and `{{all_fields}}` expands to the whole message; your API key is injected from a Worker secret and never touches the page or the browser. Drop `[sforge_form]` into any page for a ready-made name/email/message form. A honeypot is always on and **Cloudflare Turnstile** is a one-tick add. New classes `SFORGE_Forms` and `SFORGE_Worker_Deployer`; new **Forms** settings section with its own deploy/remove controls.
