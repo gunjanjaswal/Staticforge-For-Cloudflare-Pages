@@ -17,6 +17,7 @@ class SFORGE_Deployer {
 	const API         = 'https://api.cloudflare.com/client/v4';
 	const BATCH_FILES = 100;        // smaller batches => visible progress + low PHP memory.
 	const BATCH_BYTES = 26214400;   // 25 MiB per batch.
+	const MAX_ASSET_BYTES = 26214400; // 25 MiB — Cloudflare Pages rejects any single file above this.
 
 	protected $jwt = null;
 
@@ -59,7 +60,7 @@ class SFORGE_Deployer {
 		}
 		$body = json_decode( wp_remote_retrieve_body( $resp ), true );
 		if ( empty( $body['success'] ) || empty( $body['result']['jwt'] ) ) {
-			$msg = $body['errors'][0]['message'] ?? 'unknown';
+			$msg = self::cf_error( $resp, $body );
 			return new WP_Error( 'sforge_cf_jwt', 'Upload token request failed: ' . $msg );
 		}
 		$this->jwt = $body['result']['jwt'];
@@ -105,12 +106,23 @@ class SFORGE_Deployer {
 		$assets   = [];
 		foreach ( $files as $path => $content ) {
 			$rel  = '/' . ltrim( str_replace( '\\', '/', $path ), '/' );
+			$size = strlen( $content );
+			if ( $size > self::MAX_ASSET_BYTES ) {
+				SFORGE_Logger::log( sprintf(
+					'Skipping "%s" (%s MB): exceeds Cloudflare\'s 25 MiB per-file limit. Host it externally (e.g. R2) or shrink it below 25 MiB.',
+					$rel, round( $size / 1048576, 1 )
+				), 'error' );
+				continue;
+			}
 			$ext  = strtolower( pathinfo( $rel, PATHINFO_EXTENSION ) );
 			$hash = self::hash_asset( $content, $ext );
 			$manifest[ $rel ] = $hash;
 			if ( ! isset( $assets[ $hash ] ) ) {
 				$assets[ $hash ] = [ 'content' => $content, 'ext' => $ext ];
 			}
+		}
+		if ( empty( $manifest ) ) {
+			return new WP_Error( 'sforge_no_files', 'No deployable files (all were empty or over Cloudflare\'s 25 MiB per-file limit).' );
 		}
 		return $this->push( $manifest, $assets );
 	}
@@ -134,7 +146,17 @@ class SFORGE_Deployer {
 		$manifest = [];
 		$assets   = [];
 		$unreadable = 0;
+		$oversized  = 0;
 		foreach ( $files as $rel => $abs ) {
+			$size = @filesize( $abs );
+			if ( $size !== false && $size > self::MAX_ASSET_BYTES ) {
+				$oversized++;
+				SFORGE_Logger::log( sprintf(
+					'Skipping "%s" (%s MB): exceeds Cloudflare\'s 25 MiB per-file limit. Host it externally (e.g. R2) or shrink it below 25 MiB.',
+					$rel, round( $size / 1048576, 1 )
+				), 'error' );
+				continue;
+			}
 			$ext  = strtolower( pathinfo( $rel, PATHINFO_EXTENSION ) );
 			$hash = self::hash_file( $abs, $ext );
 			if ( $hash === false ) {
@@ -148,6 +170,9 @@ class SFORGE_Deployer {
 		}
 		if ( $unreadable ) {
 			SFORGE_Logger::log( sprintf( '%d export file(s) could not be read and were left out of the deploy.', $unreadable ), 'warn' );
+		}
+		if ( $oversized ) {
+			SFORGE_Logger::log( sprintf( '%d file(s) were skipped for exceeding Cloudflare\'s 25 MiB per-file limit.', $oversized ), 'warn' );
 		}
 		if ( empty( $manifest ) ) {
 			return new WP_Error( 'sforge_no_files', 'No readable files in the export directory.' );
@@ -212,7 +237,7 @@ class SFORGE_Deployer {
 		}
 		$body = json_decode( wp_remote_retrieve_body( $resp ), true );
 		if ( empty( $body['success'] ) ) {
-			$msg = $body['errors'][0]['message'] ?? 'unknown';
+			$msg = self::cf_error( $resp, $body );
 			return new WP_Error( 'sforge_check_missing', 'check-missing failed: ' . $msg );
 		}
 		return is_array( $body['result'] ?? null ) ? $body['result'] : [];
@@ -299,10 +324,33 @@ class SFORGE_Deployer {
 		}
 		$body = json_decode( wp_remote_retrieve_body( $resp ), true );
 		if ( empty( $body['success'] ) ) {
-			$msg = $body['errors'][0]['message'] ?? 'unknown';
+			$msg = self::cf_error( $resp, $body );
 			return new WP_Error( 'sforge_upload', 'Asset upload failed: ' . $msg );
 		}
 		return true;
+	}
+
+	/**
+	 * Best-effort human-readable reason from a failed Cloudflare response.
+	 *
+	 * Cloudflare's normal error shape is { success:false, errors:[{message}] }, but
+	 * gateway-level failures (413 Payload Too Large, 5xx, HTML/plain-text bodies)
+	 * don't carry it. Falling back to the HTTP status turns a bare "unknown" into
+	 * something actionable, e.g. "HTTP 413 Payload Too Large".
+	 *
+	 * @param array|WP_Error $resp wp_remote_* response.
+	 * @param mixed          $body Decoded JSON body, or null when it wasn't JSON.
+	 */
+	protected static function cf_error( $resp, $body ) {
+		if ( ! empty( $body['errors'][0]['message'] ) ) {
+			return $body['errors'][0]['message'];
+		}
+		$code = (int) wp_remote_retrieve_response_code( $resp );
+		if ( $code ) {
+			$phrase = wp_remote_retrieve_response_message( $resp );
+			return 'HTTP ' . $code . ( $phrase ? ' ' . $phrase : '' );
+		}
+		return 'unknown';
 	}
 
 	protected function create_deployment( array $manifest ) {

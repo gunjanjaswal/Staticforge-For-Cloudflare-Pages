@@ -4,7 +4,7 @@ Donate link: https://ko-fi.com/gunjanjaswal
 Tags: cloudflare, static-site, deploy, seo, sitemap
 Requires at least: 5.8
 Tested up to: 7.1
-Stable tag: 1.8.1
+Stable tag: 1.8.2
 Requires PHP: 7.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -252,7 +252,8 @@ The rebuild runs on a WordPress scheduled event a few seconds after you click, s
 = A deploy started but failed — what do the upload / deploy errors mean? =
 
 * `Deploy FAIL: Request body is incorrect` — an old plugin build. v1.0.0+ sends multipart/form-data; update the plugin.
-* `Asset upload failed` — usually a single file over Cloudflare Pages' 25 MiB per-file limit (a large video / PDF), or a network timeout. Remove or relocate oversized media.
+* `Skipping "<file>" (NN MB): exceeds Cloudflare's 25 MiB per-file limit` — Cloudflare Pages rejects any single file above 25 MiB. The plugin now catches these before the upload, names the file in the log, leaves it out, and deploys the rest. Host the file externally (Cloudflare R2, an object store, a CDN) and link to it, or shrink it under 25 MiB (re-encode the video, compress the PDF, downscale the image).
+* `Asset upload failed: HTTP 4xx/5xx ...` — Cloudflare rejected the upload. The log now quotes the HTTP status when Cloudflare doesn't return a structured error (older builds showed a bare `unknown` here). `HTTP 413` means a file too large slipped through; a 5xx or a timeout is usually transient, so re-run the deploy.
 * `Deployment failed` — a Cloudflare-side rejection (the reason is quoted in the log); the common cause is more than 20,000 files in one deployment (CF Pages free-tier limit). Trim Export Scope.
 * `check-missing failed` — a transient API / token hiccup; re-run the deploy, and re-test the connection if it persists.
 
@@ -325,6 +326,11 @@ To make forms work, point them at a static-friendly endpoint: a Cloudflare Pages
 5. Sample author archive: Person + ProfilePage schema with sameAs social links.
 
 == Changelog ==
+
+= 1.8.2 =
+* Fix: oversized files no longer break a deploy with a cryptic "Asset upload failed: unknown". Cloudflare Pages rejects any single file above 25 MiB; the plugin now checks file sizes before uploading, names the offending file and its size in the activity log ("Skipping ... exceeds Cloudflare's 25 MiB per-file limit"), skips it, and deploys everything else instead of failing the whole run.
+* Improved: when Cloudflare returns an error without its usual JSON body (a 413, a 5xx, a gateway timeout), the log now shows the HTTP status — e.g. "Asset upload failed: HTTP 413 Payload Too Large" — instead of a bare "unknown", so the real cause is visible.
+* Docs: updated the deploy-error FAQ (readme + in-plugin Help) to cover the new messages and where to host files that are too big for Cloudflare Pages.
 
 = 1.8.1 =
 * Docs: added an FAQ on shipping files that aren't linked from any page — a BIMI logo, `ads.txt`, `security.txt`, `apple-app-site-association`, a domain-verification file — using the existing **Extra paths to include** setting. Covers where to place a BIMI SVG for a `/.well-known/bimi/` URL and the SVG-profile / VMC gotchas that are on you rather than the plugin. Documentation only; no code changes.

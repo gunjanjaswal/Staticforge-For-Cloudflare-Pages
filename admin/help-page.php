@@ -328,8 +328,11 @@ define( 'WP_SITEURL', 'https://dashboard.example.com' );</code></pre>
 			<dt><code>Deploy FAIL: Request body is incorrect</code></dt>
 			<dd><?php echo wp_kses_post( __( 'An old build sent the deployment as URL-encoded form data. v1.0.0+ sends <code>multipart/form-data</code>, which Cloudflare requires — update the plugin.', 'staticforge-for-cloudflare-pages' ) ); ?></dd>
 
-			<dt><code>Asset upload failed: ...</code></dt>
-			<dd><?php echo wp_kses_post( __( 'Usually a single file over Cloudflare Pages\' <strong>25&nbsp;MiB</strong> per-file limit (a large video / PDF in uploads), or a network timeout on a big batch. Remove or relocate oversized media and host it elsewhere.', 'staticforge-for-cloudflare-pages' ) ); ?></dd>
+			<dt><code>Skipping "&lt;file&gt;" (NN MB): exceeds Cloudflare's 25 MiB per-file limit</code></dt>
+			<dd><?php echo wp_kses_post( __( 'Cloudflare Pages rejects any single file above <strong>25&nbsp;MiB</strong>. The plugin now catches these before the upload, names the file in the log, leaves it out, and deploys everything else. Host the file externally (Cloudflare R2, an object store, a CDN) and link to it, or shrink it below 25&nbsp;MiB.', 'staticforge-for-cloudflare-pages' ) ); ?></dd>
+
+			<dt><code>Asset upload failed: HTTP 4xx/5xx ...</code></dt>
+			<dd><?php echo wp_kses_post( __( 'Cloudflare rejected the upload. The log quotes the HTTP status when Cloudflare returns no structured error (older builds showed a bare <code>unknown</code>). <code>HTTP 413</code> means a file too large got through; a 5xx or a timeout on a big batch is usually transient &mdash; re-run <strong>Rebuild + Deploy Now</strong>.', 'staticforge-for-cloudflare-pages' ) ); ?></dd>
 
 			<dt><code>Deployment failed: ...</code></dt>
 			<dd><?php echo wp_kses_post( __( 'A Cloudflare-side rejection; the exact reason is quoted in the log. Common cause: more than <strong>20,000 files</strong> in one deployment (CF Pages free-tier limit). Trim Export Scope, or split a very large site.', 'staticforge-for-cloudflare-pages' ) ); ?></dd>
