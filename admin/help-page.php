@@ -339,6 +339,9 @@ define( 'WP_SITEURL', 'https://dashboard.example.com' );</code></pre>
 
 			<dt><code>check-missing failed: ...</code></dt>
 			<dd><?php echo wp_kses_post( __( 'A transient Cloudflare API hiccup or a token problem mid-deploy. Re-run <strong>Rebuild + Deploy Now</strong>; if it persists, re-test the connection — the token may have been revoked.', 'staticforge-for-cloudflare-pages' ) ); ?></dd>
+
+			<dt><?php echo wp_kses_post( __( 'A page is huge (tens of MB) and blows past the 25&nbsp;MiB limit &mdash; Elementor especially', 'staticforge-for-cloudflare-pages' ) ); ?></dt>
+			<dd><?php echo wp_kses_post( __( 'Almost always a missing stylesheet that <strong>soft-404s</strong>: instead of a real 404, the server returns the homepage with a <code>200 OK</code> status. With <strong>Inline CSS</strong> on, the plugin asks for that file expecting CSS, gets a whole HTML page, and embeds it into a <code>&lt;style&gt;</code> block &mdash; a few of those and the page balloons into the tens of MB. The usual culprit is Elementor\'s cached Google Fonts (<code>wp-content/uploads/elementor/google-fonts/css/roboto-&lt;host&gt;.css</code>), which goes missing when that cache was generated under a different hostname (common after a migration or when the dashboard is on a subdomain). Since 1.8.4 the plugin refuses to inline a response that comes back as HTML, so the bloat is fixed. To also restore the fonts, go to <strong>Elementor &rarr; Tools &rarr; Regenerate CSS &amp; Data</strong>, then <strong>Rebuild + Deploy Now</strong>.', 'staticforge-for-cloudflare-pages' ) ); ?></dd>
 		</dl>
 
 		<h3><?php esc_html_e( 'Live site looks wrong', 'staticforge-for-cloudflare-pages' ); ?></h3>

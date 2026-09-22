@@ -4,7 +4,7 @@ Donate link: https://ko-fi.com/gunjanjaswal
 Tags: cloudflare, static-site, deploy, seo, sitemap
 Requires at least: 5.8
 Tested up to: 7.1
-Stable tag: 1.8.4
+Stable tag: 1.8.5
 Requires PHP: 7.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -257,6 +257,14 @@ The rebuild runs on a WordPress scheduled event a few seconds after you click, s
 * `Deployment failed` — a Cloudflare-side rejection (the reason is quoted in the log); the common cause is more than 20,000 files in one deployment (CF Pages free-tier limit). Trim Export Scope.
 * `check-missing failed` — a transient API / token hiccup; re-run the deploy, and re-test the connection if it persists.
 
+= My exported page is huge (tens of MB) and the deploy hits the 25 MiB limit. On Elementor especially. =
+
+Almost always a missing stylesheet that "soft-404s". When a CSS file no longer exists, a well-behaved server returns a 404 — but many WordPress setups instead return the homepage with a 200 "OK" status. With **Inline CSS** on, the plugin asks for that file expecting CSS and gets a whole HTML page back, then embeds the entire page into a `<style>` block. A few of those and the page balloons into the tens of megabytes.
+
+The usual culprit is Elementor's cached Google Fonts. Elementor stores them as CSS files named after your host (`wp-content/uploads/elementor/google-fonts/css/roboto-<host>.css`). If that cache was generated under a different hostname — common after a migration or when your dashboard lives on a subdomain — the old file is gone and the site serves the homepage in its place.
+
+As of 1.8.4 the plugin detects this and refuses to inline anything that comes back as HTML, so the bloat is fixed on the plugin side. To also restore the missing fonts, regenerate the cache: in WordPress go to **Elementor → Tools → Regenerate CSS & Data**. Then **Rebuild + Deploy Now**.
+
 = Some pages didn't render ("Render fail ... HTTP" / "Nothing rendered"). =
 
 The plugin fetches your own URLs via `wp_remote_get`. A few failures are harmless; many of them (or `Nothing rendered, deploy skipped.`) mean the site is blocking itself — HTTP basic auth, an IP allow-list, an aggressive WAF, Cloudflare "Under Attack" mode, or a coming-soon / maintenance plugin. Let the origin fetch itself, or pause the blocker during deploys. For an invalid / self-signed origin certificate during migration, add `add_filter( 'sforge_sslverify', '__return_false' );`.
@@ -326,6 +334,9 @@ To make forms work, point them at a static-friendly endpoint: a Cloudflare Pages
 5. Sample author archive: Person + ProfilePage schema with sameAs social links.
 
 == Changelog ==
+
+= 1.8.5 =
+* Docs: added an FAQ (readme + in-plugin Help) for the "my page is huge and blows past the 25 MiB limit" case — why a missing stylesheet that soft-404s to an HTML page causes it, Elementor's Google-fonts cache being the usual trigger, and the **Elementor → Tools → Regenerate CSS & Data** step to restore the missing file. Documentation only; the code fix shipped in 1.8.4.
 
 = 1.8.4 =
 * Fix: the **Inline CSS** option now refuses to inline a stylesheet URL that returns HTML instead of CSS. A missing stylesheet often "soft-404s" — the server answers with a 200 status and a full HTML page rather than a real 404. The classic case is Elementor's cached Google-fonts CSS (`.../uploads/elementor/google-fonts/css/roboto-<host>.css`): when that cache is regenerated under a different hostname the old file no longer exists, so the site returns the homepage for it. The plugin was embedding that entire HTML page into a `<style>` block as if it were CSS, and with several such files on a page the exported HTML ballooned to tens of megabytes — well past Cloudflare's 25 MiB per-file limit. Fetched stylesheets are now validated by content type and content, and anything that is actually HTML is skipped (the original `<link>` is left in place). If you hit this, also regenerate Elementor's font cache (Elementor → Tools → Regenerate CSS & Data) so the missing file comes back.
