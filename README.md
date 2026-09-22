@@ -6,7 +6,7 @@
 [![PHP](https://img.shields.io/badge/PHP-7.4%2B-777bb4?logo=php&logoColor=white)](https://www.php.net)
 [![Cloudflare Pages](https://img.shields.io/badge/Cloudflare%20Pages-Direct%20Upload-f38020?logo=cloudflare&logoColor=white)](https://pages.cloudflare.com)
 [![License](https://img.shields.io/badge/License-GPL--2.0%2B-success)](https://www.gnu.org/licenses/gpl-2.0.html)
-[![Version](https://img.shields.io/badge/version-1.8.2-blue)](https://github.com/gunjanjaswal/staticforge-for-cloudflare-pages/releases)
+[![Version](https://img.shields.io/badge/version-1.8.3-blue)](https://github.com/gunjanjaswal/staticforge-for-cloudflare-pages/releases)
 [![Author](https://img.shields.io/badge/by-Gunjan%20Jaswal-9333ea)](https://www.gunjanjaswal.me)
 [![Support on Ko-fi](https://img.shields.io/badge/Ko--fi-Support-FF5E5B?logo=ko-fi&logoColor=white)](https://ko-fi.com/gunjanjaswal)
 
@@ -642,6 +642,10 @@ Free tier soft cap. Raise the **Debounce** setting from 120 to 600+ so bulk edit
 ---
 
 ## 📝 Changelog
+
+### 1.8.3
+
+- **Fix: Inline CSS no longer duplicates stylesheets.** Page builders like Elementor emit the same `<link rel="stylesheet">` many times, and the plugin was embedding the full CSS body into every occurrence — e.g. inlining WordPress core's 131 KB `block-library` stylesheet **15 times** on one page, blowing the HTML up into megabytes and, on heavy pages, past Cloudflare's 25 MiB per-file limit. Each unique stylesheet is now inlined once and the duplicate `<link>` tags are dropped. Identical rendering; on a real Elementor homepage this cut the exported HTML by roughly **5x**.
 
 ### 1.8.2
 

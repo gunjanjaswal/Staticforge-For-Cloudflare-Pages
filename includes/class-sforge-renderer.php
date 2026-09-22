@@ -250,35 +250,47 @@ class SFORGE_Renderer {
 	 * Find <link rel="stylesheet" href="..."> tags in <head>, fetch each href, inline as <style>.
 	 */
 	protected function inline_stylesheets( $html, $base_url ) {
-		if ( ! preg_match_all( '#<link[^>]+rel=([\'"])stylesheet\1[^>]*?>#i', $html, $matches, PREG_SET_ORDER ) ) {
-			return $html;
-		}
-		foreach ( $matches as $m ) {
-			$tag = $m[0];
-			if ( ! preg_match( '#href=([\'"])([^\'"]+)\1#i', $tag, $hm ) ) {
-				continue;
-			}
-			$href = html_entity_decode( $hm[2], ENT_QUOTES );
-			$abs  = $this->absolute_url( $href, $base_url );
-			$css  = $this->fetch_css( $abs );
-			if ( is_wp_error( $css ) || $css === '' ) {
-				continue;
-			}
-			// Resolve url() refs inside CSS to absolute URLs against the CSS file's location.
-			$css = $this->rewrite_css_urls( $css, $abs );
-			// Defensive: strip any literal `</style` sequences (case-insensitive) so a
-			// hostile/origin-malformed stylesheet cannot break out of the inline <style> block.
-			$css = preg_replace( '#</style#i', '<\\/style', (string) $css );
-			// NOTE on wp_enqueue_style:
-			// This <style> block is written into the EXPORTED static HTML that gets
-			// uploaded to Cloudflare Pages — it is not rendered on a live WordPress
-			// request, so wp_enqueue_style()/wp_add_inline_style() are not applicable
-			// here. The plugin is producing a static deliverable; the only viable
-			// embed mechanism is a literal <style> tag in the output string.
-			$style_tag = '<style data-sforge-from="' . esc_attr( $abs ) . '">' . $css . '</style>'; // phpcs:ignore WordPress.WP.EnqueuedResources -- Embedded into exported static HTML for Cloudflare Pages deploy; no live WP enqueue path exists.
-			$html = str_replace( $tag, $style_tag, $html );
-		}
-		return $html;
+		// Inline each unique stylesheet exactly once. Page builders (Elementor, etc.)
+		// routinely emit the same <link> many times over; inlining the full CSS body
+		// into every occurrence would multiply a single 131 KB file into megabytes and
+		// can push the page past Cloudflare's 25 MiB per-file limit. So we track which
+		// resolved URLs have been inlined and drop the later duplicate <link> tags.
+		$seen = [];
+		$out  = preg_replace_callback(
+			'#<link[^>]+rel=([\'"])stylesheet\1[^>]*?>#i',
+			function ( $m ) use ( &$seen, $base_url ) {
+				$tag = $m[0];
+				if ( ! preg_match( '#href=([\'"])([^\'"]+)\1#i', $tag, $hm ) ) {
+					return $tag;
+				}
+				$href = html_entity_decode( $hm[2], ENT_QUOTES );
+				$abs  = $this->absolute_url( $href, $base_url );
+				// Already inlined this stylesheet — this is a duplicate <link>, drop it.
+				if ( isset( $seen[ $abs ] ) ) {
+					return '';
+				}
+				$css = $this->fetch_css( $abs );
+				if ( is_wp_error( $css ) || $css === '' ) {
+					return $tag; // Fetch failed — leave the original <link> so the CSS still loads.
+				}
+				$seen[ $abs ] = true;
+				// Resolve url() refs inside CSS to absolute URLs against the CSS file's location.
+				$css = $this->rewrite_css_urls( $css, $abs );
+				// Defensive: strip any literal `</style` sequences (case-insensitive) so a
+				// hostile/origin-malformed stylesheet cannot break out of the inline <style> block.
+				$css = preg_replace( '#</style#i', '<\\/style', (string) $css );
+				// NOTE on wp_enqueue_style:
+				// This <style> block is written into the EXPORTED static HTML that gets
+				// uploaded to Cloudflare Pages — it is not rendered on a live WordPress
+				// request, so wp_enqueue_style()/wp_add_inline_style() are not applicable
+				// here. The plugin is producing a static deliverable; the only viable
+				// embed mechanism is a literal <style> tag in the output string.
+				return '<style data-sforge-from="' . esc_attr( $abs ) . '">' . $css . '</style>'; // phpcs:ignore WordPress.WP.EnqueuedResources -- Embedded into exported static HTML for Cloudflare Pages deploy; no live WP enqueue path exists.
+			},
+			$html
+		);
+		// preg_replace_callback returns null only on PCRE failure; keep the original HTML if so.
+		return $out === null ? $html : $out;
 	}
 
 	protected function fetch_css( $url ) {

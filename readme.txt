@@ -4,7 +4,7 @@ Donate link: https://ko-fi.com/gunjanjaswal
 Tags: cloudflare, static-site, deploy, seo, sitemap
 Requires at least: 5.8
 Tested up to: 7.1
-Stable tag: 1.8.2
+Stable tag: 1.8.3
 Requires PHP: 7.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -326,6 +326,9 @@ To make forms work, point them at a static-friendly endpoint: a Cloudflare Pages
 5. Sample author archive: Person + ProfilePage schema with sameAs social links.
 
 == Changelog ==
+
+= 1.8.3 =
+* Fix: the **Inline CSS** option no longer inlines the same stylesheet more than once. Page builders such as Elementor emit the same `<link rel="stylesheet">` many times over, and the plugin was embedding the full CSS body into every occurrence — inlining, for example, WordPress core's 131 KB block-library stylesheet 15 times on a single page, ballooning the HTML into megabytes and, on heavy pages, past Cloudflare's 25 MiB per-file limit. Each unique stylesheet is now inlined once and the duplicate `<link>` tags are dropped. Rendered pages look identical; on a real Elementor homepage this cut the exported HTML by roughly 5x.
 
 = 1.8.2 =
 * Fix: oversized files no longer break a deploy with a cryptic "Asset upload failed: unknown". Cloudflare Pages rejects any single file above 25 MiB; the plugin now checks file sizes before uploading, names the offending file and its size in the activity log ("Skipping ... exceeds Cloudflare's 25 MiB per-file limit"), skips it, and deploys everything else instead of failing the whole run.
