@@ -311,7 +311,21 @@ class SFORGE_Renderer {
 			$this->css_cache[ $url ] = '';
 			return '';
 		}
-		$body = wp_remote_retrieve_body( $resp );
+		$body  = wp_remote_retrieve_body( $resp );
+		$ctype = strtolower( (string) wp_remote_retrieve_header( $resp, 'content-type' ) );
+		// A missing stylesheet often soft-404s to a full HTML page served with a 200
+		// status — e.g. Elementor's cached google-fonts CSS regenerated under a
+		// different host, so `roboto-<host>.css` no longer exists and the site returns
+		// the homepage instead. Inlining that page as CSS embeds a whole document (and
+		// its own stylesheets) into a <style> block, ballooning the export into
+		// megabytes. Reject anything that is actually HTML — by content-type or by a
+		// leading HTML doctype/tag — and leave the original <link> in place.
+		if ( strpos( $ctype, 'text/html' ) !== false
+			|| strpos( $ctype, 'xhtml' ) !== false
+			|| preg_match( '#^(?:\xEF\xBB\xBF)?\s*<(?:!doctype\s+html|html[\s>])#i', $body ) ) {
+			$this->css_cache[ $url ] = '';
+			return '';
+		}
 		$this->css_cache[ $url ] = $body;
 		return $body;
 	}

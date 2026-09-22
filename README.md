@@ -6,7 +6,7 @@
 [![PHP](https://img.shields.io/badge/PHP-7.4%2B-777bb4?logo=php&logoColor=white)](https://www.php.net)
 [![Cloudflare Pages](https://img.shields.io/badge/Cloudflare%20Pages-Direct%20Upload-f38020?logo=cloudflare&logoColor=white)](https://pages.cloudflare.com)
 [![License](https://img.shields.io/badge/License-GPL--2.0%2B-success)](https://www.gnu.org/licenses/gpl-2.0.html)
-[![Version](https://img.shields.io/badge/version-1.8.3-blue)](https://github.com/gunjanjaswal/staticforge-for-cloudflare-pages/releases)
+[![Version](https://img.shields.io/badge/version-1.8.4-blue)](https://github.com/gunjanjaswal/staticforge-for-cloudflare-pages/releases)
 [![Author](https://img.shields.io/badge/by-Gunjan%20Jaswal-9333ea)](https://www.gunjanjaswal.me)
 [![Support on Ko-fi](https://img.shields.io/badge/Ko--fi-Support-FF5E5B?logo=ko-fi&logoColor=white)](https://ko-fi.com/gunjanjaswal)
 
@@ -642,6 +642,10 @@ Free tier soft cap. Raise the **Debounce** setting from 120 to 600+ so bulk edit
 ---
 
 ## 📝 Changelog
+
+### 1.8.4
+
+- **Fix: Inline CSS no longer embeds an HTML page as a stylesheet.** A missing stylesheet often "soft-404s" — the server returns a **200 status with a full HTML page** instead of a real 404. The classic trigger is Elementor's cached Google-fonts CSS (`.../uploads/elementor/google-fonts/css/roboto-<host>.css`): regenerate that cache under a different hostname and the old file is gone, so the site serves the homepage for it. The plugin was inlining that whole HTML document into a `<style>` block, and a few such files pushed the exported HTML into the tens of megabytes, past Cloudflare's 25 MiB per-file limit. Fetched stylesheets are now validated by content type and body, and anything that's actually HTML is skipped (the original `<link>` stays put). If you hit this, also run **Elementor → Tools → Regenerate CSS & Data** so the missing file returns.
 
 ### 1.8.3
 

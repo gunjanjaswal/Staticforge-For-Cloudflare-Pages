@@ -4,7 +4,7 @@ Donate link: https://ko-fi.com/gunjanjaswal
 Tags: cloudflare, static-site, deploy, seo, sitemap
 Requires at least: 5.8
 Tested up to: 7.1
-Stable tag: 1.8.3
+Stable tag: 1.8.4
 Requires PHP: 7.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -326,6 +326,9 @@ To make forms work, point them at a static-friendly endpoint: a Cloudflare Pages
 5. Sample author archive: Person + ProfilePage schema with sameAs social links.
 
 == Changelog ==
+
+= 1.8.4 =
+* Fix: the **Inline CSS** option now refuses to inline a stylesheet URL that returns HTML instead of CSS. A missing stylesheet often "soft-404s" — the server answers with a 200 status and a full HTML page rather than a real 404. The classic case is Elementor's cached Google-fonts CSS (`.../uploads/elementor/google-fonts/css/roboto-<host>.css`): when that cache is regenerated under a different hostname the old file no longer exists, so the site returns the homepage for it. The plugin was embedding that entire HTML page into a `<style>` block as if it were CSS, and with several such files on a page the exported HTML ballooned to tens of megabytes — well past Cloudflare's 25 MiB per-file limit. Fetched stylesheets are now validated by content type and content, and anything that is actually HTML is skipped (the original `<link>` is left in place). If you hit this, also regenerate Elementor's font cache (Elementor → Tools → Regenerate CSS & Data) so the missing file comes back.
 
 = 1.8.3 =
 * Fix: the **Inline CSS** option no longer inlines the same stylesheet more than once. Page builders such as Elementor emit the same `<link rel="stylesheet">` many times over, and the plugin was embedding the full CSS body into every occurrence — inlining, for example, WordPress core's 131 KB block-library stylesheet 15 times on a single page, ballooning the HTML into megabytes and, on heavy pages, past Cloudflare's 25 MiB per-file limit. Each unique stylesheet is now inlined once and the duplicate `<link>` tags are dropped. Rendered pages look identical; on a real Elementor homepage this cut the exported HTML by roughly 5x.
