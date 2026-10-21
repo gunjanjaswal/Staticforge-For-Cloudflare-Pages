@@ -503,4 +503,4 @@ First public release.
 
 == About ==
 
-Built by [Gunjan Jaswal](https://www.gunjanjaswal.me). Bug reports, feedback: hello@gunjanjaswal.me.
+Built by [Gunjan Jaswal](https://gunjanjaswal.me). Bug reports, feedback: hello@gunjanjaswal.me.

@@ -5,7 +5,7 @@
  * Description: Auto-export the entire WordPress site (posts, pages, custom post types, archives, SEO meta) as static HTML with inlined CSS, and deploy to Cloudflare Pages on every publish/update via the Direct Upload API.
  * Version: 1.8.5
  * Author: Gunjan Jaswal
- * Author URI: https://www.gunjanjaswal.me
+ * Author URI: https://gunjanjaswal.me
  * License: GPLv2 or later
  * License URI: https://www.gnu.org/licenses/gpl-2.0.html
  * Text Domain: staticforge-for-cloudflare-pages

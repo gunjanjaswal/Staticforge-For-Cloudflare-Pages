@@ -7,7 +7,7 @@
 [![Cloudflare Pages](https://img.shields.io/badge/Cloudflare%20Pages-Direct%20Upload-f38020?logo=cloudflare&logoColor=white)](https://pages.cloudflare.com)
 [![License](https://img.shields.io/badge/License-GPL--2.0%2B-success)](https://www.gnu.org/licenses/gpl-2.0.html)
 [![Version](https://img.shields.io/badge/version-1.8.5-blue)](https://github.com/gunjanjaswal/staticforge-for-cloudflare-pages/releases)
-[![Author](https://img.shields.io/badge/by-Gunjan%20Jaswal-9333ea)](https://www.gunjanjaswal.me)
+[![Author](https://img.shields.io/badge/by-Gunjan%20Jaswal-9333ea)](https://gunjanjaswal.me)
 [![Support on Ko-fi](https://img.shields.io/badge/Ko--fi-Support-FF5E5B?logo=ko-fi&logoColor=white)](https://ko-fi.com/gunjanjaswal)
 
 A WordPress plugin that turns your install into a headless dashboard: editors keep using WordPress, but public visitors hit a static site living on Cloudflare's edge — fast, free, indestructible.
@@ -766,4 +766,4 @@ GPL-2.0-or-later. Same as WordPress.
 
 ## 👤 Author
 
-**Gunjan Jaswal** — [www.gunjanjaswal.me](https://www.gunjanjaswal.me) — [hello@gunjanjaswal.me](mailto:hello@gunjanjaswal.me) — [ko-fi.com/gunjanjaswal](https://ko-fi.com/gunjanjaswal)
+**Gunjan Jaswal** — [gunjanjaswal.me](https://gunjanjaswal.me) — [hello@gunjanjaswal.me](mailto:hello@gunjanjaswal.me) — [ko-fi.com/gunjanjaswal](https://ko-fi.com/gunjanjaswal)

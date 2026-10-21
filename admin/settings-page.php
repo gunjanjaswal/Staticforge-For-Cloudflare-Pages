@@ -737,7 +737,7 @@ $has_schema_seo  = $injector->schema_plugin_active();
 		<div>
 			<?php
 			/* translators: %s: author name, linked to their website. */
-			printf( wp_kses_post( __( 'Built by %s', 'staticforge-for-cloudflare-pages' ) ), '<a href="https://www.gunjanjaswal.me" target="_blank" rel="noopener">Gunjan Jaswal</a>' );
+			printf( wp_kses_post( __( 'Built by %s', 'staticforge-for-cloudflare-pages' ) ), '<a href="https://gunjanjaswal.me" target="_blank" rel="noopener">Gunjan Jaswal</a>' );
 			?> &middot;
 			<a href="mailto:hello@gunjanjaswal.me">hello@gunjanjaswal.me</a>
 		</div>

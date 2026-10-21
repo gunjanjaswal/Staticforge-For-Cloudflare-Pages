@@ -125,7 +125,7 @@ class SFORGE_Settings {
 		$screen->set_help_sidebar(
 			'<p><strong>StaticForge for Cloudflare Pages</strong></p>' .
 			/* translators: %s: author name, linked to their website. */
-			'<p>' . sprintf( __( 'By %s', 'staticforge-for-cloudflare-pages' ), '<a href="https://www.gunjanjaswal.me" target="_blank" rel="noopener">Gunjan Jaswal</a>' ) . '</p>' .
+			'<p>' . sprintf( __( 'By %s', 'staticforge-for-cloudflare-pages' ), '<a href="https://gunjanjaswal.me" target="_blank" rel="noopener">Gunjan Jaswal</a>' ) . '</p>' .
 			'<p><a href="mailto:hello@gunjanjaswal.me">hello@gunjanjaswal.me</a></p>'
 		);
 	}

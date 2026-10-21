@@ -393,7 +393,7 @@ define( 'WP_SITEURL', 'https://dashboard.example.com' );</code></pre>
 	<p class="sforge-help-credits">
 		<?php
 		/* translators: 1: plugin version, 2: author name linked to their website. */
-		printf( wp_kses_post( __( '<strong>StaticForge for Cloudflare Pages</strong> v%1$s &mdash; built by %2$s', 'staticforge-for-cloudflare-pages' ) ), esc_html( SFORGE_VERSION ), '<a href="https://www.gunjanjaswal.me" target="_blank" rel="noopener">Gunjan Jaswal</a>' );
+		printf( wp_kses_post( __( '<strong>StaticForge for Cloudflare Pages</strong> v%1$s &mdash; built by %2$s', 'staticforge-for-cloudflare-pages' ) ), esc_html( SFORGE_VERSION ), '<a href="https://gunjanjaswal.me" target="_blank" rel="noopener">Gunjan Jaswal</a>' );
 		?> &middot;
 		<a href="mailto:hello@gunjanjaswal.me">hello@gunjanjaswal.me</a>
 	</p>
