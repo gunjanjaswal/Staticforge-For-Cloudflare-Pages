@@ -171,6 +171,15 @@ $has_schema_seo  = $injector->schema_plugin_active();
 						</td>
 					</tr>
 					<tr>
+						<th scope="row"><?php esc_html_e( 'Security headers', 'staticforge-for-cloudflare-pages' ); ?></th>
+						<td>
+							<label class="sforge-cb"><input type="checkbox" name="<?php echo esc_attr( SFORGE_OPT ); ?>[security_headers]" value="1" <?php checked( ! empty( $o['security_headers'] ) ); ?>> <?php echo wp_kses_post( __( 'Ship a Cloudflare Pages <code>_headers</code> file with baseline security headers', 'staticforge-for-cloudflare-pages' ) ); ?></label>
+							<p class="description">
+								<?php echo wp_kses_post( __( 'Adds a <code>_headers</code> file to the deploy that sends <code>X-Content-Type-Options: nosniff</code>, <code>X-Frame-Options: SAMEORIGIN</code> and <code>Referrer-Policy: strict-origin-when-cross-origin</code> site-wide. Cloudflare Pages reads it natively. Tailor it with the <code>sforge_headers_file</code> filter.', 'staticforge-for-cloudflare-pages' ) ); ?>
+							</p>
+						</td>
+					</tr>
+					<tr>
 						<th scope="row"><?php echo wp_kses_post( __( 'Rewrite <code>/wp-content/</code> URLs', 'staticforge-for-cloudflare-pages' ) ); ?></th>
 						<td>
 							<label class="sforge-cb sforge-cb-danger"><input type="checkbox" name="<?php echo esc_attr( SFORGE_OPT ); ?>[rewrite_wpcontent]" value="1" <?php checked( ! empty( $o['rewrite_wpcontent'] ) ); ?>> <?php echo wp_kses_post( __( 'Also rewrite <code>/wp-content/</code> URLs (uploads, themes, plugin assets) to the live host', 'staticforge-for-cloudflare-pages' ) ); ?></label>

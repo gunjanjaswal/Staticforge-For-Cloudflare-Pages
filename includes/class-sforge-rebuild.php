@@ -212,6 +212,7 @@ class SFORGE_Rebuild {
 		$this->bundle_extra_assets( $store, $full );
 
 		$this->write_seo_files( $store, $urls );
+		$this->write_headers_file( $store );
 
 		$store->prune_html( array_keys( $expected ), $full );
 
@@ -448,6 +449,37 @@ class SFORGE_Rebuild {
 		}
 		if ( ! empty( $files ) ) {
 			SFORGE_Logger::log( 'SEO files: ' . implode( ', ', array_keys( $files ) ) );
+		}
+	}
+
+	/**
+	 * Write a Cloudflare Pages `_headers` file with sensible security headers,
+	 * when the setting is enabled. Developers can tailor it with the
+	 * `sforge_headers_file` filter.
+	 *
+	 * @param SFORGE_Export_Store $store Export store.
+	 * @return void
+	 */
+	protected function write_headers_file( SFORGE_Export_Store $store ) {
+		if ( ! SFORGE_Settings::get( 'security_headers', 0 ) ) {
+			return;
+		}
+
+		$default  = "/*\n";
+		$default .= "  X-Content-Type-Options: nosniff\n";
+		$default .= "  X-Frame-Options: SAMEORIGIN\n";
+		$default .= "  Referrer-Policy: strict-origin-when-cross-origin\n";
+
+		/**
+		 * Filter the Cloudflare Pages `_headers` file body.
+		 *
+		 * @param string $content The `_headers` file content.
+		 */
+		$content = (string) apply_filters( 'sforge_headers_file', $default );
+
+		if ( '' !== trim( $content ) ) {
+			$store->write( '_headers', $content );
+			SFORGE_Logger::log( 'Wrote _headers (security headers).' );
 		}
 	}
 }

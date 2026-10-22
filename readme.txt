@@ -4,7 +4,7 @@ Donate link: https://ko-fi.com/gunjanjaswal
 Tags: cloudflare, static-site, deploy, seo, sitemap
 Requires at least: 5.8
 Tested up to: 7.1
-Stable tag: 1.8.5
+Stable tag: 1.9.0
 Requires PHP: 7.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -335,6 +335,9 @@ To make forms work, point them at a static-friendly endpoint: a Cloudflare Pages
 
 == Changelog ==
 
+= 1.9.0 =
+* New: optional security headers. Tick it in Settings and every deploy ships a Cloudflare Pages `_headers` file that sends X-Content-Type-Options: nosniff, X-Frame-Options: SAMEORIGIN and Referrer-Policy: strict-origin-when-cross-origin for the whole site. Cloudflare Pages reads the file natively, and developers can tailor it with the `sforge_headers_file` filter. Off by default.
+
 = 1.8.5 =
 * Docs: added an FAQ (readme + in-plugin Help) for the "my page is huge and blows past the 25 MiB limit" case — why a missing stylesheet that soft-404s to an HTML page causes it, Elementor's Google-fonts cache being the usual trigger, and the **Elementor → Tools → Regenerate CSS & Data** step to restore the missing file. Documentation only; the code fix shipped in 1.8.4.
 
@@ -458,6 +461,9 @@ To make forms work, point them at a static-friendly endpoint: a Cloudflare Pages
 * Built-in Setup Guide page and WordPress contextual Help tabs.
 
 == Upgrade Notice ==
+
+= 1.9.0 =
+Adds an optional Cloudflare Pages _headers file with baseline security headers (nosniff, SAMEORIGIN, Referrer-Policy). Off by default.
 
 = 1.8.0 =
 Adds optional form handling: a form on your static site that emails submissions via your own email API (Resend, SendGrid, Postmark, Mailgun or custom), through a small Cloudflare Worker the plugin deploys. Honeypot plus optional Turnstile. Nothing changes unless you set it up.
