@@ -3,8 +3,8 @@ Contributors: gunjanjaswal
 Donate link: https://ko-fi.com/gunjanjaswal
 Tags: cloudflare, static-site, deploy, seo, sitemap
 Requires at least: 5.8
-Tested up to: 7.1
-Stable tag: 1.9.0
+Tested up to: 7.1.4
+Stable tag: 1.9.1
 Requires PHP: 7.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -334,6 +334,9 @@ To make forms work, point them at a static-friendly endpoint: a Cloudflare Pages
 5. Sample author archive: Person + ProfilePage schema with sameAs social links.
 
 == Changelog ==
+
+= 1.9.1 =
+* Tested and confirmed compatible with WordPress 7.1.4.
 
 = 1.9.0 =
 * New: optional security headers. Tick it in Settings and every deploy ships a Cloudflare Pages `_headers` file that sends X-Content-Type-Options: nosniff, X-Frame-Options: SAMEORIGIN and Referrer-Policy: strict-origin-when-cross-origin for the whole site. Cloudflare Pages reads the file natively, and developers can tailor it with the `sforge_headers_file` filter. Off by default.
