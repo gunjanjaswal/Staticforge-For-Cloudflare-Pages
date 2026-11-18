@@ -3,7 +3,7 @@ Contributors: gunjanjaswal
 Donate link: https://ko-fi.com/gunjanjaswal
 Tags: cloudflare, static-site, deploy, seo, sitemap
 Requires at least: 5.8
-Tested up to: 7.1.4
+Tested up to: 7.1.5
 Stable tag: 1.9.1
 Requires PHP: 7.4
 License: GPLv2 or later
